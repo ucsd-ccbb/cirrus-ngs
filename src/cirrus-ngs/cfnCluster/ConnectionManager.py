@@ -20,8 +20,11 @@ def connect_master(hostname, username, private_key_file):
 def execute_command(ssh_client, command):
     print "Executing {}".format(command)
     stdin , stdout, stderr = ssh_client.exec_command(command)
-    print stdout.read()
-    print stderr.read()
+    if not command == "qstat":
+        print stdout.read()
+        print stderr.read()
+    else:
+        return stdout.readlines()
 
 def copy_file(ssh_client, localpath, remotepath):
     # SCPCLient takes a paramiko transport as its only argument

@@ -2,6 +2,7 @@ __author__ = 'Guorong Xu<g1xu@ucsd.edu>'
 
 import os
 from util import YamlFileMaker
+from util import QstatParser
 from cfnCluster import ConnectionManager
 
 workspace = "/shared/workspace/WGSPipeline/"
@@ -23,8 +24,6 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
 
     #if not email == "":
 
-
-
     print("executing pipeline...")
     ConnectionManager.execute_command(ssh_client, "qsub " + workspace + "run.sh "
                                       + workspace + "yaml_examples/" + yaml_file)
@@ -32,7 +31,8 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
 ## checking your jobs status
 def check_processing_status(ssh_client):
     print("checking processing status")
-    ConnectionManager.execute_command(ssh_client, "cat " + workspace + "nohup.out")
+    qstat = ConnectionManager.execute_command(ssh_client, "qstat")
+
 
 ## checking your jobs status
 def check_jobs_status(ssh_client):
