@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Mon Jul 18 13:36:56 PDT 2016
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=SmallRNASeqPipeline.jar
+manifest.mergeall=true
+manifest.mainclass=SmallRNASeqExecutor
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=

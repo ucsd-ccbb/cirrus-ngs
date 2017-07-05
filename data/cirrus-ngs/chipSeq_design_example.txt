@@ -1,0 +1,4 @@
+## design file format
+## column 1: chip file
+## column 2: input file
+RA2284-2D-10_S2.fastq	RA2284-2D-50_S3.fastq

@@ -1,0 +1,5 @@
+## design file format
+## column 1: fastq file
+## column 2: group name
+AD5-WK24.fastq	groupA
+AD5-WK23.fastq	groupB

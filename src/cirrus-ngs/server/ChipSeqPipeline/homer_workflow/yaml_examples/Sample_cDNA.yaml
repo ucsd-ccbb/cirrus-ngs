@@ -1,0 +1,13 @@
+project: Sample_cDNA
+workflow: homer_workflow
+analysis: annotate_peaks, pos2bed, find_motifs_genome
+date: 2016/07/25
+upload: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/analysis_data/ChiPSeq
+genome: hg19
+style: histone
+---
+sample:
+  filename: RA2284-2D-10_S2.fastq, RA2284-2D-50_S3.fastq
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/ChiPSeq/RA2284
+  description: RA2284-2D-10_S2.fastq
+  group: 0

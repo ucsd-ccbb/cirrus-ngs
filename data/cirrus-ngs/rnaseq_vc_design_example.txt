@@ -1,0 +1,5 @@
+## design file format
+## column 1: fastq file
+## column 2: group name
+Sample_tRNA42488.fastq	groupA
+Sample_tRNA42491.fastq	groupA
