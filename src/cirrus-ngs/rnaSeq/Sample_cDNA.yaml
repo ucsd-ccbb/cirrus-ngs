@@ -1,0 +1,17 @@
+project: Sample_cDNA
+workflow: star_htseq_workflow
+analysis: fastqc
+date: 2016/07/26
+upload: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/analysis_data/ChiPSeq
+---
+sample:
+  filename: Sample_tRNA42488.fastq
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/ChiPSeq/RA2284
+  description: Sample_tRNA42488.fastq
+  group: groupA
+---
+sample:
+  filename: Sample_tRNA42491.fastq
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/ChiPSeq/RA2284
+  description: Sample_tRNA42491.fastq
+  group: groupB

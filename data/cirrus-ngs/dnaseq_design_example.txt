@@ -1,0 +1,5 @@
+## design file format
+## column 1: fastq file
+## column 2: group name
+Sample_cDNA93_R1.fq.gz,Sample_cDNA93_R2.fq.gz	groupA
+Sample_cDNA94_R1.fq.gz,Sample_cDNA94_R2.fq.gz	groupB

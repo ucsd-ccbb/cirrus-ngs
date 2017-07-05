@@ -1,0 +1,16 @@
+project: Sample_cDNA
+analysis: fastqc, bwa-alignment
+date: 2016/07/21
+upload: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/analysis_data/DNASeq
+---
+sample:
+  filename: Sample_cDNA93_R1.fq.gz, Sample_cDNA93_R2.fq.gz
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/DNASeq/Sample_cDNA
+  description: Sample_cDNA93
+  group: groupA
+---
+sample:
+  filename: Sample_cDNA94_R1.fq.gz, Sample_cDNA94_R2.fq.gz
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/DNASeq/Sample_cDNA
+  description: Sample_cDNA94
+  group: groupB

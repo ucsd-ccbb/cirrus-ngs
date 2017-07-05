@@ -1,0 +1,18 @@
+project: SmallRNASeq
+analysis: fastqc, bowtie-alignment, counting
+date: 2016/07/28
+upload: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/analysis_data/SmallRNASeq
+genome: hg19
+style: NA
+---
+sample:
+  filename: AD5-WK24.fastq
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/SmallRNASeq/small_dataset
+  description: AD5-WK24.fastq
+  group: groupA
+---
+sample:
+  filename: AD5-WK23.fastq
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/SmallRNASeq/small_dataset
+  description: AD5-WK23.fastq
+  group: groupB

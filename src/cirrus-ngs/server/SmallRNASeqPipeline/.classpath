@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="scripts/alignment_miRNA.jar"/>
+	<classpathentry kind="lib" path="scripts/concatenator.jar"/>
+	<classpathentry kind="lib" path="scripts/CSFastaConverter.jar"/>
+	<classpathentry kind="lib" path="scripts/fastq_trimmer.jar"/>
+	<classpathentry kind="lib" path="scripts/fastQC.jar"/>
+	<classpathentry kind="lib" path="scripts/fileselector.jar"/>
+	<classpathentry kind="lib" path="scripts/fileSpliter.jar"/>
+	<classpathentry kind="lib" path="scripts/miRNAParser.jar"/>
+	<classpathentry kind="lib" path="scripts/SmallRNASeqPipeline.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/guorongxu/Desktop/workspace/projects/eclipse/plugins/snakeyaml-1.15.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
