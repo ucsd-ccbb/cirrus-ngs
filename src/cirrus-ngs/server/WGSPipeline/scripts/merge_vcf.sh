@@ -13,11 +13,6 @@ vcfConcat=$rootdir/vcftools_0.1.12b/bin/vcf-concat
 vcfSort=$rootdir/vcftools_0.1.12b/bin/vcf-sort
 
 outputFile=$1
-byRegion=$2
-
-# redirecting all output to a file
-exec 1>>$3/$HOSTNAME"_mergevcf.o"
-exec 2>>$3/$HOSTNAME"_mergevcf.o"
 
 tmpDir=$workspace/tmp
 
@@ -35,19 +30,6 @@ for (( i=3;i<$ELEMENTS;i++)); do
     fileList=$fileList$vcfFile
 done
 
-if [ "$byRegion" == "true" ] && [ ! -f $workspace/$outputFile.raw.vcf.gz ]; then
-
-   $vcfConcat $fileList | $bgzip -c > $workspace/$outputFile.vcf.gz
-
-   $vcfSort -t $tmpDir $workspace/$outputFile.vcf.gz > $workspace/$outputFile.raw.vcf
-
-   $bgzip -c $workspace/$outputFile.raw.vcf > $workspace/$outputFile.raw.vcf.gz
+$vcfConcat $fileList | $bgzip -c > $workspace/$outputFile.final.vcf.gz
    
-fi
-
-if [ "$byRegion" == "false" ] && [ ! -f $workspace/$outputFile.final.vcf.gz ]; then
-    
-   $vcfConcat $fileList | $bgzip -c > $workspace/$outputFile.final.vcf.gz
-   
-   $tabix -p vcf $workspace/$outputFile.final.vcf.gz
-fi
+$tabix -p vcf $workspace/$outputFile.final.vcf.gz
