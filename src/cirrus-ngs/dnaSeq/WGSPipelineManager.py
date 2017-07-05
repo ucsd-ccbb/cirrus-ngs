@@ -8,7 +8,7 @@ workspace = "/shared/workspace/WGSPipeline/"
 
 ## executing WGS pipeline with the specific yaml file
 def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
-                   sample_list, group_name, s3_output_files_address):
+                   sample_list, group_name, s3_output_files_address, email):
     yaml_file = project_name + ".yaml"
 
     print("making the yaml file...")
@@ -20,6 +20,10 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
 
     ## Remove the local yaml file
     os.remove(yaml_file)
+
+    #if not email == "":
+
+
 
     print("executing pipeline...")
     ConnectionManager.execute_command(ssh_client, "qsub " + workspace + "run.sh "
