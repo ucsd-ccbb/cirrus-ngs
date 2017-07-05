@@ -1,28 +1,27 @@
 #!/bin/bash
 
-inputFile=$1
+file_name=$1
 
-# redirecting all output to a file
-exec 1>>$2/$HOSTNAME"_sortbam.o"
-exec 2>>$2/$HOSTNAME"_sortbam.o"
-
-workspace=/scratch/workspace
+workspace=/scratch/workspace/$file_name
 rootdir=/shared/workspace/software
-numThreads=16
+numThreads=8
 sambamba=$rootdir/sambamba/0.4.7/bin/sambamba
 
-tmpDir=/scratch/workspace/tmp
+# redirecting all output to a file
+exec 1>>$workspace/logs/"sort_bam.o"
+exec 2>>$workspace/logs/"sort_bam.e"
 
-echo "Sort shell is processing: $workspace/$inputFile.bam"
+tmpDir=$workspace/temp
+
+echo "Sort is processing: $workspace/$file_name.bam"
 
 ### Sort BAM File ####
-if [ ! -f $workspace/$inputFile.sort.bam ]; then
-	$sambamba sort -t $numThreads -m 4G --tmpdir $tmpDir -o $workspace/$inputFile.sort.bam $workspace/$inputFile.bam
-	
-	rm $workspace/$inputFile.bam
+if [ ! -f $workspace/$file_name.sort.bam ]; then
+        $sambamba sort -t $numThreads -m 5G --tmpdir $tmpDir -o $workspace/$file_name.sort.bam $workspace/$file_name.bam
 fi
 
-if [ ! -f $workspace/$inputFile.sort.bam.bai ]; then
-	$sambamba index -t $numThreads $workspace/$inputFile.sort.bam $workspace/$inputFile.sort.bam.bai
+if [ ! -f $workspace/$file_name.sort.bam.bai ]; then
+        $sambamba index -t $numThreads $workspace/$file_name.sort.bam $workspace/$file_name.sort.bam.bai
 fi
+
 
