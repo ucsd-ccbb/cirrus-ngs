@@ -18,6 +18,7 @@ def parse_qstat(qstat, job_name):
             elif "d" in line[4]:
                 jobs["d"] += 1
             elif "t" in line[4]: #do nothing, catching edge
+                continue
             else:
                 jobs[line[4]] += 1
 
@@ -34,4 +35,3 @@ def parse_qstat(qstat, job_name):
     zeros = [0] * len(jobs.values())
     if jobs.values() == zeros:
         print("Your \"%s\" job has finished!" % job_name)
-

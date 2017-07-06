@@ -7,6 +7,8 @@ import YamlFileReader
 root_dir = "/shared/workspace/WGSPipeline"
 data_dir = "/shared/workspace/data_archive/DNASeq"
 data_files_dir = ""
+out_log = data_dir + "/%s/logs/$JOB_NAME_$JOB_ID.o"
+err_log = data_dir + "/%s/logs/$JOB_NAME_$JOB_ID.e"
 
 ##run the actual pipeline
 def run_analysis(yaml_file):
@@ -16,7 +18,15 @@ def run_analysis(yaml_file):
     analysis_steps = documents.get("analysis")
     s3_output_files_address = documents.get("upload")
     sample_list = documents.get("sample")
-
+    
+    logs_dir = data_dir + "/%s/logs/" % project_name
+    global out_log
+    global err_log
+    out_log = out_log % project_name
+    err_log = err_log % project_name
+    
+    if not os.path.isdir(logs_dir):
+        os.makedirs(logs_dir)
     download_files(project_name, sample_list)
 
     if "fastqc" in analysis_steps:
@@ -31,13 +41,26 @@ def download_files(project_name, sample_list):
     global data_files_dir
     data_files_dir = sample_dir
 
-    print "downloading files ..."
+    if not type(data_files_dir) is str:
+        sys.exit("you messed up")
+
+    #print "downloading files ..."
 
     for sample_file in sample_list:
         split_files = sample_file.get("filename").split(",")
-        for file in split_files:
-            file = file.strip()
-            subprocess.call(["qsub", workspace + "download.sh", sample_file.get("download"), file, sample_dir])
+        for curr_file in split_files:
+            curr_file = curr_file.strip()
+
+            global out_log, err_log
+            out= open(out_log, "w+")
+            err= open(err_log, "w+")
+            out.close()
+            err.close()
+
+            subprocess.call(["qsub", "-N", curr_file.replace(".", "-") + "_download",
+                "-o", out_log, "-e", err_log, workspace + "download.sh",
+                sample_file.get("download"), curr_file, sample_dir])
+
     PBSTracker.trackPBSQueue(1, "download")
 
 #runs fastqc if in analysis steps
@@ -49,13 +72,23 @@ def run_fastqc(project_name, sample_list):
 
     for sample_file in sample_list:
         split_files = sample_file.get("filename").split(",")
-        for file in split_files:
-            file = file.strip()
-            output_file = os.path.splitext(file)[0] + "_fastqc.zip"
-            while "." in file:
-                file = os.path.splitext(file)[0]
-            file += ".fq"
-            subprocess.call(["qsub", workspace + "fastqc.sh", data_files_dir + file, sample_dir])
+        for curr_file in split_files:
+            curr_file = curr_file.strip()
+            output_file = os.path.splitext(curr_file)[0] + "_fastqc.zip"
+            while "." in curr_file:
+                curr_file = os.path.splitext(curr_file)[0]
+            curr_file += ".fq"
+            
+            global out_log, err_log
+            out_log = open(out_log, "w+")
+            err_log = open(err_log, "w+")
+            out_log.close()
+            err_log.close()
+
+            subprocess.call(["qsub", "-N", curr_file.replace(".", "-") + "_fastqc", 
+                "-o", out_log, "-e", err_log, workspace + "fastqc.sh", 
+                data_files_dir + curr_file, sample_dir])
+
     PBSTracker.trackPBSQueue(1, "fastqc")
 
 #runs bwa if in analysis steps
