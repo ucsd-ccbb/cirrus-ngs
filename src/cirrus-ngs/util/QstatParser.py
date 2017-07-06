@@ -5,27 +5,33 @@ def parse_qstat(qstat, job_name):
     #removes header line
     qstat[:] = qstat[2:]
 
-    job_count = 0
+    jobs = {"qw": 0,
+            "r" : 0,
+            "d" : 0,
+            "E" : 0}
 
     for line in qstat:
         line = line.strip().split()
-        if job in line[2]:
-            if line[4] == "qw":
-                print("Your job " + job_name + " has been queued.")
-            elif line[4] == "r":
-                print("Your job " + job_name + " is currently running.")
-                print("It was started at " + line[6] " on " + line[5])
-            elif d in line[4]:
-                print("Your job is hanging. Please delete these hanging jobs and run again.")
-            elif E in line[4]:
-                print("There has been an error with your job.")
-            else
-                print("If you can see this message I messed up.")
+        if job_name in line[2]:
+            if "E" in line[4]:
+                jobs["E"] += 1
+            elif "d" in line[4]:
+                jobs["d"] += 1
+            elif "t" in line[4]: #do nothing, catching edge
+            else:
+                jobs[line[4]] += 1
 
-
-
-
-
-
-
+    print("The status of your \"%s\" job:" % job_name)
+    print("\tThere are %d jobs currently running." % jobs["r"])
+    print("\tThere are %d jobs currently queued." % jobs["qw"])
+    if jobs["d"] > 0:
+        print("\tThere are %d jobs that are hanging." % jobs["d"])
+        print("\t\tPlease delete the hanging jobs and try again")
+    if jobs["E"] > 0:
+        print("\tThere are %d jobs that have encountered an error." % jobs["E"])
+        print("\t\tTo see an error breakdown run the error checking cell.")
+    
+    zeros = [0] * len(jobs.values())
+    if jobs.values() == zeros:
+        print("Your \"%s\" job has finished!" % job_name)
 

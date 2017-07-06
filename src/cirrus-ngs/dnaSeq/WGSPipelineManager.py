@@ -29,9 +29,10 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
                                       + workspace + "yaml_examples/" + yaml_file)
 
 ## checking your jobs status
-def check_processing_status(ssh_client):
+def check_processing_status(ssh_client, job_name):
     print("checking processing status")
     qstat = ConnectionManager.execute_command(ssh_client, "qstat")
+    QstatParser.parse_qstat(qstat, job_name)
 
 
 ## checking your jobs status
