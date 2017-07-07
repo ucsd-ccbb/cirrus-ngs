@@ -10,34 +10,33 @@ def connect_master(hostname, username, private_key_file):
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    print "connecting"
+    print("connecting")
     ssh_client.connect(hostname=hostname, username=username, pkey=private_key)
-    print "connected"
+    print("connected")
 
     return ssh_client
 
 ## executing command using the ssh client
 def execute_command(ssh_client, command):
-    print "Executing {}".format(command)
-    stdin , stdout, stderr = ssh_client.exec_command(command)
-    if not command == "qstat":
-        print stdout.read()
-        print stderr.read()
-    else:
-        return stdout.readlines()
+    print("Executing {}".format(command))
+    stdin, stdout, stderr = ssh_client.exec_command(command)
+    result = stdout.read().decode("utf-8")
+    result += stderr.read().decode("utf-8")
+
+    return result
 
 def copy_file(ssh_client, localpath, remotepath):
     # SCPCLient takes a paramiko transport as its only argument
     scp = SCPClient(ssh_client.get_transport())
-    print localpath
-    print remotepath
+    print(localpath)
+    print(remotepath)
     scp.put(localpath, remotepath)
 
 def copy_gatk(ssh_client, localpath):
     # SCPCLient takes a paramiko transport as its only argument
     scp = SCPClient(ssh_client.get_transport())
     remotepath = "/shared/workspace/software/gatk/GenomeAnalysisTK-3.3-0"
-    print "coping " + localpath + " to cluster..."
+    print("coping " + localpath + " to cluster...")
     scp.put(localpath, remotepath)
 
 ## close the ssh connection

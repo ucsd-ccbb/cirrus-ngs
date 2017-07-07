@@ -24,8 +24,8 @@ def load_design_file(design_file):
                     sample_list.append([fields[0]])
                     group_list.append(fields[1].rstrip())
 
-    print sample_list
-    print group_list
+    print(sample_list)
+    print(group_list)
 
     return sample_list, group_list
 

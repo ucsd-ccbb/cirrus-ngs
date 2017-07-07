@@ -41,9 +41,6 @@ def download_files(project_name, sample_list):
     global data_files_dir
     data_files_dir = sample_dir
 
-    if not type(data_files_dir) is str:
-        sys.exit("you messed up")
-
     #print "downloading files ..."
 
     for sample_file in sample_list:
@@ -67,6 +64,7 @@ def download_files(project_name, sample_list):
 def run_fastqc(project_name, sample_list):
     workspace = root_dir + "/scripts/"
     sample_dir = data_dir + "/" + project_name + "/FastQC/"
+    global data_files_dir
 
     print "executing fastqc..."
 
@@ -80,10 +78,10 @@ def run_fastqc(project_name, sample_list):
             curr_file += ".fq"
             
             global out_log, err_log
-            out_log = open(out_log, "w+")
-            err_log = open(err_log, "w+")
-            out_log.close()
-            err_log.close()
+            out = open(out_log, "w+")
+            err = open(err_log, "w+")
+            out.close()
+            err.close()
 
             subprocess.call(["qsub", "-N", curr_file.replace(".", "-") + "_fastqc", 
                 "-o", out_log, "-e", err_log, workspace + "fastqc.sh", 

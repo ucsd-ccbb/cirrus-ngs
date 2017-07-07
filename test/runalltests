@@ -1,0 +1,15 @@
+#!/bin/bash
+
+main_dir=`basename $1`
+
+for dir in $main_dir/test*; do
+    if [ -d $dir ]; then
+        for file in $dir/test*.py; do
+            echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+            echo $file
+            echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+            python $file
+            echo
+        done
+    fi
+done

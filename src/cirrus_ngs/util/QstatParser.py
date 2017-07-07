@@ -1,7 +1,14 @@
 __author__ = "Mustafa Guler<mguler@ucsd.edu>"
 
+def get_job_ids(qstat):
+    qstat_list = qstat.split("\n")
+    qstat_list[:] = qstat_list[2:]
+    job_ids = [[int(qstat_list[x].split()[0]), qstat_list[x].split()[4]]
+        for x in range(len(qstat_list))]
+    return job_ids
+
 ## parses qstat output to give user status information
-def parse_qstat(qstat, job_name):
+def parse_qstat(job_ids, job_name):
     #removes header line
     qstat[:] = qstat[2:]
 
@@ -35,3 +42,4 @@ def parse_qstat(qstat, job_name):
     zeros = [0] * len(jobs.values())
     if jobs.values() == zeros:
         print("Your \"%s\" job has finished!" % job_name)
+
