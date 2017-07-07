@@ -8,12 +8,12 @@ from shutil import copyfile
 config_template_file = os.getcwd().replace("notebooks", "data") + "/config"
 
 def install_cfn_cluster():
-    print "Installing cfncluster package..."
-    print os.popen("pip install cfncluster").read()
+    print("Installing cfncluster package...")
+    print(os.popen("pip install cfncluster").read())
 
 def upgrade_cfn_cluster():
-    print "Upgrading cfncluster package..."
-    print os.popen("pip install --upgrade cfncluster").read()
+    print("Upgrading cfncluster package...")
+    print(os.popen("pip install --upgrade cfncluster").read())
 
 def make_config_file():
     dir = os.path.dirname(config_template_file)
@@ -70,7 +70,7 @@ def view_cfncluster_config():
     with open(config_template_file) as fp:
         lines = fp.readlines()
         for line in lines:
-            print line[:-1]
+            print(line[:-1])
 
 ## inserting AWS access keys
 def insert_access_keys(aws_access_key_id="***",
@@ -261,7 +261,7 @@ def config_volume_size(volume_size="200"):
 
 ## listing all current cfnclusters
 def list_cfn_cluster():
-    print os.popen("cfncluster list").read()
+    print(os.popen("cfncluster list").read())
 
 ## creating a CFNCluster with the specific cluster name
 def create_cfn_cluster(cluster_name="mycluster"):
@@ -269,12 +269,12 @@ def create_cfn_cluster(cluster_name="mycluster"):
 
     response = os.popen("cfncluster status " + cluster_name).read()
     if response.find("CREATE_COMPLETE") > -1:
-        print "cluster " + cluster_name + " does exist."
+        print("cluster " + cluster_name + " does exist.")
         lines = re.split(r'\n+', response)
         for line in lines:
             if line.find("MasterPublicIP") > -1:
                 master_ip_address = line[line.find("=") + 2:-1]
-            print line
+            print(line)
 
         return master_ip_address
 
@@ -284,13 +284,13 @@ def create_cfn_cluster(cluster_name="mycluster"):
     for line in lines:
         if line.find("MasterPublicIP") > -1:
             master_ip_address = line[line.find("=") + 2:-1]
-        print line
+        print(line)
 
     return master_ip_address
 
 ## deleting the specific CFNCluster
 def delete_cfn_cluster(cluster_name="mycluster"):
-    print os.popen("cfncluster delete " + cluster_name).read()
+    print(os.popen("cfncluster delete " + cluster_name).read())
 
 if __name__ == "__main__":
     view_cfncluster_config()
