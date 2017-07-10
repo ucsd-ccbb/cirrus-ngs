@@ -1,6 +1,6 @@
 #!/bin/bash
 
-main_dir=`basename $1`
+main_dir=`basename test_cirrus_ngs/`
 
 for dir in $main_dir/test*; do
     if [ -d $dir ]; then
