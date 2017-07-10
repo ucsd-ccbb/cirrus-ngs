@@ -34,10 +34,11 @@ def copy_file(ssh_client, localpath, remotepath):
 
 def copy_gatk(ssh_client, localpath):
     # SCPCLient takes a paramiko transport as its only argument
-    scp = SCPClient(ssh_client.get_transport())
+#    scp = SCPClient(ssh_client.get_transport())
     remotepath = "/shared/workspace/software/gatk/GenomeAnalysisTK-3.3-0"
-    print("coping " + localpath + " to cluster...")
-    scp.put(localpath, remotepath)
+    copy_file(ssh_client, localpath, remotepath)
+#    print("coping " + localpath + " to cluster...")
+#    scp.put(localpath, remotepath)
 
 ## close the ssh connection
 def close_connection(ssh_client):
