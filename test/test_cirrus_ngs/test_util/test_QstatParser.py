@@ -34,7 +34,7 @@ hello
     #bug with extra entry in qstat_list not caught with first test
     #if bug reoccurs it will be caught with following test
     #extra newline in qstat is what caused prior failure
-    def test_extra_job_id(self):
+    def test_extra_entry_bug(self):
         qstat = """job-ID  prior   name       user         state submit/start at     queue                          slots ja-task-ID
 -----------------------------------------------------------------------------------------------------------------
 362 0.00000 slow.sh    ec2-user     qw    07/07/2017 18:55:45                                    1

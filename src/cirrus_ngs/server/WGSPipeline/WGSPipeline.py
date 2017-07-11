@@ -49,8 +49,8 @@ def download_files(project_name, sample_list):
             curr_file = curr_file.strip()
 
             global out_log, err_log
-            out= open(out_log, "w+")
-            err= open(err_log, "w+")
+            out = open(out_log, "w+")
+            err = open(err_log, "w+")
             out.close()
             err.close()
 
