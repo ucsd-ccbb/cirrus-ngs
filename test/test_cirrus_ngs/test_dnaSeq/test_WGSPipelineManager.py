@@ -28,9 +28,10 @@ done""")
 
         ConnectionManager.copy_file(ssh_client, localpath, remotepath)
         ConnectionManager.execute_command(ssh_client, "qsub -N tmp " + os.path.basename(localpath))
-        job_details = WGSPipelineManager.check_status(ssh_client, "tmp")
+        WGSPipelineManager.check_status(ssh_client, "tmp")
 
         #checks to makes sure only one job was found
+        #TODO fix these tests they don't work
         self.assertEqual(len(job_details), 1)
 
         pattern = """=*\njob_number.*\nexec_file.*\nsubmission_time.*
@@ -43,7 +44,6 @@ env_list.*\nscript_file.*\nbinding.*\njob_type.*\nscheduling info.*"""
         ConnectionManager.execute_command(ssh_client, "rm tmp*")
         job_num = re.search("job_number:\s*(\d*)\n", job_details[0]).group(1)
         ConnectionManager.execute_command(ssh_client, "qdel %d" % int(job_num))
-    
         
         
 

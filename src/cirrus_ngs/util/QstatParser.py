@@ -1,7 +1,15 @@
 __author__ = "Mustafa Guler<mguler@ucsd.edu>"
+import re
+import os
+import sys
 
 def get_job_ids(qstat):
+    if qstat == "\n":
+        return None
+
     qstat_list = qstat.split("\n")
+
+    #removes header lines and last entry from the extra newline
     qstat_list = qstat_list[2:-1]
 
     job_ids = [[int(qstat_list[x].split()[0]), qstat_list[x].split()[4]] 
@@ -9,36 +17,53 @@ def get_job_ids(qstat):
     return job_ids
 
 ## parses qstat output to give user status information
-def parse_qstat(job_ids, job_name):
-    #removes header line
-    qstat[:] = qstat[2:]
+def parse_qstat(job_info , job_name, logs):
 
-    jobs = {"qw": 0,
-            "r" : 0,
-            "d" : 0,
-            "E" : 0}
+    jobs = {"qw": [],
+            "r" : [],
+            "d" : [],
+            "E" : []}
 
-    for job in job_ids:
-        line = line.strip().split()
-        if job_name in line[2]:
-            if "E" in line[4]:
-                jobs["E"] += 1
-            elif "d" in line[4]:
-                jobs["d"] += 1
-            elif line[4] == "qw" or line[4] == "r":
-                jobs[line[4]] += 1
+    for job in job_info:
+        curr_job_name = re.search("job_name:\s*(\S*)", job[2]).group(1)
+        if job_name in curr_job_name:
+            if "E" in job[1]:
+                jobs["E"].append(curr_job_name)
+            elif "d" in job[1]:
+                jobs["d"].append(curr_job_name)
+            elif job[1] == "qw" or job[1] == "r":
+                jobs[job[1]].append(curr_job_name)
 
-    print("The status of your \"%s\" job:" % job_name)
-    print("\tThere are %d jobs currently running." % jobs["r"])
-    print("\tThere are %d jobs currently queued." % jobs["qw"])
-    if jobs["d"] > 0:
-        print("\tThere are %d jobs that are hanging." % jobs["d"])
+    print("\nThe status of your \"%s\" job:" % job_name)
+
+    print("There are %d jobs currently running." % len(jobs["r"]))
+    if len(jobs["r"]) > 0:
+        print("\tRunning jobs:")
+    for job in jobs["r"]:
+        print("\t\t%s" % job)
+    print("There are %d jobs currently queued." % len(jobs["qw"]))
+    if len(jobs["qw"]) > 0:
+        print("\tQueued jobs:")
+    for job in jobs["qw"]:
+        print("\t\t%s" % job)
+
+    if len(jobs["d"]) > 0:
+        print("\tThere are %d jobs that are hanging." % len(jobs["d"]))
         print("\t\tPlease delete the hanging jobs and try again")
-    if jobs["E"] > 0:
-        print("\tThere are %d jobs that have encountered an error." % jobs["E"])
-        print("\t\tTo see an error breakdown run the error checking cell.")
-    
-    zeros = [0] * len(jobs.values())
-    if jobs.values() == zeros:
+    if len(jobs["E"]) > 0:
+        print("\tThere are %d jobs that have encountered an error." % len(jobs["E"]))
+        #print("\t\tTo see an error breakdown run the error checking cell.")
+
+    job_done = False
+    for log in logs:
+        if job_name in log:
+            job_done = True
+            break
+
+    zeros = {"qw": [],
+             "r" : [],
+             "d" : [],
+             "E" : []}
+    if jobs == zeros and job_done:
         print("Your \"%s\" job has finished!" % job_name)
 
