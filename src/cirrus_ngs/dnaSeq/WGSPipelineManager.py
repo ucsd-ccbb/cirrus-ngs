@@ -7,7 +7,7 @@ from cfnCluster import ConnectionManager
 import sys
 
 workspace = "/shared/workspace/WGSPipeline/"
-log_dir = "/shared/workspace/data_archive/DNASeq/%s/logs/"
+log_dir = "/shared/workspace/data_archive/DNASeq/{0}/logs"
 
 ## executing WGS pipeline with the specific yaml file
 def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
@@ -15,7 +15,7 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
     yaml_file = project_name + ".yaml"
 
     global log_dir
-    log_dir = log_dir % project_name
+    log_dir = log_dir.format(project_name)
 
     print("making the yaml file...")
     YamlFileMaker.make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_address,
@@ -30,8 +30,8 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
     #if not email == "":
 
     print("executing pipeline...")
-    ConnectionManager.execute_command(ssh_client, "qsub " + workspace + "run.sh "
-            + workspace + "yaml_examples/" + yaml_file)
+    ConnectionManager.execute_command(ssh_client, "qsub -e /dev/null -o /dev/null " + workspace + "run.sh "
+             + workspace + "yaml_examples/" + yaml_file + " " + log_dir)
 
 
 ## checking your jobs status

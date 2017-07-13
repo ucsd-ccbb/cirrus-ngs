@@ -26,7 +26,7 @@ def execute_command(ssh_client, command):
     return result
 
 def list_dir(ssh_client, directory):
-    return execute_command(ssh_client, "ls %s" % directory).split()
+    return execute_command(ssh_client, "ls {0}".format(directory)).split()
 
 def copy_file(ssh_client, localpath, remotepath):
     # SCPCLient takes a paramiko transport as its only argument

@@ -34,7 +34,7 @@ def make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_addre
                 filename_string = filename_string + sample_name + ", "
             filewriter.write(filename_string[:-2] + "\n")
             filewriter.write("  download: " + s3_input_files_address + "\n")
-            filewriter.write("  description: " + sample[0][:sample[0].find("_R")] + "\n")
+            filewriter.write("  description: " + sample[0].split(".")[0] + "\n")
             filewriter.write("  group: " + group_list[index] + "\n")
 
 

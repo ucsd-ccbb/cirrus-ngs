@@ -5,6 +5,7 @@ sys.path.append(os.getcwd().replace("test", "src"))
 sys.path.append(sys.path[-1] + "/cirrus_ngs")
 import cirrus_ngs.dnaSeq.WGSPipelineManager as WGSPipelineManager
 import cirrus_ngs.cfnCluster.ConnectionManager as ConnectionManager
+import cirrus_ngs.util.QstatParser as QstatParser
 import tempfile
 import re
 
@@ -29,23 +30,29 @@ done""")
         ConnectionManager.copy_file(ssh_client, localpath, remotepath)
         ConnectionManager.execute_command(ssh_client, "qsub -N tmp " + os.path.basename(localpath))
         WGSPipelineManager.check_status(ssh_client, "tmp")
+        job_result = sys.stdout.getvalue().strip().split("\n")
+        for i in range(len(job_result)):
+            if job_result[i] == "":
+                job_result = job_result[i+1:]
+                break
 
-        #checks to makes sure only one job was found
-        #TODO fix these tests they don't work
-        self.assertEqual(len(job_details), 1)
+        correct_result = """The status of your "tmp" job:
+There are 0 jobs currently running.
+There are 1 jobs currently queued.
+\tQueued jobs:
+\t\ttmp"""
 
-        pattern = """=*\njob_number.*\nexec_file.*\nsubmission_time.*
-owner.*\nuid.*\ngroup.*\ngid.*\nsge_o_home.*\nsge_o_log_name.*
-sge_o_path.*\nsge_o_shell.*\nsge_o_workdir.*\nsge_o_host.*
-account.*\nmail_list.*\nnotify.*\njob_name.*\njobshare.*
-env_list.*\nscript_file.*\nbinding.*\njob_type.*\nscheduling info.*"""
-
-        self.assertNotEqual(re.match(pattern, job_details[0]), None)
+        qstat = ConnectionManager.execute_command(ssh_client, "qstat")
+        job_num = QstatParser.get_job_ids(qstat)[0][0]
+        ConnectionManager.execute_command(ssh_client, "qdel {}".format(int(job_num)))
         ConnectionManager.execute_command(ssh_client, "rm tmp*")
-        job_num = re.search("job_number:\s*(\d*)\n", job_details[0]).group(1)
-        ConnectionManager.execute_command(ssh_client, "qdel %d" % int(job_num))
-        
-        
+    
+
+        #checks to makes sure stdout matches intention
+        self.assertEqual("\n".join(job_result), correct_result)
+
+    def test_execute(self):
+        self.fail()
 
 
 if __name__ == "__main__":
