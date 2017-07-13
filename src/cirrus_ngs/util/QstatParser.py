@@ -34,24 +34,24 @@ def parse_qstat(job_info , job_name, logs):
             elif job[1] == "qw" or job[1] == "r":
                 jobs[job[1]].append(curr_job_name)
 
-    print("\nThe status of your \"%s\" job:" % job_name)
+    print("\nThe status of your \"{}\" job:".format(job_name))
 
-    print("There are %d jobs currently running." % len(jobs["r"]))
+    print("There are {} jobs currently running.".format(len(jobs["r"])))
     if len(jobs["r"]) > 0:
         print("\tRunning jobs:")
     for job in jobs["r"]:
-        print("\t\t%s" % job)
-    print("There are %d jobs currently queued." % len(jobs["qw"]))
+        print("\t\t{}".format(job))
+    print("There are {} jobs currently queued.".format(len(jobs["qw"])))
     if len(jobs["qw"]) > 0:
         print("\tQueued jobs:")
     for job in jobs["qw"]:
-        print("\t\t%s" % job)
+        print("\t\t{}".format(job))
 
     if len(jobs["d"]) > 0:
-        print("\tThere are %d jobs that are hanging." % len(jobs["d"]))
+        print("\tThere are {} jobs that are hanging.".format(len(jobs["d"])))
         print("\t\tPlease delete the hanging jobs and try again")
     if len(jobs["E"]) > 0:
-        print("\tThere are %d jobs that have encountered an error." % len(jobs["E"]))
+        print("\tThere are {} jobs that have encountered an error.".format(len(jobs["E"])))
         #print("\t\tTo see an error breakdown run the error checking cell.")
 
     job_done = False
@@ -65,5 +65,7 @@ def parse_qstat(job_info , job_name, logs):
              "d" : [],
              "E" : []}
     if jobs == zeros and job_done:
-        print("Your \"%s\" job has finished!" % job_name)
+        print("Your \"{}\" job has finished!".format(job_name))
+    elif jobs == zeros:
+        print("Your \"{}\" job has not started yet.".format(job_name))
 

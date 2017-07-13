@@ -88,9 +88,10 @@ class test_ConnectionManager(unittest.TestCase):
         self.assertRaises(FileNotFoundError, ConnectionManager.copy_file, 
                 ssh_client, "fakefile", "/home/ec2-user")
     
-    #################################################################################
-    #copy_gatk and close_connection are considered trivial methods and are not tested
-    #################################################################################
+    #########################################################################
+    #copy_gatk, list_dir, and close_connection are considered trivial methods 
+    #and are not tested
+    #########################################################################
 
 if __name__ == "__main__":
     unittest.main(module=__name__, buffer=True, exit=False)
