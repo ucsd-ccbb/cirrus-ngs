@@ -58,9 +58,6 @@ def load_chipseq_design_file(design_file):
     return sample_list, group_list
 
 if __name__ == '__main__':
-<<<<<<< HEAD
     design_file = "/home/mustafa/ccbb/cirrus-ngs/data/cirrus-ngs/dnaseq_design_example.txt"
-=======
     design_file = "/Users/guorongxu/Desktop/orlando_rnaseq_design_2.txt"
->>>>>>> c91a4d6d643a0907a5f51a4af1f27bcf51a42a8f
     load_design_file(design_file)
