@@ -1,8 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
-# redirecting all output to a file
-exec 1>>"/shared/workspace/SmallRNASeqPipeline/nohup.out"
-exec 2>>"/shared/workspace/SmallRNASeqPipeline/nohup.out"
+yaml_file=$1
+log_dir=$2
 
-nohup sh /shared/workspace/SmallRNASeqPipeline/scripts/start.sh $1 &
+# print the parameters
+echo "In run.sh"
+echo "yaml file: "$yaml_file
+echo "log_dir: "$log_dir
 
+exec 1>>$log_dir/run.log
+exec 2>>$log_dir/run.log
+
+
+python /shared/workspace/SmallRNASeqPipeline/miRNAPipeline.py $yaml_file
