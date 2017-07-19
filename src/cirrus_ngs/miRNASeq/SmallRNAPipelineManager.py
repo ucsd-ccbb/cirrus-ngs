@@ -5,26 +5,27 @@ from util import YamlFileMaker
 from cfnCluster import ConnectionManager
 
 workspace = "/shared/workspace/SmallRNASeqPipeline/"
-data_dir = "/shared/workspace/data_archive/SmallRNASeq"
+logs_dir = "/shared/workspace/data_archive/SmallRNASeq/"
 
 ## executing WGS pipeline with the specific yaml file
 def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
-                       sample_list, group_list, s3_output_files_address):
+            sample_list, group_list, s3_output_files_address):
     yaml_file = project_name + ".yaml"
-
+    
     print "making the yaml file..."
     YamlFileMaker.make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_address,
-                   sample_list, group_list, s3_output_files_address, "hg19", "NA")
-
+                                 sample_list, group_list, s3_output_files_address, "hg19", "NA")
+        
     print "copying yaml file to remote master node..."
     ConnectionManager.copy_file(ssh_client, yaml_file, workspace + "yaml_examples")
-
+                                 
     ## Remove the local yaml file
     os.remove(yaml_file)
-
+                                 
     print "executing pipeline..."
-    ConnectionManager.execute_command(ssh_client, "sh " + workspace + "run.sh "
-                                      + workspace + "yaml_examples/" + yaml_file)
+    # this keep the logs file in the logs_dir
+    ConnectionManager.execute_command(ssh_client, "qsub " + workspace + "run.sh " + workspace + "yaml_examples/" + yaml_file + " " + logs_dir)
+
 
 ## checking your jobs status
 def check_processing_status(ssh_client):
@@ -40,3 +41,5 @@ def check_jobs_status(ssh_client):
 def check_host_status(ssh_client):
     print "checking qhost status"
     ConnectionManager.execute_command(ssh_client, "qhost")
+
+
