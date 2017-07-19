@@ -24,7 +24,7 @@ unpair2_out=${file2_name//./.unpaired.}
 mkdir -p $sample_dir
 mkdir -p $full_trim_log
 
-full_trim_log=$full_trim_log/${file1_name//.*/.log}
+full_trim_log=$full_trim_log/${file1_name//.*/.trimlog}
 
 if [ "$file2_name" != "NULL" ]; then
     if [[ ! -f $sample_dir/$trim1_out && ! -f $sample_dir/$trim2_out ]]; then
@@ -40,7 +40,6 @@ if [ "$file2_name" != "NULL" ]; then
     else
         echo "Paired end trimming has already been done on $file1_name and $file2_name"
     fi
-    echo
 else
     if [ ! -f $sample_dir/$trim1_out ]; then
         echo "Performing single end trimming on $file1_name ..."
@@ -53,5 +52,11 @@ else
     else
         echo "Single end trimming has already been done on $file1_name"
     fi
-    echo
 fi
+
+##DEBUG##
+echo
+echo "dir is $sample_dir"
+echo `ls $sample_dir`
+##ENDDEBUG##
+echo

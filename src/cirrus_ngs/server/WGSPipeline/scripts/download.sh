@@ -40,4 +40,10 @@ if [ "$file2_name" != "NULL" ]; then
         echo "$file2_name has already been downloaded"
     fi
 fi
+
+##DEBUG##
+echo
+echo "dir is $sample_dir"
+echo `ls $sample_dir`
+##ENDDEBUG##
 echo
