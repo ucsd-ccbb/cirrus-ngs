@@ -1,4 +1,4 @@
-project: project_name
+project: test
 analysis: fastqc, bwa
 date: 2017/07/17
 upload: s3://ucsd-ccbb-interns/Mustafa/wgs_test/Sample_cDNA

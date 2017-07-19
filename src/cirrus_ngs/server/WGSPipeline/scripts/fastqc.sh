@@ -43,4 +43,10 @@ if [ "$file2_name" != "NULL" ]; then
         echo "FastQC analysis has already been performed on $file2_name"
     fi
 fi
+
+##DEBUG##
+echo
+echo "dir is $sample_dir"
+echo `ls $sample_dir`
+##ENDDEBUG##
 echo
