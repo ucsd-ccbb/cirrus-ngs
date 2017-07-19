@@ -19,3 +19,4 @@ echo "Clearing /scratch/ ..."
 rm -r /scratch/`basename $project_name`
 
 echo "Data has been cleared"
+echo
