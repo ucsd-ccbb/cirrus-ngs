@@ -34,9 +34,9 @@ def run_analysis(yaml_file):
     if "fastqc" in analysis_steps:
         run_fastqc(project_name, sample_list, logs_dir)
     if not "notrim" in analysis_steps:
-        trim(project_name, sample_list, logs_dir)
-    if "bwa-alignment" in analysis_steps:
-        run_bwa(project_name, sample_list)
+        run_trim(project_name, sample_list, logs_dir)
+    if "bwa" in analysis_steps:
+        run_bwa(project_name, sample_list, logs_dir)
 
 #downloads the data files
 def download_files(project_name, sample_list, logs_dir):
@@ -44,9 +44,7 @@ def download_files(project_name, sample_list, logs_dir):
 
     #print("downloading files ...")
     sample_file = sample_list[0]
-
     split_files = sample_file.get("filename").split(",")
-
     files = [split_files[x].strip() if x < len(split_files)
             else "NULL" for x in range(2)]
     
@@ -66,9 +64,7 @@ def run_fastqc(project_name, sample_list, logs_dir):
     workspace = ROOT_DIR + "/scripts/"
 
     sample_file = sample_list[0]
-
     split_files = sample_file.get("filename").split(",")
-
     files = [split_files[x].strip() if x < len(split_files)
             else "NULL" for x in range(2)]
 
@@ -77,8 +73,9 @@ def run_fastqc(project_name, sample_list, logs_dir):
 
     print("Finished performing {} FastQC analysis".format(sample_file.get("group")))
 
-def trim(project_name, sample_list, logs_dir):
+def run_trim(project_name, sample_list, logs_dir):
     workspace = ROOT_DIR + "/scripts/"
+    global DATA_DIR
 
     sample_file = sample_list[0]
     split_files = sample_file.get("filename").split(",")
@@ -88,20 +85,26 @@ def trim(project_name, sample_list, logs_dir):
     subprocess.call(["bash", workspace + "trim.sh", DATA_DIR, PROJECT_DIR,
         files[0], files[1], logs_dir])
 
+    DATA_DIR = PROJECT_DIR + "/trim"
+
     print("Finished trimming {}".format(sample_file.get("group")))
 
 #runs bwa if in analysis steps
-def run_bwa(project_name, sample_list):
-    workspace = root_dir + "/scripts/"
-    sample_dir = data_dir + "/" + project_name + "/"
+def run_bwa(project_name, sample_list, logs_dir):
+    workspace = ROOT_DIR + "/scripts/"
 
-    print "executing bwa alignment ..."
+    #print "executing bwa alignment ..."
 
-    for sample_file in sample_list:
-        split_files = sample_file.get("filename").split(",")
-        for file in split_files:
-            file = file.strip()
-            #subprocess.call(["qsub",    ])
+    sample_file = sample_list[0]
+    split_files = sample_file.get("filename").split(",")
+    files = [split_files[x].strip() if x < len(split_files)
+            else "NULL" for x in range(2)]
+
+    subprocess.call(["bash", workspace + "bwa.sh", DATA_DIR, PROJECT_DIR, files[0],
+        #files[1]
+        "NULL", logs_dir])
+
+    print("Finished aligning {}".format(sample_file.get("group")))
 
 if __name__ == "__main__":
     run_analysis(sys.argv[1])

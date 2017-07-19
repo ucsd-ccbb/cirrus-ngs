@@ -1,6 +1,6 @@
 project: project_name
-analysis: hello
-date: 2017/07/14
+analysis: fastqc, bwa
+date: 2017/07/17
 upload: s3://ucsd-ccbb-interns/Mustafa/wgs_test/Sample_cDNA
 genome: hg19
 style: NA

@@ -7,7 +7,8 @@ from cfnCluster import ConnectionManager
 import sys
 
 workspace = "/shared/workspace/WGSPipeline/"
-log_dir = "/shared/workspace/data_archive/DNASeq/{}/logs"
+#log_dir = "/shared/workspace/data_archive/DNASeq/{}/logs"
+log_dir = "/home/ec2-user/{}"
 
 ## executing WGS pipeline with the specific yaml file
 def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
