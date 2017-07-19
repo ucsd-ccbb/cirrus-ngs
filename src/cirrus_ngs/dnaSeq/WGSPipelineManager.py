@@ -7,7 +7,7 @@ from cfnCluster import ConnectionManager
 import sys
 
 workspace = "/shared/workspace/WGSPipeline/"
-log_dir = "/shared/workspace/data_archive/DNASeq/{0}/logs"
+log_dir = "/shared/workspace/data_archive/DNASeq/{}/logs"
 
 ## executing WGS pipeline with the specific yaml file
 def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
@@ -17,21 +17,22 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
     global log_dir
     log_dir = log_dir.format(project_name)
 
-    print("making the yaml file...")
-    YamlFileMaker.make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_address,
+    print("making the yaml files ...")
+    files = YamlFileMaker.make_wgs_yaml_files(yaml_file, project_name, analysis_steps, s3_input_files_address,
                    sample_list, group_name, s3_output_files_address, "hg19", "NA")
 
-    print("copying yaml file to remote master node...")
-    ConnectionManager.copy_file(ssh_client, yaml_file, workspace + "yaml_examples")
+    print("copying yaml files to remote master node...")
+    for f in files:
+        ConnectionManager.copy_file(ssh_client, f, workspace + "yaml_examples")
+        os.remove(f)
 
-    ## Remove the local yaml file
-    os.remove(yaml_file)
+    files = [workspace + "yaml_examples/" + f for f in files]
 
     #if not email == "":
 
     print("executing pipeline...")
-    ConnectionManager.execute_command(ssh_client, "qsub -e /dev/null -o /dev/null " + workspace + "run.sh "
-             + workspace + "yaml_examples/" + yaml_file + " " + log_dir)
+    ConnectionManager.execute_command(ssh_client, "qsub -e /dev/null -o /dev/null " + workspace + "scripts/" + "submit.sh "
+             + ",".join(files) + " " + log_dir)
 
 
 ## checking your jobs status

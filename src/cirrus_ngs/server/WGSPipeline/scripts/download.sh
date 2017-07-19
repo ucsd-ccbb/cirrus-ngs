@@ -1,24 +1,43 @@
 #!/bin/bash
 
 input_address=$1
-sample_file=$2
-sample_dir=$3
-log_dir=$4
+sample_dir=$2
+file1_name=$3
+file2_name=$4
+log_dir=$5
 
-sample_dir="$sample_dir/${$sample_file/\..*}"
+sample_dir="$sample_dir/${file1_name//.*/}"
 
 exec 1>>$log_dir/download.log
 exec 2>>$log_dir/download.log
 
-echo "Downloading $sample_file ..."
+if [ ! -f `sed s/"\.gz"// <<< "$sample_dir/$file1_name"` ]; then
+    echo "Downloading $file1_name ..."
+    aws s3 cp $input_address/$file1_name $sample_dir
+    if [[ $sample_dir/$file1_name == *.gz ]]; then
+        echo "Unzipping $file1_name ..."
+        gunzip $sample_dir/$file1_name
+        echo "$file1_name has been unzipped"
+    fi
+    echo "Finished downloading $file1_name"
+else
+    echo "$file1_name has already been downloaded"
+fi
+echo
 
-if [ ! -f $sample_dir/$sample_file ]; then
-    aws s3 cp $input_address/$sample_file $sample_dir
-    if [[ $sample_dir/$sample_file == *.gz ]]; then
-        echo "Unzipping $sample_file ..."
-        gunzip $sample_dir/$sample_file
-        echo "$sample_file has been unzipped"
+
+if [ "$file2_name" != "NULL" ]; then
+    if [ ! -f `sed s/"\.gz"// <<< "$sample_dir/$file2_name"` ]; then
+        echo "Downloading $file2_name ..."
+        aws s3 cp $input_address/$file2_name $sample_dir
+        if [[ $sample_dir/$file2_name == *.gz ]]; then
+            echo "Unzipping $file2_name ..."
+            gunzip $sample_dir/$file2_name
+            echo "$file2_name has been unzipped"
+        fi
+        echo "Finished downloading $file2_name"
+    else
+        echo "$file2_name has already been downloaded"
     fi
 fi
-
-echo "Finished downloading $sample_file"
+echo

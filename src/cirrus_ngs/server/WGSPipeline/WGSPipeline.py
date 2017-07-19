@@ -6,7 +6,7 @@ import YamlFileReader
 
 ROOT_DIR = "/shared/workspace/WGSPipeline"
 PROJECT_DIR = "/scratch/{}"
-DATA_DIR = PROJECT_DIR + "/{}"
+DATA_DIR = ""
 
 
 ##run the actual pipeline
@@ -21,6 +21,8 @@ def run_analysis(yaml_file):
     global PROJECT_DIR
     PROJECT_DIR = PROJECT_DIR.format(project_name)
 
+    print(PROJECT_DIR)
+
     logs_dir = ROOT_DIR.replace("WGSPipeline", "data_archive/DNASeq")
     logs_dir += "/{}/logs".format(project_name)
     
@@ -30,7 +32,9 @@ def run_analysis(yaml_file):
     download_files(project_name, sample_list, logs_dir)
 
     if "fastqc" in analysis_steps:
-        run_fastqc(project_name, sample_list)
+        run_fastqc(project_name, sample_list, logs_dir)
+    if not "notrim" in analysis_steps:
+        trim(project_name, sample_list, logs_dir)
     if "bwa-alignment" in analysis_steps:
         run_bwa(project_name, sample_list)
 
@@ -39,52 +43,52 @@ def download_files(project_name, sample_list, logs_dir):
     workspace = ROOT_DIR + "/scripts/"
 
     #print("downloading files ...")
+    sample_file = sample_list[0]
 
-    for sample_file in sample_list:
-        split_files = [curr_file.strip() for curr_file in 
-                sample_file.get("filename").split(",")]
+    split_files = sample_file.get("filename").split(",")
 
-        global DATA_DIR
-        DATA_DIR = DATA_DIR.format(split_files[0].split(".")[0])
-        
-        if not os.path.isdir(DATA_DIR):
-            os.makedirs(DATA_DIR)
+    files = [split_files[x].strip() if x < len(split_files)
+            else "NULL" for x in range(2)]
+    
+    global DATA_DIR, PROJECT_DIR
+    DATA_DIR = PROJECT_DIR + "/" + split_files[0].split(".")[0]
+    
+    if not os.path.isdir(DATA_DIR):
+        os.makedirs(DATA_DIR)
 
-        for curr_file in split_files:
-            subprocess.call(["qsub", "-N", "download_" + curr_file.split(".")[0],
-                workspace + "download.sh", sample_file.get("download"), 
-                curr_file, DATA_DIR, logs_dir])
+    subprocess.call(["bash", workspace + "download.sh", sample_file.get("download"), 
+        PROJECT_DIR, files[0], files[1], logs_dir])
 
-    PBSTracker.trackPBSQueue(1, "download")
+    print("Finished downloading {} files".format(sample_list[0].get("group")))
 
 #runs fastqc if in analysis steps
-def run_fastqc(project_name, sample_list):
-    workspace = root_dir + "/scripts/"
-    sample_dir = data_dir + "/" + project_name + "/FastQC/"
-    global data_files_dir
+def run_fastqc(project_name, sample_list, logs_dir):
+    workspace = ROOT_DIR + "/scripts/"
 
-    print "executing fastqc..."
+    sample_file = sample_list[0]
 
-    for sample_file in sample_list:
-        split_files = sample_file.get("filename").split(",")
-        for curr_file in split_files:
-            curr_file = curr_file.strip()
-            output_file = os.path.splitext(curr_file)[0] + "_fastqc.zip"
-            while "." in curr_file:
-                curr_file = os.path.splitext(curr_file)[0]
-            curr_file += ".fq"
-            
-            global out_log, err_log
-            out = open(out_log, "w+")
-            err = open(err_log, "w+")
-            out.close()
-            err.close()
+    split_files = sample_file.get("filename").split(",")
 
-            subprocess.call(["qsub", "-N", curr_file.replace(".", "-") + "_fastqc", 
-                "-o", out_log, "-e", err_log, workspace + "fastqc.sh", 
-                data_files_dir + curr_file, sample_dir])
+    files = [split_files[x].strip() if x < len(split_files)
+            else "NULL" for x in range(2)]
 
-    PBSTracker.trackPBSQueue(1, "fastqc")
+    subprocess.call(["bash", workspace + "fastqc.sh", DATA_DIR, PROJECT_DIR, files[0],
+        files[1], logs_dir])
+
+    print("Finished performing {} FastQC analysis".format(sample_file.get("group")))
+
+def trim(project_name, sample_list, logs_dir):
+    workspace = ROOT_DIR + "/scripts/"
+
+    sample_file = sample_list[0]
+    split_files = sample_file.get("filename").split(",")
+    files = [split_files[x].strip() if x < len(split_files)
+            else "NULL" for x in range(2)]
+
+    subprocess.call(["bash", workspace + "trim.sh", DATA_DIR, PROJECT_DIR,
+        files[0], files[1], logs_dir])
+
+    print("Finished trimming {}".format(sample_file.get("group")))
 
 #runs bwa if in analysis steps
 def run_bwa(project_name, sample_list):

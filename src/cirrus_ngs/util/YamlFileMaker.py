@@ -40,4 +40,33 @@ def make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_addre
 
     filewriter.close()
 
+def make_wgs_yaml_files(yaml_file, project_name, analysis_steps, 
+        s3_input_files_address, sample_list, group_list, 
+        s3_output_files_address, genome, style):
 
+    project_string = "project: " + project_name + "\n"
+    analysis_string = "analysis: " + ", ".join(analysis_steps) + "\n"
+    date_string = "date: " + time.strftime("%Y/%m/%d") + "\n"
+    upload_string = "upload: " + s3_output_files_address + "\n"
+    genome_string = "genome: " + genome + "\n"
+    style_string = "style: " + style + "\n"
+
+    file_names = []
+
+    for index, sample in enumerate(sample_list):
+        with open(yaml_file.replace(".yaml", "_{}.yaml".format(group_list[index])), "w") as yaml:
+            file_names.append(yaml.name)
+            yaml.write(project_string)
+            yaml.write(analysis_string)
+            yaml.write(date_string)
+            yaml.write(upload_string)
+            yaml.write(genome_string)
+            yaml.write(style_string)
+            yaml.write("---\n")
+            yaml.write("sample:\n")
+            yaml.write("  filename: " + ", ".join(sample) + "\n")
+            yaml.write("  download: " + s3_input_files_address + "\n")
+            yaml.write("  description: " + sample[0].split(".")[0] + "\n")
+            yaml.write("  group: " + group_list[index] + "\n")
+
+    return file_names
