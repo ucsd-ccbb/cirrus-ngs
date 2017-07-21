@@ -2,6 +2,7 @@ __author__ = 'Guorong Xu<g1xu@ucsd.edu>'
 
 import re
 
+
 ## load design file
 def load_design_file(design_file):
     sample_list = []
@@ -28,6 +29,7 @@ def load_design_file(design_file):
     print(group_list)
     
     return sample_list, group_list
+
 
 ## load chipseq design file
 def load_chipseq_design_file(design_file):
@@ -56,6 +58,7 @@ def load_chipseq_design_file(design_file):
                     group_list.append([fields[0], fields[1].rstrip()])
 
     return sample_list, group_list
+
 
 if __name__ == '__main__':
     design_file = "/home/mustafa/ccbb/cirrus-ngs/data/cirrus-ngs/dnaseq_design_example.txt"
