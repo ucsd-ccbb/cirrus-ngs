@@ -1,3 +1,0 @@
-#!/bin/bash
-
-scp -r -i ~/interns_oregon_key.pem $1 $aws:/shared/workspace

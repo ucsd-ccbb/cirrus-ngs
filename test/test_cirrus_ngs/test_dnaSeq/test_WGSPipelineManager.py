@@ -9,11 +9,15 @@ import cirrus_ngs.util.QstatParser as QstatParser
 import tempfile
 import re
 
+##THIS TEST WILL NOT RUN##
+
 class test_WGSPipelineManager(unittest.TestCase):
     def test_check_status(self):
-        hostname = "35.162.87.9"
+        #ip
+        hostname = ""
         username = "ec2-user"
-        key = "/home/mustafa/interns_oregon_key.pem"
+        #key path
+        key = ""
         ssh_client = ConnectionManager.connect_master(hostname, username, key)
 
         temp = tempfile.NamedTemporaryFile(mode="w+", delete=False)

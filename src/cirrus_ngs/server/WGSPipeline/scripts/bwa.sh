@@ -1,15 +1,13 @@
 #!/bin/bash
 
-input_dir=$1
-sample_dir=$2
+sample_dir=$1
+upload_dir=$2
 file1_name=$3
 file2_name=$4
 log_dir=$5
 
 exec 1>>$log_dir/bwa.log
 exec 2>>$log_dir/bwa.log
-
-sample_dir="$sample_dir/bwa"
 
 file1_name=${file1_name//.gz/}
 file1_name=${file1_name//./.trim.}
@@ -30,9 +28,10 @@ if [ "$file2_name" == "NULL" ]; then
         echo "Performing single end alignment for $file1_name ..."
 
         $bwa mem -M -t 8 -R "@RG\tID:1\tPL:temp\tPU:tempID\tSM:tempPheno" -v 1 \
-            $genome $input_dir/$file1_name | $samblaster | $samtools view \
+            $genome $sample_dir/$file1_name | $samblaster | $samtools view \
             -Sb - > $sample_dir/$output
 
+        echo
         echo "Finished single end alignment for $file1_name"
     else
         echo "Single end alignment has already been performed for $file1_name"
@@ -42,16 +41,28 @@ else
         echo "Performing paired end alignment for $file1_name and $file2_name ..."
 
         $bwa mem -M -t 8 -R "@RG\tID:1\tPL:temp\tPU:tempID\tSM:tempPheno" -v 1 \
-            $genome $input_dir/$file1_name $input_dir/$file2_name | \
+            $genome $sample_dir/$file1_name $sample_dir/$file2_name | \
             $samblaster | $samtools view -Sb - > $sample_dir/$output
 
+        echo
         echo "Finished paired end alignment for $file1_name and $file2_name"
     else
         echo "Paired end alignment has already been performed for $file1_name and $file2_name"
     fi
 fi
 
+rm $sample_dir/*.fq
+
+echo
+echo "Uploading aligned file to $upload_dir"
+echo
+sed "s/\r/\n/g" <<< `aws s3 sync --exclude *.fq $sample_dir $upload_dir`
+echo
+echo "Finished uploading aligned file"
+
+
 ##DEBUG##
+echo
 echo "dir is $sample_dir"
 echo `ls $sample_dir`
 ##ENDDEBUG## 
