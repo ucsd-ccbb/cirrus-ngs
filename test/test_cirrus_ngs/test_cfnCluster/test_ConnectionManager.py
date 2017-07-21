@@ -7,6 +7,8 @@ import paramiko
 import tempfile
 import re
 
+##THIS TEST WILL NOT WORK##
+
 class test_ConnectionManager(unittest.TestCase):
     def test_paramiko(self):
         key_file = tempfile.NamedTemporaryFile()
@@ -15,14 +17,16 @@ class test_ConnectionManager(unittest.TestCase):
         self.assertRaises(paramiko.SSHException, paramiko.RSAKey.from_private_key_file, key_file.name)
 
         key_file.close()
-        new_key = "/home/mustafa/interns_oregon_key.pem"
+        #key path
+        new_key = ""
 
         #checks to make sure a real key file works. will not be portable
         #leaving my ssh key for users to download for tests seems not smart
         paramiko.RSAKey.from_private_key_file(new_key)
 
     def test_connect_master(self):
-        hostname = "35.162.87.9"
+        #ip
+        hostname = ""
         username = "ec2-user"
         key_file = tempfile.NamedTemporaryFile()
         key_file.write(b"not_a_key")
@@ -32,7 +36,8 @@ class test_ConnectionManager(unittest.TestCase):
         key_file.close()
 
         #this won't even work elsewhere but I don't want to put my keyfile into the eepo
-        new_key = "/home/mustafa/interns_oregon_key.pem"
+        #key path
+        new_key = ""
         ConnectionManager.connect_master(hostname, username, new_key)
 
         #checks if last line in the standard output is "connected"
@@ -48,9 +53,11 @@ class test_ConnectionManager(unittest.TestCase):
         self.assertEqual(1, num_connecting)
 
     def test_execute_command(self):
-        hostname = "35.162.87.9"
+        #ip
+        hostname = ""
         username = "ec2-user"
-        key = "/home/mustafa/interns_oregon_key.pem"
+        #key path
+        key = ""
         ssh_client = ConnectionManager.connect_master(hostname, username, key)
         command = "pwd"
 
@@ -63,9 +70,11 @@ class test_ConnectionManager(unittest.TestCase):
         self.assertRaises(AttributeError, ConnectionManager.execute_command, ssh_client, command)
 
     def test_copy_file(self):
-        hostname = "35.162.87.9"
+        #ip
+        hostname = ""
         username = "ec2-user"
-        key = "/home/mustafa/interns_oregon_key.pem"
+        #key path
+        key = ""
         ssh_client = ConnectionManager.connect_master(hostname, username, key)
         
         temp = tempfile.NamedTemporaryFile()
