@@ -6,7 +6,7 @@ import re
 def load_design_file(design_file):
     sample_list = []
     group_list = []
-
+    
     with open(design_file, 'r+') as f:
         lines = f.readlines()
         for line in lines:
@@ -26,7 +26,7 @@ def load_design_file(design_file):
 
     print(sample_list)
     print(group_list)
-
+    
     return sample_list, group_list
 
 ## load chipseq design file
@@ -34,7 +34,7 @@ def load_chipseq_design_file(design_file):
     sample_hash = {}
     sample_list = []
     group_list = []
-
+    
     with open(design_file, 'r+') as f:
         lines = f.readlines()
         for line in lines:
@@ -58,9 +58,7 @@ def load_chipseq_design_file(design_file):
     return sample_list, group_list
 
 if __name__ == '__main__':
-<<<<<<< HEAD
     design_file = "/home/mustafa/ccbb/cirrus-ngs/data/cirrus-ngs/dnaseq_design_example.txt"
-=======
+    design_file = "/Users/Miko/Desktop/cirrus-ngs/data/cirrus-ngs/smallrnaseq_design_example.txt"
     design_file = "/Users/guorongxu/Desktop/orlando_rnaseq_design_2.txt"
->>>>>>> c91a4d6d643a0907a5f51a4af1f27bcf51a42a8f
     load_design_file(design_file)
