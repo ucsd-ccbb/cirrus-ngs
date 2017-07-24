@@ -10,11 +10,6 @@ software_dir=/shared/workspace/software
 workspace=$file_path/$project_name
 trimmo_path=$software_dir/Trimmomatic-0.36/trimmomatic-0.36.jar
 
-echo "This is in trim.sh "
-echo $file_suffix
-echo $file1_name
-echo $file2_name
-
 if [ ! -d $workspace/$file1_name ]; then
    mkdir -p $workspace/$file1_name
 fi

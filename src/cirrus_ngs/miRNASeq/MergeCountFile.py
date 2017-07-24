@@ -18,7 +18,7 @@ def parse(count_file_dir):
     total_file_num = len(count_file_list)
 
     for count_index, count_file in enumerate(count_file_list):
-        print "system is processing " + count_file
+        print ("system is processing " , count_file)
         with open(count_file, 'r+') as f:
             lines = f.readlines()
             for line in lines:

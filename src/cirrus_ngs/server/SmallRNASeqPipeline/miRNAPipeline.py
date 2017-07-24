@@ -84,8 +84,8 @@ def run_fastqc(project_name, file_suffix, file_dir, file1_name, file2_name, geno
 # run trimmomatic
 def run_trimmomatic(project_name, file_suffix, file_dir, file1_name, file2_name):
     print("executing trimmomatic...")
-    print "file1: ", file1_name
-    print "file2: ", file2_name
+    print("file1: ", file1_name)
+    print("file2: ", file2_name)
     subprocess.call(['qsub', scripts + "trim.sh",
                     project_name, file_suffix, file_dir, file1_name, file2_name])
 
