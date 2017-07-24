@@ -26,12 +26,12 @@ def trackPBSQueue(minutes, shell_script):
         if index > 0:
             if index != jobs:
                 jobs = index
-                print ""
-                print str(index) + " job(s) are running..."
+                print ("")
+                print (str(index) , " job(s) are running...")
 
         if is_done:
-            print ""
-            print "No jobs are running..."
+            print ("")
+            print ("No jobs are running...")
             break
 
 def isDone(qstat_job):

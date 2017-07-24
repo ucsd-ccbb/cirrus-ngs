@@ -1,6 +1,6 @@
 .gitignore
 private_miRNAPipeline.ipynb
-
+*.yaml
 =======
 >>>>>>> a8bebe0404c79f66a6343a2e1b17a83a4d404e90
 

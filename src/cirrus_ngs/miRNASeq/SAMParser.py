@@ -8,7 +8,7 @@ def parse(sam_file):
     mirna_list = {}
     filewriter = open(sam_file[:-4] + ".counts.txt", "w")
 
-    print "system is processing " + sam_file
+    print ("system is processing " , sam_file)
     with open(sam_file, 'r+') as f:
         lines = f.readlines()
         for line in lines:
