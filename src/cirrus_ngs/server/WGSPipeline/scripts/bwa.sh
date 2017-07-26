@@ -1,70 +1,69 @@
 #!/bin/bash
 
-sample_dir=$1
-upload_dir=$2
-file1_name=$3
-file2_name=$4
-log_dir=$5
+project_name=$1
+file_suffix=$2  #extension of input file, does not include .gz if present in input
+root_dir=$3
+fastq_end1=$4
+fastq_end2=$5
+input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
+output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
+log_dir=$8
+is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 
-exec 1>>$log_dir/bwa.log
-exec 2>>$log_dir/bwa.log
+#logging
+mkdir -p $log_dir
+log_file=$log_dir/'bwa.log'
+exec 1>>$log_file
+exec 2>>$log_file
 
-file1_name=${file1_name//.gz/}
-file1_name=${file1_name//./.trim.}
-file2_name=${file2_name//.gz/}
-file2_name=${file2_name//./.trim.}
+#prepare output directories
+workspace=$root_dir/$project_name/$fastq_end1
+software_dir=/shared/workspace/software
+genome=$software_dir/genomes/Hsapiens/bwa/ucsc.hg19.fasta
+bwa=$software_dir/bwa/bwa-0.7.12/bwa
+samblaster=$software_dir/samblaster/samblaster
+samtools=$software_dir/samtools/samtools-1.1/samtools
+mkdir -p $workspace
 
-output=${file1_name//.*/.bam}
+##DOWNLOAD##
+if [ ! -f $workspace/$fastq_end1.trim$file_suffix ]
+then
+    #this is the suffix of the input from s3
+    download_suffix=.trim$file_suffix
 
-genome=/shared/workspace/software/genomes/Hsapiens/bwa/ucsc.hg19.fasta
-bwa=/shared/workspace/software/bwa/bwa-0.7.12/bwa
-samblaster=/shared/workspace/software/samblaster/samblaster
-samtools=/shared/workspace/software/samtools/samtools-1.1/samtools
-
-mkdir -p $sample_dir
-
-if [ "$file2_name" == "NULL" ]; then
-    if [ ! -f $sample_dir/$output ]; then
-        echo "Performing single end alignment for $file1_name ..."
-
-        $bwa mem -M -t 8 -R "@RG\tID:1\tPL:temp\tPU:tempID\tSM:tempPheno" -v 1 \
-            $genome $sample_dir/$file1_name | $samblaster | $samtools view \
-            -Sb - > $sample_dir/$output
-
-        echo
-        echo "Finished single end alignment for $file1_name"
-    else
-        echo "Single end alignment has already been performed for $file1_name"
+    #changes extension if S3 input is zipped
+    if [ "$is_zipped" == "True" ]
+    then
+        download_suffix=$file_suffix".gz"
     fi
-else
-    if [ ! -f $sample_dir/$output ]; then
-        echo "Performing paired end alignment for $file1_name and $file2_name ..."
 
-        $bwa mem -M -t 8 -R "@RG\tID:1\tPL:temp\tPU:tempID\tSM:tempPheno" -v 1 \
-            $genome $sample_dir/$file1_name $sample_dir/$file2_name | \
-            $samblaster | $samtools view -Sb - > $sample_dir/$output
+    #always download forward reads
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    gunzip -q $workspace/$fastq_end1$download_suffix
 
-        echo
-        echo "Finished paired end alignment for $file1_name and $file2_name"
-    else
-        echo "Paired end alignment has already been performed for $file1_name and $file2_name"
+    #download reverse reads if they exist
+    if [ "$fastq_end2" != "NULL" ]
+    then
+        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
+        gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
-
-rm $sample_dir/*.fq
-
-echo
-echo "Uploading aligned file to $upload_dir"
-echo
-sed "s/\r/\n/g" <<< `aws s3 sync --exclude *.fq $sample_dir $upload_dir`
-echo
-echo "Finished uploading aligned file"
+##END_DOWNLOAD##
 
 
-##DEBUG##
-echo
-echo "dir is $sample_dir"
-echo `ls $sample_dir`
-##ENDDEBUG## 
+##ALIGN##
+if [ "fastq_end2" == "NULL" ]
+then
+    $bwa mem -M -t 8 -R "@RG\tID:1\tPL:temp\tPU:tempID\tSM:tempPheno" -v 1 \
+        $genome $workspace/$fastq_end1.trim$file_suffix | $samblaster | \
+        $samtools view -Sb - > $workspace/$fastq_end1.bam
+else
+    $bwa mem -M -t 8 -R "@RG\tID:1\tPL:temp\tPU:tempID\tSM:tempPheno" -v 1 \
+        $genome $workspace/$fastq_end1.trim$file_suffix \
+        $workspace/$fastq_end2.trim$file_suffix | $samblaster | \
+        $samtools view -Sb - > $workspace/$fastq_end1.bam
+fi
 
-echo
+##UPLOAD##
+aws s3 cp $workspace $output_address --exclude "*" --include "*.bam" --recursive
+##END_UPLOAD##

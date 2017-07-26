@@ -1,76 +1,74 @@
 #!/bin/bash
 
-sample_dir=$1
-upload_dir=$2
-file1_name=$3
-file2_name=$4
-log_dir=$5
+project_name=$1
+file_suffix=$2  #extension of input file, does not include .gz if present in input
+root_dir=$3
+fastq_end1=$4
+fastq_end2=$5
+input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
+output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
+log_dir=$8
+is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+num_threads=${10}
+min_len=${11}
 
+#logging
+mkdir -p $log_dir
+log_file=$log_dir/'trim.log'
+exec 1>>$log_file
+exec 2>>$log_file
 
-exec 1>>$log_dir/trim.log
-exec 2>>$log_dir/trim.log
+#prepare output directories
+workspace=$root_dir/$project_name/$fastq_end1
+software_dir=/shared/workspace/software
+trimmomatic=$software_dir/Trimmomatic-0.36/trimmomatic-0.36.jar
+mkdir -p $workspace
 
+##DOWNLOAD##
+if [ ! -f $workspace/$fastq_end1$file_suffix ]
+then
+    #this is the suffix of the input from s3
+    download_suffix=$file_suffix
 
-file1_name=${file1_name//.gz/}
-file2_name=${file2_name//.gz/}
-
-full_trim_log=$log_dir/trimlogs/
-
-trim1_out=${file1_name//./.trim.}
-unpair1_out=${file1_name//./.unpaired.}
-trim2_out="${file2_name//./.trim.}"
-unpair2_out=${file2_name//./.unpaired.}
-
-mkdir -p $sample_dir
-mkdir -p $full_trim_log
-
-full_trim_log=$full_trim_log/${file1_name//.*/.trimlog}
-
-if [ "$file2_name" != "NULL" ]; then
-    if [[ ! -f $sample_dir/$trim1_out && ! -f $sample_dir/$trim2_out ]]; then
-        echo "Performing paired end trimming on $file1_name and $file2_name ..."
-        echo
-
-        java -jar /shared/workspace/software/Trimmomatic-0.36/trimmomatic-0.36.jar \
-            PE -threads 16 -phred33 -trimlog $full_trim_log $sample_dir/$file1_name \
-            $sample_dir/$file2_name $sample_dir/$trim1_out $sample_dir/$unpair1_out \
-            $sample_dir/$trim2_out $sample_dir/$unpair2_out LEADING:3 TRAILING:3 \
-            SLIDINGWINDOW:4:15 MINLEN:36
-
-        echo
-        echo "Finished trimming $file1_name and $file2_name"
-    else
-        echo "Paired end trimming has already been done on $file1_name and $file2_name"
+    #changes extension if S3 input is zipped
+    if [ "$is_zipped" == "True" ]
+    then
+        download_suffix=$file_suffix".gz"
     fi
-else
-    if [ ! -f $sample_dir/$trim1_out ]; then
-        echo "Performing single end trimming on $file1_name ..."
-        echo
 
-        java -jar /shared/workspace/software/Trimmomatic-0.36/trimmomatic-0.36.jar \
-            SE -threads 16 -phred33 -trimlog /dev/stderr $sample_dir/$file1_name \
-            $sample_dir/$trim1_out LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+    #always download forward reads
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    gunzip -q $workspace/$fastq_end1$download_suffix
 
-        echo
-        echo "Finished trimming $file1_name"
-    else
-        echo "Single end trimming has already been done on $file1_name"
+    #download reverse reads if they exist
+    if [ "$fastq_end2" != "NULL" ]
+    then
+        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
+        gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
+##END_DOWNLOAD##
 
-rm $sample_dir/$file1_name
-rm $sample_dir/$file2_name
 
-echo
-echo "Uploading trimmed files to $upload_dir ..."
-echo
-sed "s/\r/\n/g" <<< `aws s3 sync $sample_dir $upload_dir`
-echo
-echo "Finished uploading trimmed files"
+##TRIM##
+if [ "$fastq_end2" == "NULL" ]
+then
+    java -jar $trimmomatic SE -threads $num_threads -phred33 -trimlog /dev/null \
+        $workspace/$fastq_end1$file_suffix \
+        $workspace/$fastq_end1.trim$file_suffix \
+        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len
+else
+    java -jar $trimmomatic PE -threads $num_threads -phred33 -trimlog /dev/null \
+        $workspace/$fastq_end1$file_suffix \
+        $workspace/$fastq_end2$file_suffix \
+        $workspace/$fastq_end1.trim$file_suffix \
+        $workspace/$fastq_end1.unpaired$file_suffix \
+        $workspace/$fastq_end2.trim$file_suffix \
+        $workspace/$fastq_end2.unpaired$file_suffix \
+        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len
+fi
+##END_TRIM##
 
-##DEBUG##
-echo
-echo "dir is $sample_dir"
-echo `ls $sample_dir`
-##ENDDEBUG##
-echo
+##UPLOAD##
+aws s3 cp $workspace $output_address --exclude "*" --include "*.trim*" --recursive
+##END_UPLOAD##

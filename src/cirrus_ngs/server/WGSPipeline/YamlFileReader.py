@@ -15,8 +15,8 @@ def parse_yaml_file(yaml_file):
                 samples.append(v)
             else:
                 documents.update({k:v})
-            print k, "->", v
-        print "\n",
+            print(k, "->", v)
+        print("\n")
     documents.update({"sample":samples})
 
     return documents
@@ -26,5 +26,5 @@ if __name__ == "__main__":
 #    yaml_file = "/home/mustafa/ccbb/jupyter-genomics-github/src/awsCluster/server/ChipSeqPipeline/homer_workflow/yaml_examples/Sample_cDNA.yaml"
     documents = parse_yaml_file(yaml_file)
 
-    print documents.get("sample")
+    print(documents.get("sample"))
 
