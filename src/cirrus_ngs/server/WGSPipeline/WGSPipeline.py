@@ -3,11 +3,14 @@ import os
 import subprocess
 import PBSTracker
 import YamlFileReader
+import re
 
-ROOT_DIR = "/shared/workspace/WGSPipeline"
-PROJECT_DIR = "/scratch/{}"
+#ROOT_DIR = "/shared/workspace/WGSPipeline"
+#PROJECT_DIR = "/scratch/{}"
+ROOT_DIR = "/scratch"
+SCRIPTS = "/shared/workspace/WGSPipeline/scripts/"
+LOG_DIR = "/shared/workspace/logs/DNASeq/"
 DATA_DIR = ""
-
 
 ##run the actual pipeline
 def run_analysis(yaml_file):
@@ -15,88 +18,110 @@ def run_analysis(yaml_file):
 
     project_name = documents.get("project")
     analysis_steps = documents.get("analysis")
-    s3_upload_dir = documents.get("upload") + "/{}".format(project_name)
+    output_address = documents.get("upload")
     sample_list = documents.get("sample")
-    
-    global PROJECT_DIR
-    PROJECT_DIR = PROJECT_DIR.format(project_name)
 
-    logs_dir = "/home/ec2-user/{}".format(project_name)
-    
-    if not os.path.isdir(logs_dir):
-        os.makedirs(logs_dir)
-
-    download_files(sample_list, logs_dir)
+    global LOG_DIR
+    LOG_DIR += project_name
 
     if "fastqc" in analysis_steps:
-        run_fastqc(sample_list, s3_upload_dir, logs_dir)
+        run_fastqc(project_name, sample_list, output_address)
     if not "notrim" in analysis_steps:
-        run_trim(sample_list, s3_upload_dir, logs_dir)
+        run_trim(project_name, sample_list, output_address)
     if "bwa" in analysis_steps:
-        run_bwa(sample_list, s3_upload_dir, logs_dir)
+        run_bwa(project_name, sample_list, output_address)
+    if "sort" in analysis_steps:
+        run_sort(project_name, sample_list, output_address)
 
-#downloads the data files
-def download_files(sample_list, logs_dir):
-    workspace = ROOT_DIR + "/scripts/"
 
-    #print("downloading files ...")
-    sample_file = sample_list[0]
-    split_files = sample_file.get("filename").split(",")
-    files = [split_files[x].strip() if x < len(split_files)
-            else "NULL" for x in range(2)]
-    
-    global DATA_DIR, PROJECT_DIR
-    DATA_DIR = PROJECT_DIR + "/" + split_files[0].split(".")[0]
-    
-    if not os.path.isdir(DATA_DIR):
-        os.makedirs(DATA_DIR)
 
-    subprocess.call(["bash", workspace + "download.sh", sample_file.get("download"), 
-        PROJECT_DIR, files[0], files[1], logs_dir])
+def run_fastqc(project_name, sample_list, output_address):
+    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "fastqc.sh", project_name]
+    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
+        argument_list = list(curr_sample_arguments)
+        subprocess.call(subprocess_call_list + argument_list)
 
-    print("Finished downloading {} files".format(sample_list[0].get("group")))
+    PBSTracker.trackPBSQueue(1, "fastqc.sh")
 
-#runs fastqc if in analysis steps
-def run_fastqc(sample_list, upload_dir, logs_dir):
-    workspace = ROOT_DIR + "/scripts/"
+    print("Finished running FastQC")
 
-    sample_file = sample_list[0]
-    split_files = sample_file.get("filename").split(",")
-    files = [split_files[x].strip() if x < len(split_files)
-            else "NULL" for x in range(2)]
+def run_trim(project_name, sample_list, output_address):
+    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "trim.sh", project_name]
+    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
+        argument_list = list(curr_sample_arguments)
+        argument_list.append("4")
+        argument_list.append("36")
+        subprocess.call(subprocess_call_list + argument_list)
 
-    subprocess.call(["bash", workspace + "fastqc.sh", DATA_DIR, upload_dir, files[0],
-        files[1], logs_dir])
+    PBSTracker.trackPBSQueue(1, "trim.sh")
 
-    print("Finished performing {} FastQC analysis".format(sample_file.get("group")))
+    print("Finished running Trimmomatic")
 
-def run_trim(sample_list, upload_dir, logs_dir):
-    workspace = ROOT_DIR + "/scripts/"
+def run_bwa(project_name, sample_list, output_address):
+    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "bwa.sh", project_name]
+    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
+        argument_list = list(curr_sample_arguments)
+        #argument_list[0] = ".trim" + argument_list[0]
+        argument_list[4] = output_address
+        argument_list[7] = "False"
+        subprocess.call(subprocess_call_list + argument_list)
 
-    sample_file = sample_list[0]
-    split_files = sample_file.get("filename").split(",")
-    files = [split_files[x].strip() if x < len(split_files)
-            else "NULL" for x in range(2)]
+    PBSTracker.trackPBSQueue(1, "bwa.sh")
 
-    global DATA_DIR
-    subprocess.call(["bash", workspace + "trim.sh", DATA_DIR, upload_dir,
-        files[0], files[1], logs_dir])
+    print("Finished running bwa")
 
-    print("Finished trimming {}".format(sample_file.get("group")))
+def run_sort(project_name, sample_list, output_address):
+    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "sort.sh", project_name]
+    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
+        argument_list = list(curr_sample_arguments)
+        argument_list[4] = output_address
+        argument_list[7] = "False"
+        argument_list.append("4")
+        subprocess.call(subprocess_call_list + argument_list)
 
-#runs bwa if in analysis steps
-def run_bwa(sample_list, upload_dir, logs_dir):
-    workspace = ROOT_DIR + "/scripts/"
+    PBSTracker.trackPBSQueue(1, "sort.sh")
 
-    sample_file = sample_list[0]
-    split_files = sample_file.get("filename").split(",")
-    files = [split_files[x].strip() if x < len(split_files)
-            else "NULL" for x in range(2)]
+    print("Finished running sort")
 
-    subprocess.call(["bash", workspace + "bwa.sh", DATA_DIR, upload_dir, files[0],
-        files[1], logs_dir])
 
-    print("Finished aligning {}".format(sample_file.get("group")))
+#returns tuple
+#first element is file name without suffix
+#second element is .fastq or .fq
+#third element is boolean representing if file was zipped
+def _separate_file_suffix(sample_file):
+    #regex matches .fastq or .fq and then any extensions following them
+    original_suffix = re.search("\.f(?:ast){0,1}q.*$", sample_file).group()
+    file_prefix = sample_file.replace(original_suffix, "")
+    is_zipped = ".gz" in original_suffix
+    file_suffix = original_suffix.replace(".gz", "")
+
+    return file_prefix, file_suffix, str(is_zipped)
+
+#generator that yields tuple containing arguments for shell script
+#yielded arguments are standard for every tool
+#returned tuple:
+#   file_suffix:    file extension (.fq or .fastq) without .gz
+#   ROOT_DIR:       directory under which output will be saved
+#   fastq_end1:     forward reads (or single end file)
+#   fastq_end2:     reverse reads (or "NULL" if single end)
+#   input_address:  from "download" value of each sample, is S3 address
+#   output_address: S3 address where final analysis will be uploaded
+#   LOG_DIR:        directory where logs will be stored
+#   is_zipped:      str version of boolean, indicates if files to be downloaded are gzipped
+def _sample_argument_generator(sample_list, output_address):
+    for sample_pair in sample_list:
+        curr_samples = [file_name.strip() for file_name in sample_pair.get("filename").split(",")]
+        fastq_end1, file_suffix, is_zipped = _separate_file_suffix(curr_samples[0])
+        
+        #puts "NULL" in fastq_end2 if sample isn't paired end
+        if len(curr_samples) > 1:
+            fastq_end2 = _separate_file_suffix(curr_samples[1])[0]
+        else:
+            fastq_end2 = "NULL"
+
+        yield (file_suffix, ROOT_DIR, fastq_end1, fastq_end2, 
+                sample_pair.get("download"), output_address, LOG_DIR, is_zipped)
+
 
 if __name__ == "__main__":
     run_analysis(sys.argv[1])
