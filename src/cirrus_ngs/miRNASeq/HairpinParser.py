@@ -4,7 +4,7 @@ import re
 
 def parse(hairpin_file, output_file):
 
-    print "system is processing " + hairpin_file
+    print ("system is processing " , hairpin_file)
     filewriter = open(output_file, "w")
 
     with open(hairpin_file, 'r+') as f:

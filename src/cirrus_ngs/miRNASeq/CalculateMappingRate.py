@@ -4,7 +4,7 @@ def parse(log_file):
 
     filewriter = open(log_file[:-3] + ".mapping.txt", "w")
 
-    print "system is processing " + log_file
+    print ("system is processing " , log_file)
     with open(log_file, 'r+') as f:
         lines = f.readlines()
         for line in lines:
