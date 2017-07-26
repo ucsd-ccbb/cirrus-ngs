@@ -5,7 +5,7 @@ import sys
 def deduplicate(raw_file):
     fastq_id_list = {}
 
-    print "system is processing " + raw_file
+    print ("system is processing " , raw_file)
     filewriter = open(raw_file.replace("unfilter.fastq", "trim.fastq"), "w")
 
     with open(raw_file, 'r+') as f:

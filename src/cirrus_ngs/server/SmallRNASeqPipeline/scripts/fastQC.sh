@@ -21,11 +21,15 @@ exec 2>>$workspace/'fastqc.log'
 
 if [ "$file2_name" == "NULL" ];
 then
-   echo “running fastqc...”
+   echo “Running fastqc on $file1_name...”
    $fastqc $workspace/$file1_name/$file1_name$file_suffix -o $workspace/$file1_name/
+
+   echo "Finished fastqc on $file1_name"
 else
-   echo “running fastqc...”
+   echo “Running fastqc on $file1_name and $file2_name...”
    $fastqc $workspace/$file1_name/$file1_name$file_suffix -o $workspace/$file1_name/
    $fastqc $workspace/$file1_name/$file2_name$file_suffix -o $workspace/$file1_name/
+
+   echo "Finished fastqc on $file1_name and $file2_name"
 fi
 

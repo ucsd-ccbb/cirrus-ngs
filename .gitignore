@@ -1,5 +1,7 @@
 .gitignore
 WGSPipeline.ipynb
+private_miRNAPipeline.ipynb
+*.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
