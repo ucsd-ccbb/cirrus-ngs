@@ -14,7 +14,7 @@ def trackPBSQueue(minutes, shell_script):
         index = 0
 
         cmd = 'qstat'
-        stdout = subprocess.check_output([cmd])
+        stdout = str(subprocess.check_output([cmd]))
 
         lines = re.split(r'\n+', stdout)
 
@@ -26,12 +26,12 @@ def trackPBSQueue(minutes, shell_script):
         if index > 0:
             if index != jobs:
                 jobs = index
-                print ""
-                print str(index) + " job(s) are running..."
+                print("")
+                print(str(index) + " job(s) are running...")
 
         if is_done:
-            print ""
-            print "No jobs are running..."
+            print("")
+            print("No jobs are running...")
             break
 
 def isDone(qstat_job):
