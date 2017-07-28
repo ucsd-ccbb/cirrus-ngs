@@ -54,7 +54,7 @@ def make_wgs_yaml_files(yaml_file, project_name, analysis_steps,
     file_names = []
 
     for index, sample in enumerate(sample_list):
-        with open(yaml_file.replace(".yaml", "_{}.yaml".format(group_list[index])), "w") as yaml:
+        with open(yaml_file.replace(".yaml", "_{}.yaml".format(sample[0].split(".")[0])), "w") as yaml:
             file_names.append(yaml.name)
             yaml.write(project_string)
             yaml.write(analysis_string)
