@@ -75,6 +75,6 @@ fi
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.cut*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.*" --recursive
 ##END_UPLOAD##
 
