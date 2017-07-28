@@ -5,7 +5,7 @@ from util import YamlFileMaker
 from cfnCluster import ConnectionManager
 
 workspace = "/shared/workspace/SmallRNASeqPipeline/"
-logs_dir = "/shared/workspace/data_archive/SmallRNASeq/"
+logs_dir = "/shared/workspace/logs/SmallRNASeq"
 
 ## executing WGS pipeline with the specific yaml file
 def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
