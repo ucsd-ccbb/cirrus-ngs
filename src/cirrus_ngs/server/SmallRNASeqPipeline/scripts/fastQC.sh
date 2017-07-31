@@ -1,35 +1,64 @@
 #!/bin/bash
 
 project_name=$1
-file_suffix=$2
-file_path=$3
-file1_name=$4
-file2_name=$5
-genome=$6
+file_suffix=$2  #extension of input file, does not include .gz if present in input
+root_dir=$3
+fastq_end1=$4
+fastq_end2=$5
+input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
+output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
+log_dir=$8
+is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 
+#logging
+mkdir -p $log_dir
+log_file=$log_dir/'fastqc.log'
+exec 1>>$log_file
+exec 2>>$log_file
+
+#prepare output directories
+workspace=$root_dir/$project_name/$fastq_end1
 software_dir=/shared/workspace/software
-workspace=$file_path/$project_name
 fastqc=$software_dir/FastQC/fastqc
+mkdir -p $workspace
 
-if [ ! -d $workspace/$file1_name ]; then
-   mkdir -p $workspace/$file1_name
-fi
 
-# redirecting all output to a file
-exec 1>>$workspace/'fastqc.log'
-exec 2>>$workspace/'fastqc.log'
-
-if [ "$file2_name" == "NULL" ];
+##DOWNLOAD##
+if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
-   echo “Running fastqc on $file1_name...”
-   $fastqc $workspace/$file1_name/$file1_name$file_suffix -o $workspace/$file1_name/
+#this is the suffix of the input from s3
+download_suffix=$file_suffix
 
-   echo "Finished fastqc on $file1_name"
-else
-   echo “Running fastqc on $file1_name and $file2_name...”
-   $fastqc $workspace/$file1_name/$file1_name$file_suffix -o $workspace/$file1_name/
-   $fastqc $workspace/$file1_name/$file2_name$file_suffix -o $workspace/$file1_name/
-
-   echo "Finished fastqc on $file1_name and $file2_name"
+#changes extension if S3 input is zipped
+if [ "$is_zipped" == "True" ]
+then
+download_suffix=$file_suffix.gz
 fi
 
+#always download forward reads
+aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+gunzip -q $workspace/$fastq_end1$download_suffix
+
+#download reverse reads if they exist
+if [ "$fastq_end2" != "NULL" ]
+then
+aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
+gunzip -q $workspace/$fastq_end2$download_suffix
+fi
+fi
+##END_DOWNLOAD##
+
+
+##FASTQC##
+$fastqc $workspace/$fastq_end1$file_suffix -o $workspace/
+
+if [ "$fastq_end2" != "NULL" ];
+then
+$fastqc $workspace/$fastq_end2$file_suffix -o $workspace/
+fi
+##END_FASTQC##
+
+
+##UPLOAD##
+aws s3 cp $workspace $output_address --exclude "*" --include "*_fastqc*" --recursive
+##END_UPLOAD##
