@@ -12,4 +12,4 @@ exec 1>>$log_dir/run.log
 exec 2>>$log_dir/run.log
 
 
-python /shared/workspace/SmallRNASeqPipeline/miRNAPipeline.py $yaml_file
+/shared/workspace/software/anaconda3/bin/python /shared/workspace/SmallRNASeqPipeline/miRNAPipeline.py $yaml_file
