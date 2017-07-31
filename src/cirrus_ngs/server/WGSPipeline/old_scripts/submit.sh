@@ -1,43 +1,17 @@
-#qsub -pe smp 32 /shared/shuling/scripts/run.sh T1
-qsub -pe smp 32 /shared/shuling/scripts/run.sh C90
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T10
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T11
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T13
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T14
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T15
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T16
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T17
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T18
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T19
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T2
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T20
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T21
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T22
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T23
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T25
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T27
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T28
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T29
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T31
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T33
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T35
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T36
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T37
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T38
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T39
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T4
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T40
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T41
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T42
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T43
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T44
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T45
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T47
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T49
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T50
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T6
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T7
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T8
-qsub -pe smp 32 /shared/shuling/scripts/run.sh T9
-qsub -pe smp 32 /shared/shuling/scripts/run.sh X45
-qsub -pe smp 32 /shared/shuling/scripts/run.sh X7
+#!/bin/bash
+
+yaml_files=$1
+log_dir=$2
+
+yaml_files_arr=(`tr "," "\n" <<< $yaml_files`)
+
+mkdir -p $log_dir
+
+touch $log_dir/submit.log
+
+exec 1>>$log_dir/submit.log
+exec 2>>$log_dir/submit.log
+
+for yaml_file in ${yaml_files_arr[*]}; do
+    qsub -o /dev/null -e /dev/null -pe smp 16 /shared/workspace/WGSPipeline/run.sh $yaml_file $log_dir
+done
