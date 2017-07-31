@@ -11,6 +11,7 @@ ROOT_DIR = "/scratch"
 SCRIPTS = "/shared/workspace/WGSPipeline/scripts/"
 LOG_DIR = "/shared/workspace/logs/DNASeq/"
 DATA_DIR = ""
+CHROMOSOME_LIST = list(map(str, range(1,23))) + ["X", "Y", "M"]
 
 ##run the actual pipeline
 def run_analysis(yaml_file):
@@ -32,6 +33,15 @@ def run_analysis(yaml_file):
         run_bwa(project_name, sample_list, output_address)
     if "sort" in analysis_steps:
         run_sort(project_name, sample_list, output_address)
+    if "dedup" in analysis_steps:
+        run_dedup(project_name, sample_list, output_address)
+    if "split" in analysis_steps:
+        run_split(project_name, sample_list, output_address)
+    if "postalignment" in analysis_steps:
+        run_postalignment(project_name, sample_list, output_address)
+    if "haplotype" in analysis_steps:
+        run_gatkhaplotype(project_name, sample_list, output_address)
+        
 
 
 
@@ -61,9 +71,10 @@ def run_bwa(project_name, sample_list, output_address):
     subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "bwa.sh", project_name]
     for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
         argument_list = list(curr_sample_arguments)
-        #argument_list[0] = ".trim" + argument_list[0]
+        argument_list[0] = ".trim" + argument_list[0]
         argument_list[4] = output_address
         argument_list[7] = "False"
+        argument_list.append("8")
         subprocess.call(subprocess_call_list + argument_list)
 
     PBSTracker.trackPBSQueue(1, "bwa.sh")
@@ -74,6 +85,7 @@ def run_sort(project_name, sample_list, output_address):
     subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "sort.sh", project_name]
     for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
         argument_list = list(curr_sample_arguments)
+        argument_list[0] = ".bam"
         argument_list[4] = output_address
         argument_list[7] = "False"
         argument_list.append("4")
@@ -83,6 +95,67 @@ def run_sort(project_name, sample_list, output_address):
 
     print("Finished running sort")
 
+def run_dedup(project_name, sample_list, output_address):
+    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "dedup.sh", project_name]
+    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
+        argument_list = list(curr_sample_arguments)
+        argument_list[0] = ".sort.bam"
+        argument_list[4] = output_address
+        argument_list[7] = "False"
+        argument_list.append("4")
+        subprocess.call(subprocess_call_list + argument_list)
+
+    PBSTracker.trackPBSQueue(1, "dedup.sh")
+
+    print("Finished running dedup")
+
+def run_split(project_name, sample_list, output_address):
+    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "split.sh", project_name]
+    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
+        argument_list = list(curr_sample_arguments)
+        argument_list[0] = ".dedup.bam"
+        argument_list[4] = output_address
+        argument_list[7] = "False"
+        argument_list.append("1")
+
+        for chromosome in ["1", "2"]: #CHROMOSOME_LIST:
+            subprocess.call(subprocess_call_list + argument_list + [chromosome])
+
+    PBSTracker.trackPBSQueue(1, "split.sh")
+
+    print("Finished running split")
+
+def run_postalignment(project_name, sample_list, output_address):
+    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "post.sh", project_name]
+    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
+        argument_list = list(curr_sample_arguments)
+        argument_list[0] = ".bam"
+        argument_list[4] = output_address
+        argument_list[7] = "False"
+        argument_list.append("4")
+
+        for chromosome in ["1", "2"]: #CHROMOSOME_LIST:
+            subprocess.call(subprocess_call_list + argument_list + [chromosome])
+
+    PBSTracker.trackPBSQueue(1, "post.sh")
+
+    print("Finished running post")
+
+def run_gatkhaplotype(project_name, sample_list, output_address):
+    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "haplo.sh", project_name]
+    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
+        argument_list = list(curr_sample_arguments)
+        argument_list[4] = output_address
+        argument_list[7] = "False"
+        argument_list.append("4")
+
+        for chromosome in ["1", "2"]: #CHROMOSOME_LIST:
+            argument_list[0] = ".final.{}.bam".format(chromosome)
+            subprocess.call(subprocess_call_list + argument_list + [chromosome])
+
+    PBSTracker.trackPBSQueue(1, "haplo.sh")
+
+    print("Finished running haplotype")
 
 #returns tuple
 #first element is file name without suffix
