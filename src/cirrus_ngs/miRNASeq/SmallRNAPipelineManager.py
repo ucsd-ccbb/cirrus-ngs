@@ -24,7 +24,7 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
                                  
     print ("executing pipeline...")
     # this keep the logs file in the logs_dir
-    ConnectionManager.execute_command(ssh_client, "qsub " + workspace + "run.sh " + workspace + "yaml_examples/" + yaml_file + " " + logs_dir)
+    ConnectionManager.execute_command(ssh_client, "qsub -o /dev/null -e /dev/null " + workspace + "run.sh " + workspace + "yaml_examples/" + yaml_file + " " + logs_dir)
 
 
 ## checking your jobs status
