@@ -24,10 +24,10 @@ sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1.bam ]
+if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
     #this is the suffix of the input from s3
-    download_suffix=".bam"
+    download_suffix=$file_suffix
 
     #changes extension if S3 input is zipped
     if [ "$is_zipped" == "True" ]
@@ -42,12 +42,10 @@ then
 fi
 ##END_DOWNLOAD##
 
-echo "`ls $workspace`"
-
 
 ##SORT##
 $sambamba sort -t $num_threads -m 5G --tmpdir $workspace/temp \
-    -o $workspace/$fastq_end1.sort.bam $workspace/$fastq_end1.bam
+    -o $workspace/$fastq_end1.sort.bam $workspace/$fastq_end1$file_suffix
 
 $sambamba index -t $num_threads $workspace/$fastq_end1.sort.bam \
     $workspace/$fastq_end1.sort.bam.bai
