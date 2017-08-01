@@ -10,21 +10,18 @@ output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$8
 is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 num_threads=${10}
-platform_technoogy=${11}
 
 #logging
 mkdir -p $log_dir
-log_file=$log_dir/'bwa.log'
+log_file=$log_dir/'dedup.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
 software_dir=/shared/workspace/software
-genome=$software_dir/genomes/Hsapiens/bwa/ucsc.hg19.fasta
-bwa=$software_dir/bwa/bwa-0.7.12/bwa
-samblaster=$software_dir/samblaster/samblaster
-samtools=$software_dir/samtools/samtools-1.1/samtools
+mark_duplicates=$software_dir/picard-1.96/MarkDuplicates.jar
+sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
 
 ##DOWNLOAD##
@@ -42,30 +39,22 @@ then
     #always download forward reads
     aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
     gunzip -q $workspace/$fastq_end1$download_suffix
-
-    #download reverse reads if they exist
-    if [ "$fastq_end2" != "NULL" ]
-    then
-        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
-        gunzip -q $workspace/$fastq_end2$download_suffix
-    fi
 fi
 ##END_DOWNLOAD##
 
 
-##ALIGN##
-if [ "fastq_end2" == "NULL" ]
-then
-    $bwa mem -M -t $num_threads -R "@RG\tID:1\tPL:ILLUMINA\tPU:tempID\tSM:$fastq_end1" -v 1 \
-        $genome $workspace/$fastq_end1$file_suffix | $samblaster | \
-        $samtools view -Sb - > $workspace/$fastq_end1.bam
-else
-    $bwa mem -M -t $num_threads -R "@RG\tID:1\tPL:ILLUMINA\tPU:tempID\tSM:$fastq_end1" -v 1 \
-        $genome $workspace/$fastq_end1$file_suffix \
-        $workspace/$fastq_end2$file_suffix | $samblaster | \
-        $samtools view -Sb - > $workspace/$fastq_end1.bam
-fi
+##MARKDUPLICATES##
+java -jar -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g $mark_duplicates \
+    INPUT=$workspace/$fastq_end1$file_suffix OUTPUT=$workspace/$fastq_end1.dedup.bam \
+    METRICS_FILE=$workspace/$fastq_end1.matrics.txt AS=true \
+    VALIDATION_STRINGENCY=LENIENT
+
+$sambamba index -t $num_threads $workspace/$fastq_end1.dedup.bam \
+    $workspace/$fastq_end1.dedup.bam.bai
+##END_MARKDUPLICATES##
+
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.bam" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.dedup.bam*" --include "*.matrics.txt" --recursive
 ##END_UPLOAD##
+
