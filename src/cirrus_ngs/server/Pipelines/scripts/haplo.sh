@@ -24,6 +24,8 @@ software_dir=/shared/workspace/software
 java=$software_dir/java/jre1.8.0_144/bin/java
 gatk=$software_dir/gatk/GenomeAnalysisTK-3.3-0/GenomeAnalysisTK.jar
 bedtools=$software_dir/bedtools2/bin/bedtools
+vcf_sort=$software_dir/vcftools_0.1.12b/bin/vcf-sort
+bgzip=$software_dir/tabix-0.2.6/bgzip
 mkdir -p $workspace
 
 #reference files
@@ -33,7 +35,7 @@ dbsnp=$software_dir/variation/dbsnp_138.hg19.vcf
 
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ]
+if [ ! -f $workspace/$fastq_end1$file_suffix ] || [ ! -f $workspace/$fastq_end1$file_suffix.bai ]
 then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
@@ -56,8 +58,6 @@ fi
 $bedtools genomecov -split -ibam $workspace/$fastq_end1$file_suffix \
     -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.final.$chromosome.bed
 
-echo "`ls -l $workspace`"
-
 $java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk -T HaplotypeCaller -R $genome_fasta \
     -I $workspace/$fastq_end1$file_suffix \
@@ -78,11 +78,12 @@ $java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     --standard_min_confidence_threshold_for_calling 30.0 \
     --dbsnp $dbsnp
     #--annotation HaplotypeScore \ DOESN'T WORK
-#    --standard_min_confidence_threshold_for_emitting 30.0 \
+    #--standard_min_confidence_threshold_for_emitting 30.0
 
+$vcf_sort -t $workspace/temp $workspace/$fastq_end1.raw.$chromosome.vcf.gz | $bgzip -c > $workspace/$fastq_end1.final.$chromosome.vcf.gz
 
 ##END_HAPLOTYPE##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.$chromosome.vcf.gz" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*raw.$chromosome.vcf.gz" --include "*.final.$chromosome.vcf.gz" --recursive
 ##END_UPLOAD##
