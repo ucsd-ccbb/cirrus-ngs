@@ -39,10 +39,10 @@ hapmap=$software_dir/variation/hapmap_3.3.hg19.sites.vcf
 
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1.$chromosome$file_suffix ]
+if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
     #this is the suffix of the input from s3
-    download_suffix=.$chromosome$file_suffix
+    download_suffix=$file_suffix
 
     #changes extension if S3 input is zipped
     if [ "$is_zipped" == "True" ]
@@ -64,7 +64,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "running picard"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 $java -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g -jar $mark_duplicates \
-    INPUT=$workspace/$fastq_end1.$chromosome$file_suffix \
+    INPUT=$workspace/$fastq_end1$file_suffix \
     OUTPUT=$workspace/$fastq_end1.$chromosome.dedup.bam \
     METRICS_FILE=$workspace/$fastq_end1.$chromosome.metrics.txt \
     AS=true VALIDATION_STRINGENCY=LENIENT

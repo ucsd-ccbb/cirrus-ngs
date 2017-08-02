@@ -6,7 +6,7 @@ from util import QstatParser
 from cfnCluster import ConnectionManager
 import sys
 
-workspace = "/shared/workspace/WGSPipeline/"
+workspace = "/shared/workspace/Pipelines/"
 #log_dir = "/shared/workspace/data_archive/DNASeq/{}/logs"
 log_dir = "/shared/workspace/logs/DNASeq/{}"
 
@@ -29,8 +29,8 @@ def execute(ssh_client, project_name, analysis_steps, s3_input_files_address,
     #if not email == "":
 
     print("executing pipeline...")
-    ConnectionManager.execute_command(ssh_client, "qsub -o /dev/null -e /dev/null " + workspace + "run.sh "
-             + workspace + "yaml_examples/" + yaml_file + "  " + log_dir)
+    ConnectionManager.execute_command(ssh_client, "qsub -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
+             + workspace + "yaml_examples/" + yaml_file + "  " + log_dir + " " + "WGSPipeline.py")
 
 
 ## checking your jobs status
