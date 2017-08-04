@@ -1,6 +1,8 @@
 .gitignore
 WGSPipeline.ipynb
+smallrnaseq_design_example.txt
 private_miRNAPipeline.ipynb
+Private_Multiqc_Report.ipynb
 *.yaml
 
 # Byte-compiled / optimized / DLL files
