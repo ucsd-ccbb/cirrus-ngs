@@ -1,0 +1,84 @@
+<html>
+<head>
+      <link rel="stylesheet" type="text/css" href="style.css">
+      <title>Cirrus Shell Scripts</title>
+</head>
+<body>
+    <p><font size="6">All shell script names must be <= 10 characters (not including .sh extension)</font><br>
+    &nbsp;&nbsp;&nbsp; This is required for PBSTracker to properly identify the jobs</p>
+    <br><br>
+
+    <h><strong><font size="4">Shell script format:</font></strong></h>
+    <div id="code_block">
+    <div id="code_text">
+    <p><font color="blue">#!/bin/bash<br><br></font>
+    project_name=<font color=#42CC42>$1</font><br>
+    file_suffix=<font color=#42CC42><font color=#42CC42>$2</font></font>  <font color="blue">#extension of input file, does not include .gz if present in input<br></font>
+    root_dir=<font color=#42CC42>$3</font><br>
+    fastq_end1=<font color=#42CC42>$4</font><br>
+    fastq_end2=<font color=#42CC42>$5</font> <font color="blue">#is "NULL" if no reverse reads<br></font>
+    input_address=<font color=#42CC42>$6</font>    <font color="blue">#this is an s3 address e.g. s3://path/to/input/directory<br></font>
+    output_address=<font color=#42CC42>$7</font>   <font color="blue">#this is an s3 address e.g. s3://path/to/output/directory<br></font>
+    log_dir=<font color=#42CC42>$8</font><br>
+    is_zipped=<font color=#42CC42>$9</font>    <font color="blue">#either "True" or "False", indicates whether input is gzipped<br></font>
+    </p>
+    <p><font color="blue">#logging<br></font>
+    mkdir -p <font color=#42CC42>$log_dir</font><br>
+    log_file=<font color=#42CC42>$log_dir</font>/'<font color="red"><b>SCRIPT_LOG_FILE_HERE</b></font>.log'<br>
+    exec 1>><font color=#42CC42>$log_file</font><br>
+    exec 2>><font color=#42CC42>$log_file</font><br>
+    </p>
+    <p>
+    <font color="blue">#prepare output directories</font><br>
+    workspace=<font color=#42CC42>$root_dir</font>/<font color=#42CC42>$project_name</font>/<font color=#42CC42>$fastq_end1</font><br>
+    software_dir=/shared/workspace/software<br>
+    <font color="red"><b>VARIABLES_FOR_SOFTWARE_PATHS_HERE</b></font><br>
+    &nbsp;&nbsp;&nbsp;<font color="red">Example:</font>
+     fastqc=<font color=#42CC42>$software_dir</font>/FastQC/fastqc<br>
+    mkdir -p <font color=#42CC42>$workspace</font><br>
+    </p>
+    <p>
+    <font color="blue">##DOWNLOAD##<br></font>
+    if [ ! -f <font color="#42CC42">$workspace</font>/<font color="#42CC42">$fastq_end1</font><font color="#42CC42">$file_suffix</font> ]<br>
+    then<br>
+    &nbsp;&nbsp; <font color="blue">#this is the suffix of the input from s3<br></font>
+    &nbsp;&nbsp; download_suffix=<font color="#42CC42">$file_suffix</font><br>
+    <br>
+    &nbsp;&nbsp; <font color="blue">#changes extension if S3 input is zipped<br></font>
+    &nbsp;&nbsp; if [ "<font color="#42CC42">$is_zipped</font>" == "True" ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; then<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; download_suffix=<font color="#42CC42">$file_suffix</font>".gz"<br>
+    &nbsp;&nbsp; fi<br>
+    <br>
+    &nbsp;&nbsp; <font color="blue">#always download forward reads<br></font>
+    &nbsp;&nbsp; aws s3 cp <font color="#42CC42">$input_address</font>/<font color="#42CC42">$fastq_end1</font><font color="#42CC42">$download_suffix</font> <font color="#42CC42">$workspace</font>/<br>
+    &nbsp;&nbsp; gunzip -q <font color="#42CC42">$workspace</font>/<font color="#42CC42">$fastq_end1</font><font color="#42CC42">$download_suffix</font><br>
+    <br>
+    &nbsp;&nbsp; <font color="blue">#download reverse reads if they exist<br></font>
+    &nbsp;&nbsp; if [ "<font color="#42CC42">$fastq_end2</font>" != "NULL" ]<br>
+    &nbsp;&nbsp; then<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; aws s3 cp <font color="#42CC42">$input_address</font>/<font color="#42CC42">$fastq_end2</font><font color="#42CC42">$download_suffix</font> <font color="#42CC42">$workspace</font>/<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; gunzip -q <font color="#42CC42">$workspace</font>/<font color="#42CC42">$fastq_end2</font><font color="#42CC42">$download_suffix</font><br>
+    &nbsp;&nbsp; fi<br>
+    fi<br>
+    <font color="blue"><font color="blue">##END_DOWNLOAD##<br></font></font>
+    </p>
+    <p>
+    <font color="blue">##</font><font color="red"><b>YOUR-TOOL</b></font><font color="blue">##</font> <br>
+    <font color="red"><b>YOUR-TOOL_CALL_HERE </b><br>
+    &nbsp;&nbsp; Example: </font> <font color="#42CC42">$fastqc $workspace</font>/<font color="#42CC42">$fastq_end1$file_suffix</font> -o <font color="#42CC42">$workspace</font>/ <br>
+<font color="blue">##</font><font color="red"><b>END_YOUR-TOOL</b></font><font color="blue">##</font> <br>
+    </p>
+    <p>
+    <font color="blue">##UPLOAD##<br></font>
+    aws s3 cp <font color="#42CC42">$workspace</font>/ <font color="#42CC42">$output_address</font> --exclude "*" \ <br>
+    &nbsp;&nbsp; --include "<font color="red"><b>GLOB_FOR_YOUR_OUTPUTS_HERE</b></font>" --recursive <br>
+    <font color="blue">##END_UPLOAD##<br></font>
+    </p>
+    </div>
+    </div>
+</body>
+
+</html>
+
+
