@@ -3,7 +3,7 @@ from util import YamlFileMaker
 from cfnCluster import ConnectionManager
 
 workspace = "/shared/workspace/Pipelines/"
-logs_dir = "/shared/workspace/logs/"
+logs_dir = "/shared/workspace/logs/{}/{}"
 
 
 # executing miRNA pipeline with the specific yaml file
@@ -12,7 +12,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
     yaml_file = project_name + ".yaml"
     # specify the log directory
     global logs_dir
-    logs_dir = logs_dir + pipeline
+    logs_dir = logs_dir.format(pipeline, project_name)
 
     # get the name of the pipeline file
     pipeline_file = get_pipeline_file(pipeline)

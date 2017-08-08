@@ -62,7 +62,8 @@ $java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk -T HaplotypeCaller -R $genome_fasta \
     -I $workspace/$fastq_end1$file_suffix \
     -L $workspace/$fastq_end1.final.$chromosome.bed \
-    --out $workspace/$fastq_end1.raw.$chromosome.vcf.gz \
+    --out $workspace/$fastq_end1.$chromosome.g.vcf.gz \
+    -G none \
     --annotation BaseQualityRankSumTest \
     --annotation FisherStrand \
     --annotation GCContent \
@@ -76,14 +77,14 @@ $java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     --annotation Coverage \
     --annotation ClippingRankSumTest \
     --standard_min_confidence_threshold_for_calling 30.0 \
-    --dbsnp $dbsnp
-    #--annotation HaplotypeScore \ DOESN'T WORK
+    --dbsnp $dbsnp \
+    --emitRefConfidence GVCF \
+    #--annotation HaplotypeScore DOESN'T WORK
     #--standard_min_confidence_threshold_for_emitting 30.0
 
-$vcf_sort -t $workspace/temp $workspace/$fastq_end1.raw.$chromosome.vcf.gz | $bgzip -c > $workspace/$fastq_end1.final.$chromosome.vcf.gz
 
 ##END_HAPLOTYPE##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*raw.$chromosome.vcf.gz" --include "*.final.$chromosome.vcf.gz" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*$chromosome.g.vcf.gz*" --recursive #--include "*.final.$chromosome.vcf.gz" --recursive
 ##END_UPLOAD##
