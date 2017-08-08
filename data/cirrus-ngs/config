@@ -1,0 +1,26 @@
+[aws]
+aws_region_name = us-west-2
+aws_access_key_id = AKIAJPBO7QJN2N6URMBA
+aws_secret_access_key = 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 
+[cluster elasticsearch]
+vpc_settings = ucsd
+key_name = interns_oregon_key
+master_instance_type = m3.large
+compute_instance_type = m4.xlarge
+initial_queue_size = 1
+cluster_type = spot
+spot_price = 0.7
+ebs_settings = custom
+s3_read_resource = arn:aws:s3:::bucket_name
+s3_read_write_resource = arn:aws:s3:::bucket_name/*
+post_install = s3://path/to/postinstall.sh
+[vpc ucsd]
+master_subnet_id = subnet-00000000
+vpc_id = vpc-00000001
+[global]
+update_check = true
+sanity_check = true
+cluster_template = elasticsearch
+[ebs custom]
+ebs_snapshot_id = snap-058a7554
+volume_size = 300

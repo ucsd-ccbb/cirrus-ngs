@@ -1,0 +1,4 @@
+All shell script names must be <= 10 characters (not including .sh extension)
+    This is required for PBSTracker to properly identify the jobs
+
+
