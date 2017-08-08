@@ -6,9 +6,10 @@ import PBSTracker
 import YamlFileReader
 
 root = "/scratch"
-workspace = "/shared/workspace/SmallRNASeqPipeline/"
-scripts = "/shared/workspace/SmallRNASeqPipeline/scripts/"
+workspace = "/shared/workspace/Pipelines/"
+scripts = "/shared/workspace/Pipelines/scripts/"
 log = "/shared/workspace/logs/SmallRNASeq"
+
 num_threads = "1"   # append to argument list
 min_len = "27"
 zipped = "False"

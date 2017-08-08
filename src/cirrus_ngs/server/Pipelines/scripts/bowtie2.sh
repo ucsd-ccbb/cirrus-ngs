@@ -25,7 +25,12 @@ fa_name=hairpin_human
 cut=.cut
 sam=.sam
 
+echo $bowtie
+echo $fa_file
+echo $fa_name
+
 mkdir -p $workspace
+
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$cut$file_suffix ]
@@ -62,9 +67,9 @@ then
     # single end
     $bowtie/bowtie2 -x $fa_name -U $workspace/$fastq_end1$cut$file_suffix -S $workspace/$fastq_end1$sam
 else
-    # paired end
+    # paired end: using the same output file name ($fastq_end1.sam)
     $bowtie/bowtie2 -x $fa_name -1 $workspace/$fastq_end1$cut$file_suffix \
-        -2 $workspace/$fastq_end2/$cut$file_suffix -S $workspace/$fastq_end2$sam
+        -2 $workspace/$fastq_end2/$cut$file_suffix -S $workspace/$fastq_end1$sam
 fi
 
 ##END BOWTIE 2 ##
