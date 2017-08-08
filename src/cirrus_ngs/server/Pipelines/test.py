@@ -1,6 +1,5 @@
 import yaml
 
-yaml_file = open("tools.yaml", "r")
+hello={1,2,3,4,4}
 
-doc = yaml.load(yaml_file)
-print(doc)
+print(hello)
