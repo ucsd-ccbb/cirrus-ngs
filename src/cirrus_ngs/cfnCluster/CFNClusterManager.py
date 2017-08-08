@@ -5,7 +5,7 @@ import re
 from shutil import copyfile
 
 ## Global variable: default configuation file for CFNCluster
-config_template_file = os.getcwd().replace("notebooks", "data") + "/config"
+config_template_file = "/home/mustafa/.cfncluster/config" #os.getcwd().replace("notebooks", "data") + "/config"
 
 def install_cfn_cluster():
     print("Installing cfncluster package...")
