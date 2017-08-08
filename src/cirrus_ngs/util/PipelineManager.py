@@ -5,7 +5,8 @@ from cfnCluster import ConnectionManager
 workspace = "/shared/workspace/Pipelines/"
 logs_dir = "/shared/workspace/logs/"
 
-## executing miRNA pipeline with the specific yaml file
+
+# executing miRNA pipeline with the specific yaml file
 def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_address,
             sample_list, group_list, s3_output_files_address):
     yaml_file = project_name + ".yaml"
@@ -23,7 +24,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
     print("copying yaml file to remote master node...")
     ConnectionManager.copy_file(ssh_client, yaml_file, workspace + "yaml_examples")
 
-    ## Remove the local yaml file
+    # Remove the local yaml file
     os.remove(yaml_file)
 
     print("executing pipeline...")
@@ -37,8 +38,8 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
 # get the name of the pipeline file
 def get_pipeline_file(pipeline):
 
-    #"ChiPSeq", "DNASeq", "RNASeq", "SmallRNASeq"
-    file_dict = {"ChiPSeq": "ChipSeqPipeline.py",
+    file_dict = {"MultiQC": "PrimaryQcPipeline.py",
+                 "ChiPSeq": "ChipSeqPipeline.py",
                  "DNASeq": "WGSPipeline.py",
                  "RNASeq": "RNASeqPipeline.py",
                  "SmallRNASeq": "miRNAPipeline.py"}[pipeline]
