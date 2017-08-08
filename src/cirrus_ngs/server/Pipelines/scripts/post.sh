@@ -36,10 +36,8 @@ mills=$software_dir/variation/Mills_and_1000G_gold_standard.indels.hg19.sites.vc
 G1000=$software_dir/variation/1000G_phase1.snps.high_confidence.hg19.sites.vcf
 hapmap=$software_dir/variation/hapmap_3.3.hg19.sites.vcf
 
-
-
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ]
+if [ ! -f $workspace/$fastq_end1$file_suffix ] || [ ! -f $workspace/$fastq_end1$file_suffix.bai ]
 then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
@@ -134,11 +132,6 @@ $java -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
 $sambamba index  $workspace/$fastq_end1.final.$chromosome.bam \
     $workspace/$fastq_end1.final.$chromosome.bam.bai
 ##END_POSTALIGN##
-
-echo
-echo
-echo "showing workspace contents"
-echo "`ls $workspace`"
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "*.$chromosome.dedup.bam*" \

@@ -20,6 +20,17 @@ def run_analysis(yaml_file):
     output_address = documents.get("upload")
     sample_list = documents.get("sample")
 
+    group_list = {}
+
+    for sample_pair in sample_list:
+        curr_group = sample_pair.get("group")
+        curr_sample = sample_pair.get("description")
+        if group_list.get(curr_group, None):
+            group_list.get(curr_group).append(curr_sample)
+        else:
+            group_list[curr_group] = [curr_sample]
+
+
     global LOG_DIR
     LOG_DIR += project_name
 
@@ -31,20 +42,28 @@ def run_analysis(yaml_file):
 
     for step in wgs_config_dict["steps"]:
         if step in analysis_steps:
-            run_tool(tool_config_dict[step], wgs_config_dict[step], project_name, sample_list, output_address)
+            run_tool(tool_config_dict[step], wgs_config_dict[step], project_name, sample_list, output_address, group_list)
 
 
 
-def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, output_address):
+def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, output_address, group_list):
     subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", 
-            SCRIPTS + tool_config_dict["script_name"], project_name]
+            SCRIPTS + tool_config_dict["script_name"] + ".sh", project_name]
     
     extra_bash_args = list(map(str, extra_bash_args))
 
+    if tool_config_dict.get("by_group", False):
+        for group_arguments in _by_group_argument_generator(group_list, output_address, tool_config_dict):
+            subprocess.call(subprocess_call_list + group_arguments + extra_bash_args)
+
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
+        return
+
     for curr_sample_arguments in _sample_argument_generator(sample_list, output_address, tool_config_dict):
         if tool_config_dict["uses_chromosomes"]:
-            for chromosome in ["3"]: #CHROMOSOME_LIST: 
-                curr_sample_arguments[0] = curr_sample_arguments[0].format(chromosome)
+            original_suffix = curr_sample_arguments[0]
+            for chromosome in CHROMOSOME_LIST: 
+                curr_sample_arguments[0] = original_suffix.format(chromosome)
                 subprocess.call(subprocess_call_list + curr_sample_arguments + 
                         extra_bash_args + [chromosome])
         else:
@@ -115,133 +134,15 @@ def _sample_argument_generator(sample_list, output_address, config_dictionary):
         yield [file_suffix, ROOT_DIR, fastq_end1, fastq_end2, 
                 input_address, output_address, LOG_DIR, is_zipped]
 
+def _by_group_argument_generator(group_list, output_address, config_dictionary):
+    download_suffix = config_dictionary["download_suffix"]
 
-#def run_fastqc(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "fastqc.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        subprocess.call(subprocess_call_list + argument_list)
-#
-#    PBSTracker.trackPBSQueue(1, "fastqc.sh")
-#
-#    print("Finished running FastQC")
-#
-#def run_trim(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "trim.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        argument_list.append("4")
-#        argument_list.append("36")
-#        subprocess.call(subprocess_call_list + argument_list)
-#
-#    PBSTracker.trackPBSQueue(1, "trim.sh")
-#
-#    print("Finished running Trimmomatic")
-#
-#def run_bwa(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "bwa.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        argument_list[0] = ".trim" + argument_list[0]
-#        argument_list[4] = output_address
-#        argument_list[7] = "False"
-#        argument_list.append("8")
-#        subprocess.call(subprocess_call_list + argument_list)
-#
-#    PBSTracker.trackPBSQueue(1, "bwa.sh")
-#
-#    print("Finished running bwa")
-#
-#def run_sort(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "sort.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        argument_list[0] = ".bam"
-#        argument_list[4] = output_address
-#        argument_list[7] = "False"
-#        argument_list.append("4")
-#        subprocess.call(subprocess_call_list + argument_list)
-#
-#    PBSTracker.trackPBSQueue(1, "sort.sh")
-#
-#    print("Finished running sort")
-#
-#def run_dedup(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "dedup.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        argument_list[0] = ".sort.bam"
-#        argument_list[4] = output_address
-#        argument_list[7] = "False"
-#        argument_list.append("4")
-#        subprocess.call(subprocess_call_list + argument_list)
-#
-#    PBSTracker.trackPBSQueue(1, "dedup.sh")
-#
-#    print("Finished running dedup")
-#
-#def run_split(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "split.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        argument_list[0] = ".dedup.bam"
-#        argument_list[4] = output_address
-#        argument_list[7] = "False"
-#        argument_list.append("1")
-#
-#        for chromosome in ["1", "2"]: #CHROMOSOME_LIST:
-#            subprocess.call(subprocess_call_list + argument_list + [chromosome])
-#
-#    PBSTracker.trackPBSQueue(1, "split.sh")
-#
-#    print("Finished running split")
-#
-#def run_postalignment(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "post.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        argument_list[4] = output_address
-#        argument_list[7] = "False"
-#        argument_list.append("4")
-#
-#        for chromosome in ["1", "2"]: #CHROMOSOME_LIST:
-#            argument_list[0] = ".{}.bam".format(chromosome)
-#            subprocess.call(subprocess_call_list + argument_list + [chromosome])
-#
-#    PBSTracker.trackPBSQueue(1, "post.sh")
-#
-#    print("Finished running post")
-#
-#def run_gatkhaplotype(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "haplo.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        argument_list[4] = output_address
-#        argument_list[7] = "False"
-#        argument_list.append("4")
-#
-#        for chromosome in ["1", "2"]: #CHROMOSOME_LIST:
-#            argument_list[0] = ".final.{}.bam".format(chromosome)
-#            subprocess.call(subprocess_call_list + argument_list + [chromosome])
-#
-#    PBSTracker.trackPBSQueue(1, "haplo.sh")
-#
-#    print("Finished running haplotype")
-#
-#def run_merge(project_name, sample_list, output_address):
-#    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", SCRIPTS + "merge.sh", project_name]
-#    for curr_sample_arguments in _sample_argument_generator(sample_list, output_address):
-#        argument_list = list(curr_sample_arguments)
-#        argument_list[0] = ".final.1.bam"
-#        argument_list[4] = output_address
-#        argument_list[7] = "False"
-#        argument_list.append("4")
-#        argument_list.append("1 2")
-#        subprocess.call(subprocess_call_list + argument_list)
-#
-#    PBSTracker.trackPBSQueue(1, "merge.sh")
-#
-#    print("Finished running merge")
+    for group in group_list:
+        samples = " ".join(group_list[group])
+        yield [download_suffix, ROOT_DIR, group, "NULL", output_address,
+                output_address, LOG_DIR, "False", samples]
+
+
 
 
 

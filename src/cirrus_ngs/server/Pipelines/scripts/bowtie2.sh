@@ -25,7 +25,12 @@ fa_name=hairpin_human
 cut=.cut
 sam=.sam
 
+echo $bowtie
+echo $fa_file
+echo $fa_name
+
 mkdir -p $workspace
+
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$cut$file_suffix ]

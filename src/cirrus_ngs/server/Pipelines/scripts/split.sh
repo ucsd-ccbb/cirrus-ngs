@@ -26,7 +26,7 @@ sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ]
+if [ ! -f $workspace/$fastq_end1$file_suffix ] || [ ! -f $workspace/$fastq_end1$file_suffix.bai ]
 then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
@@ -43,6 +43,10 @@ then
     gunzip -q $workspace/$fastq_end1$download_suffix
 fi
 ##END_DOWNLOAD##
+
+echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+echo "`ls -l $workspace`"
+echo
 
 
 ##SPLIT##

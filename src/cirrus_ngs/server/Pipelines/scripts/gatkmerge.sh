@@ -22,11 +22,17 @@ exec 2>>$log_file
 workspace=$root_dir/$project_name/$fastq_end1
 software_dir=/shared/workspace/software
 sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
+java=$software_dir/java/jre1.8.0_144/bin/java
+gatk=$software_dir/gatk/GenomeAnalysisTK-3.3-0/GenomeAnalysisTK.jar
+
+genome_fasta=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta
+
 vcf_concat=$software_dir/vcftools_0.1.12b/bin/vcf-concat
 vcf_sort=$software_dir/vcftools_0.1.12b/bin/vcf-sort
 bgzip=$software_dir/tabix-0.2.6/bgzip
 tabix=$software_dir/tabix-0.2.6/tabix
 mkdir -p $workspace
+
 
 ##DOWNLOAD##
 downloads_needed="False"
@@ -60,26 +66,30 @@ fi
 ##END_DOWNLOAD##
 
 bam_file_list=""
-vcf_file_list=""
+variant_list=""
 
 for chrom in $chromosome_list
 do
     bam_file_list=$bam_file_list"$workspace/$fastq_end1.final.$chrom.bam "
-    vcf_file_list=$vcf_file_list"$workspace/$fastq_end1.raw.$chrom.vcf.gz "
+    variant_list=$variant_list"--variant $workspace/$fastq_end1.$chrom.g.vcf.gz "
 done
 
 
 ##MERGE##
 $sambamba merge -t $num_threads $workspace/$fastq_end1.final.bam $bam_file_list 
 
-$vcf_concat $vcf_file_list | $bgzip -c > $workspace/$fastq_end1.raw.vcf.gz
-$vcf_sort -t $workspace/temp $workspace/$fastq_end1.raw.vcf.gz > $workspace/$fastq_end1.final.vcf
-$bgzip -c $workspace/$fastq_end1.final.vcf > $workspace/$fastq_end1.final.vcf.gz
-$tabix -p vcf $workspace/$fastq_end1.final.vcf.gz
+$java -Xmx2g -Djava.io.tmpdir=$workspace/temp \
+    -jar $gatk \
+    -T CombineGVCFs \
+    -R $genome_fasta \
+    $variant_list \
+    -o $workspace/$group_name.merged.vcf
+
 ##END_MERGE##
 
 ##UPLOAD##
+#--include "$fastq_end1.raw.vcf.gz" \
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.final.bam" \
-    --include "$fastq_end1.final.vcf.gz*" --include "$fastq_end1.raw.vcf.gz" \
+    --include "$fastq_end1.merged.vcf*" \
     --recursive
 ##END_UPLOAD##
