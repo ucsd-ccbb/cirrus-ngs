@@ -6,7 +6,7 @@ workspace = "/shared/workspace/Pipelines/"
 logs_dir = "/shared/workspace/logs/{}/{}"
 
 
-# executing miRNA pipeline with the specific yaml file
+# executing the specified pipeline with the specific yaml file
 def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_address,
             sample_list, group_list, s3_output_files_address):
     yaml_file = project_name + ".yaml"

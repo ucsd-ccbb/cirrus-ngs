@@ -2,16 +2,13 @@ __author__ = 'Mengyi Liu<mel097@ucsd.edu>'
 
 import sys
 import subprocess
-import PBSTracker
-import YamlFileReader
+from util import PBSTracker
+from util import YamlFileReader
 
 root = "/scratch"
 workspace = "/shared/workspace/Pipelines/"
 scripts = "/shared/workspace/Pipelines/scripts/"
 log = "/shared/workspace/logs/MultiQC"
-
-# specify files to perform multiqc on; each file in one quote, separated by comma
-multiqc_file_list = "AD2-WK4_GTAGAG_S16_L001_R1_001_fastqc.zip"   ## output of fastqc
 
 
 def run_analysis(yaml_file):
@@ -30,26 +27,30 @@ def run_analysis(yaml_file):
     if "fastqc" in analysis_steps:
         for sample in sample_list:
             sample_info = get_sample_info(sample)
-            print("SAMPLE INFO: ")
-            print(sample_info)
-            print("project name: " + project_name)
             run_fastqc(project_name, sample_info.get("file_suffix"), root, sample_info.get("fastq_end1"),
                        sample_info.get("fastq_end2"), s3_input_address,
                        sample_info.get("s3_output_address"), log, sample_info.get("is_zipped"))
 
-    # run multiqc
+    # run multiqc for all samples
     if "multiqc" in analysis_steps:
+        multiqc_file_list = []
+        s3_output_address = ""
+
         for sample in sample_list:
             sample_info = get_sample_info(sample)
-            print("SAMPLE INFO: ")
-            print(sample_info)
-            print("project name: " + project_name)
-            run_multiqc(project_name, root, s3_input_address,
-                       sample_info.get("s3_output_address"), log, multiqc_file_list)
+            # get the filenames for all the samples
+            multiqc_file_list.append(sample_info.get("fastq_end1") + "_fastqc.zip")
+            if sample_info.get("fastq_end2") != "NULL":
+                multiqc_file_list.append(sample_info.get("fastq_end2") + "_fastqc.zip")
+            s3_output_address = sample_info.get("s3_output_address")
+
+        print("In run analysis, multiqc_file_list: ", multiqc_file_list)
+        run_multiqc(project_name, root, s3_input_address, s3_output_address, log, multiqc_file_list)
 
 
 # process samples
 def get_sample_info(sample):
+    # single-end or paired end
     files = sample.get("filename")
     # set file suffix
     file_suffix = ".fastq"
@@ -85,16 +86,6 @@ def run_fastqc(project_name, file_suffix, root_dir, fastq_end1, fastq_end2, s3_i
                log_dir, is_zipped):
 
     print("running fastqc...")
-    print(project_name, isinstance(log_dir, str))
-    print(file_suffix, isinstance(file_suffix, str))
-    print(root_dir, isinstance(root_dir, str))
-    print(fastq_end1, isinstance(fastq_end1, str))
-    print(fastq_end2, isinstance(fastq_end2, str))
-    print(s3_input_address, isinstance(s3_input_address, str))
-    print(s3_output_address, isinstance(s3_output_address, str))
-    print(log_dir, isinstance(log_dir, str))
-    print(is_zipped, isinstance(is_zipped, str))
-
     subprocess.call(['qsub', "-o", "/dev/null", "-e", "/dev/null", scripts + 'fastqc.sh',
                     project_name, file_suffix, root_dir, fastq_end1, fastq_end2, s3_input_address, s3_output_address,
                     log_dir, is_zipped])
@@ -103,18 +94,16 @@ def run_fastqc(project_name, file_suffix, root_dir, fastq_end1, fastq_end2, s3_i
 
 
 # run multiqc
-# TODO: check how well *args works out
-def run_multiqc(project_name, root_dir, s3_input_address, s3_output_address, log_dir, *multiqc_files):
-    print("running multiqc")
-    print(project_name, isinstance(log_dir, str))
-    print(root_dir, isinstance(root_dir, str))
-    print(s3_input_address, isinstance(s3_input_address, str))
-    print(s3_output_address, isinstance(s3_output_address, str))
-    print(log_dir, isinstance(log_dir, str))
-    print(*multiqc_file_list)
+def run_multiqc(project_name, root_dir, s3_input_address, s3_output_address, log_dir, multiqc_files):
+    print("running multiqc...")
+
+    print(multiqc_files)
+    # turn the list into comma separated strings
+    print(','.join(multiqc_files))
 
     subprocess.call(['qsub', "-o", "/dev/null", "-e", "/dev/null", scripts + "multiqc.sh",
-                    project_name, root_dir, s3_input_address, s3_output_address, log_dir, *multiqc_files])
+                    project_name, root_dir, s3_input_address, s3_output_address, log_dir,
+                    ','.join(multiqc_files)])
 
     PBSTracker.trackPBSQueue(1, "multiqc")
 
