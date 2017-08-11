@@ -29,7 +29,7 @@ echo $is_zipped
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
 software=/shared/workspace/software
-cutadapt=$software/anaconda3/bin/cutadapt
+cutadapt=$software/cutadapt-1.14/cutadapt
 adapter=TGGAATTCTCGGGTGCCAAGG
 trim=.trim
 cut=.cut
