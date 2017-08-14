@@ -1,0 +1,63 @@
+## Configuration file for tool methods
+fastqc:
+    script_name: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+trim:
+    script_name: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+bwa:
+    script_name: "bwa"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+sort:
+    script_name: "sort"
+    download_suffix: ".bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+dedup:
+    script_name: "dedup"
+    download_suffix: ".sort.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+split:
+    script_name: "split"
+    download_suffix: ".dedup.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
+postalignment:
+    script_name: "post"
+    download_suffix: ".{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
+haplotype:
+    script_name: "haplo"
+    download_suffix: ".final.{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
+merge:
+    script_name: "gatkmerge"
+    download_suffix: ".final.1.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+combine_vcf:
+    script_name: "group_vcf"
+    download_suffix: ".final.vcf.gz"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_group: True
+

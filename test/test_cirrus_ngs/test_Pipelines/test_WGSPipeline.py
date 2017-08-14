@@ -127,10 +127,11 @@ class Tests(unittest.TestCase):
 
         self.assertEqual(correct_output, arg_matrix)
 
-    def test_by_group_argument_generator(self):
-        group_list = {}
-        output_address "s3://fake/output"
-        config_dictionary = {}
+#    def test_by_group_argument_generator(self):
+#        group_list = {}
+#        output_address ="s3://fake/output"
+#        config_dictionary = {}
+#        self.fail("this test isn't done yet")
 
 
 
