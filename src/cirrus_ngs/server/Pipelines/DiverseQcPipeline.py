@@ -1,3 +1,5 @@
+# Post-alignment MultiQC, which performs MultiQC analysis on various alignment results from different alignment tools
+
 __author__ = 'Mengyi Liu<mel097@ucsd.edu>'
 
 import sys
@@ -8,7 +10,10 @@ from util import YamlFileReader
 root = "/scratch"
 workspace = "/shared/workspace/Pipelines/"
 scripts = "/shared/workspace/Pipelines/scripts/"
-log = "/shared/workspace/logs/MultiQC"
+log = "/shared/workspace/logs/DiverseQC"
+
+# TODO: type of alignment tool used
+alignment = "bowtie2"  # sam files
 
 
 def run_analysis(yaml_file):
@@ -23,7 +28,7 @@ def run_analysis(yaml_file):
     global log
     log += '/' + project_name
 
-    # run fastqc
+    # TODO: run fastqc or not? post alignment?
     if "fastqc" in analysis_steps:
         for sample in sample_list:
             sample_info = get_sample_info(sample)
@@ -38,10 +43,14 @@ def run_analysis(yaml_file):
 
         for sample in sample_list:
             sample_info = get_sample_info(sample)
+
             # get the filenames for all the samples
-            multiqc_file_list.append(sample_info.get("fastq_end1") + "_fastqc.zip")
-            if sample_info.get("fastq_end2") != "NULL":
-                multiqc_file_list.append(sample_info.get("fastq_end2") + "_fastqc.zip")
+            file_extension = get_file_extension(alignment)
+            # alignment typically generate ONE sam/bam file for single-end or paired-end reads
+            multiqc_file_list.append(sample_info.get("fastq_end1") + file_extension)
+
+            #if sample_info.get("fastq_end2") != "NULL":
+            #    multiqc_file_list.append(sample_info.get("fastq_end2") + "_fastqc.zip")
             s3_output_address = sample_info.get("s3_output_address")
 
         print("In run analysis, multiqc_file_list: ", multiqc_file_list)
@@ -80,8 +89,13 @@ def get_sample_info(sample):
     return sample_info
 
 
+# get the alignment file extension given the alignment tool used
+def get_file_extension(alignment_tool):
+    extension_dict = {"bowtie2": ".sam"}[alignment_tool]
+    return extension_dict
+
+
 # run fastqc
-# TODO: parallel process fastq?
 def run_fastqc(project_name, file_suffix, root_dir, fastq_end1, fastq_end2, s3_input_address, s3_output_address,
                log_dir, is_zipped):
 
@@ -101,11 +115,11 @@ def run_multiqc(project_name, root_dir, s3_input_address, s3_output_address, log
     # turn the list into comma separated strings
     print(','.join(multiqc_files))
 
-    subprocess.call(['qsub', "-o", "/dev/null", "-e", "/dev/null", scripts + "multiqc.sh",
+    subprocess.call(['qsub', "-o", "/dev/null", "-e", "/dev/null", scripts + "diverseqc.sh",
                     project_name, root_dir, s3_input_address, s3_output_address, log_dir,
                     ','.join(multiqc_files)])
 
-    PBSTracker.trackPBSQueue(1, "multiqc")
+    PBSTracker.trackPBSQueue(1, "diverseqc")
 
 
 if __name__ == "__main__":
