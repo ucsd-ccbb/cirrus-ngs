@@ -65,7 +65,6 @@ else
         $workspace/$fastq_end2$file_suffix | $samblaster | \
         $samtools view -Sb - > $workspace/$fastq_end1.bam
 fi
-##END_ALIGN##
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "*.bam" --recursive
