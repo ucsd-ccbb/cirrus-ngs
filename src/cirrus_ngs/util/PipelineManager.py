@@ -6,7 +6,7 @@ workspace = "/shared/workspace/Pipelines/"
 logs_dir = "/shared/workspace/logs/{}/{}"
 
 
-# executing miRNA pipeline with the specific yaml file
+# executing a specified pipeline with the specific yaml file
 def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_address,
             sample_list, group_list, s3_output_files_address):
     yaml_file = project_name + ".yaml"
@@ -36,9 +36,12 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
 
 
 # get the name of the pipeline file
+# MultiQC: pre-alignment QC
+# DiverseQC: post-alignment QC
 def get_pipeline_file(pipeline):
 
     file_dict = {"MultiQC": "PrimaryQcPipeline.py",
+                 "DiverseQC": "DiverseQcPipeline.py",
                  "ChiPSeq": "ChipSeqPipeline.py",
                  "DNASeq": "WGSPipeline.py",
                  "RNASeq": "RNASeqPipeline.py",
