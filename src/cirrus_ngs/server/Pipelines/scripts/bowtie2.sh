@@ -20,10 +20,12 @@ exec 2>>$log_file
 workspace=$root_dir/$project_name/$fastq_end1
 software=/shared/workspace/software
 bowtie=$software/bowtie2-2.3.2-legacy
-fa_file=$software/bowtie_index/hairpin_human/hairpin_human.fa   # fa file as the reference genome
+samtools=$software/samtools/samtools-1.1/samtools
+# fa_file=$software/bowtie_index/hairpin_human/hairpin_human.fa   # fa file as the reference genome
 basename=hairpin_human
 cut=.cut
 sam=.sam
+
 
 echo $bowtie
 echo $basename
@@ -44,13 +46,13 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    aws s3 cp $input_address/$project_name/$fastq_end1$download_suffix $workspace/
     gunzip -q $workspace/$fastq_end1$download_suffix
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
+        aws s3 cp $input_address/$project_name/$fastq_end2$download_suffix $workspace/
         gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
@@ -59,18 +61,17 @@ fi
 
 ##BOWTIE 2 ALIGNMENT##
 
-# TODO: go to the directory of the index file (.fa file)
-# cd $software/bowtie_index/hairpin_human
+# go to the directory of the index file
+cd $software/bowtie2_index/
 
-# indexing a reference genome
+# indexing a reference genome (already built, moved under software/bowtie2_index)
 # cd ~
 # $bowtie/bowtie2-build $fa_file $basename
 
 if [ "$fastq_end2" == "NULL" ]
 then
     # single end
-    # TODO: need the path to basename or no?
-    $bowtie/bowtie2 --very-sensitive-local -x $basename -U $workspace/$fastq_end1$cut$file_suffix \
+    $bowtie/bowtie2 -x $basename -U $workspace/$fastq_end1$cut$file_suffix \
     -S $workspace/$fastq_end1$sam
 else
     # paired end: using the same output file name ($fastq_end1.sam)
@@ -80,8 +81,13 @@ fi
 
 ##END BOWTIE 2 ##
 
+# TODO: Samtool stats on output (sam)
+$samtools stats $workspace/$fastq_end1$sam
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --recursive
+aws s3 cp $workspace $output_address/$project_name --exclude "*" --include "*.sam*" --recursive
+
+# upload the txt file from samtool stats
+aws s3 cp $workspace $output_address/$project_name --exclude "*" --include "*.txt*" --recursive
 ##END_UPLOAD##
 
