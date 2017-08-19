@@ -25,10 +25,7 @@ samtools=$software/samtools/samtools-1.1/samtools
 basename=hairpin_human
 cut=.cut
 sam=.sam
-
-
-echo $bowtie
-echo $basename
+txt=.txt
 
 mkdir -p $workspace
 
@@ -46,13 +43,13 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/$project_name/$fastq_end1$download_suffix $workspace/
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
     gunzip -q $workspace/$fastq_end1$download_suffix
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        aws s3 cp $input_address/$project_name/$fastq_end2$download_suffix $workspace/
+        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
         gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
@@ -81,13 +78,14 @@ fi
 
 ##END BOWTIE 2 ##
 
-# TODO: Samtool stats on output (sam)
-$samtools stats $workspace/$fastq_end1$sam
+# Produce text files to workspace, for multiqc analysis
+$samtools stats $workspace/$fastq_end1$sam > $workspace/$fastq_end1$txt
+echo "Finished samtools stats"
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address/$project_name --exclude "*" --include "*.sam*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --recursive
 
-# upload the txt file from samtool stats
-aws s3 cp $workspace $output_address/$project_name --exclude "*" --include "*.txt*" --recursive
+# upload the txt files from samtool stats
+aws s3 cp $workspace $output_address --exclude "*" --include "*.txt*" --recursive
 ##END_UPLOAD##
 

@@ -32,7 +32,7 @@ for i in ${samfiles_list//,/ }; do
     echo "In shell: "$i
     if [ ! -f $workspace/$i ]
     then
-        aws s3 cp $input_address/$project_name/$i $workspace
+        aws s3 cp $input_address/$i $workspace
     fi
 done
 
@@ -41,4 +41,4 @@ done
 $fa_file $workspace/$counts_out $workspace/$mapping_rates_out $samfiles_list $workspace
 
 # Upload the output file to s3
-aws s3 cp $workspace $output_address/$project_name --exclude "*" --include "*.out*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.out*" --recursive
