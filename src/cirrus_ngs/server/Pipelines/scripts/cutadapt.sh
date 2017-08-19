@@ -29,7 +29,7 @@ echo $is_zipped
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
 software=/shared/workspace/software
-cutadapt=$software/cutadapt-1.14/cutadapt
+cutadapt=$software/anaconda3/bin/cutadapt
 adapter=TGGAATTCTCGGGTGCCAAGG
 trim=.trim
 cut=.cut
@@ -65,12 +65,13 @@ fi
 
 
 ##CUT_ADAPT##
+# TODO: for paired end too
 # cut 3' end
 $cutadapt -a $adapter -o $workspace/$fastq_end1$cut$threeprime$file_suffix \
-$workspace/$fastq_end1$trim$file_suffix -m 2
+$workspace/$fastq_end1$trim$file_suffix -m 2 --info-file $workspace/$fastq_end1$cut$threeprime.txt
 # cut anchored 5' end
 $cutadapt -g ^$adapter -o $workspace/$fastq_end1$cut$file_suffix \
-$workspace/$fastq_end1$cut$threeprime$file_suffix -m 2
+$workspace/$fastq_end1$cut$threeprime$file_suffix -m 2 --info-file $workspace/$fastq_end1$cut.txt
 
 if [ "$fastq_end2" != "NULL" ];
 then
@@ -84,7 +85,10 @@ fi
 ##END_CUT_ADAPT##
 
 
-##UPLOAD--only upload the final cut file##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.*" --recursive
+##UPLOAD##
+aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.fastq*" --recursive
+
+# upload the txt files
+aws s3 cp $workspace $output_address --exclude "*" --include "*.txt*" --recursive
 ##END_UPLOAD##
 

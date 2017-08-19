@@ -36,13 +36,9 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
 
 
 # get the name of the pipeline file
-# MultiQC: pre-alignment QC
-# DiverseQC: post-alignment QC
 def get_pipeline_file(pipeline):
 
-    file_dict = {"MultiQC": "PrimaryQcPipeline.py",
-                 "DiverseQC": "DiverseQcPipeline.py",
-                 "ChiPSeq": "ChipSeqPipeline.py",
+    file_dict = {"ChiPSeq": "ChipSeqPipeline.py",
                  "DNASeq": "WGSPipeline.py",
                  "RNASeq": "RNASeqPipeline.py",
                  "SmallRNASeq": "miRNAPipeline.py"}[pipeline]

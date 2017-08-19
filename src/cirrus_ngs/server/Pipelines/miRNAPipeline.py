@@ -37,10 +37,9 @@ def run_analysis(yaml_file):
     # call run_fastqc
     if "fastqc" in analysis_steps:
         for sample in sample_list:
-            sample_info = get_sample_info(sample)
-            print("SAMPLE INFO: ")
-            print(sample_info)
-            print("project name: " + project_name)
+            sample_info = get_sample_info(sample, project_name)
+            print("output address: " + sample_info.get("s3_output_address"))
+
             run_fastqc(project_name, sample_info.get("file_suffix"), root, sample_info.get("fastq_end1"),
                        sample_info.get("fastq_end2"), s3_input_address,
                        sample_info.get("s3_output_address"), log, sample_info.get("is_zipped"))
@@ -48,7 +47,7 @@ def run_analysis(yaml_file):
     # call run_trimmomatic
     if "trim" in analysis_steps:
         for sample in sample_list:
-            sample_info = get_sample_info(sample)
+            sample_info = get_sample_info(sample, project_name)
             print("SAMPLE INFO: ")
             print(sample_info)
             print("zipped: "+zipped)
@@ -63,7 +62,7 @@ def run_analysis(yaml_file):
     # call cut adapt
     if "cut_adapt" in analysis_steps:
         for sample in sample_list:
-            sample_info = get_sample_info(sample)
+            sample_info = get_sample_info(sample, project_name)
             print("SAMPLE INFO: ")
             print(sample_info)
             print("zipped: " + zipped)
@@ -75,7 +74,7 @@ def run_analysis(yaml_file):
     # call bowtie2
     if "bowtie2" in analysis_steps:
         for sample in sample_list:
-            sample_info = get_sample_info(sample)
+            sample_info = get_sample_info(sample, project_name)
 
             run_bowtie2(project_name, sample_info.get("file_suffix"), root, sample_info.get("fastq_end1"),
                         sample_info.get("fastq_end2"), sample_info.get("s3_output_address"),
@@ -83,29 +82,13 @@ def run_analysis(yaml_file):
 
     # TODO: call multiqc
     if "multiqc" in analysis_steps:
-
-        multiqc_file_list = []
-
-        # search on s3 for alignment output files (.sam or .bam)
-
-        # set align_suffix to .sam or .bam
-
-        # add fastq_end1 + align_suffix to multiqc_file_list, then call
-
-
-
         s3_output_address = ""
 
         for sample in sample_list:
-            sample_info = get_sample_info(sample)
-
-            # alignment generates ONE sam file for single-end or paired-end reads
-            multiqc_file_list.append(sample_info.get("fastq_end1"))
+            sample_info = get_sample_info(sample, project_name)
             s3_output_address = sample_info.get("s3_output_address")
 
-        print("In run analysis, multiqc_file_list: ", multiqc_file_list)
-        # TODO: change input address to output address
-        run_multiqc(project_name, root, s3_input_address, s3_output_address, log, multiqc_file_list)
+        run_multiqc(project_name, root, s3_output_address, s3_output_address, log)
 
     # call counting, using counter.py
     if "counting" in analysis_steps:
@@ -113,7 +96,7 @@ def run_analysis(yaml_file):
         s3_output_address = ""
 
         for sample in sample_list:
-            sample_info = get_sample_info(sample)
+            sample_info = get_sample_info(sample, project_name)
             samfile_list.append(sample_info.get("fastq_end1") + ".sam")
             s3_output_address = sample_info.get("s3_output_address")
 
@@ -123,7 +106,7 @@ def run_analysis(yaml_file):
 
 
 # process samples
-def get_sample_info(sample):
+def get_sample_info(sample, project):
     files = sample.get("filename")
     # set file suffix
     file_suffix = ".fastq"
@@ -144,8 +127,8 @@ def get_sample_info(sample):
         fastq_end1 = file_list[0][:file_list[0].find(file_suffix)]
         fastq_end2 = file_list[1][:file_list[1].find(file_suffix)]
 
-    # get output address
-    s3_output_address = sample.get("download")
+    # get output address, append the project name
+    s3_output_address = sample.get("download") + "/" + project
 
     sample_info = {'file_suffix': file_suffix, 'fastq_end1': fastq_end1, 'fastq_end2': fastq_end2,
                    's3_output_address': s3_output_address, 'is_zipped': is_zipped}
@@ -238,17 +221,12 @@ def run_bowtie2(project_name, file_suffix, root_dir, fastq_end1, fastq_end2, s3_
     PBSTracker.trackPBSQueue(1, "bowtie2")
 
 
-# TODO: run multiqc, as a step
-def run_multiqc(project_name, root_dir, s3_input_address, s3_output_address, log_dir, multiqc_files):
+# run multiqc, to generate a primary analysis report (html file) for users
+def run_multiqc(project_name, root_dir, s3_input_address, s3_output_address, log_dir):
     print("running multiqc...")
 
-    print(multiqc_files)
-    # turn the list into comma separated strings
-    print(','.join(multiqc_files))
-
     subprocess.call(['qsub', "-o", "/dev/null", "-e", "/dev/null", scripts + "multiqc.sh",
-                    project_name, root_dir, s3_input_address, s3_output_address, log_dir,
-                    ','.join(multiqc_files)])
+                    project_name, root_dir, s3_input_address, s3_output_address, log_dir])
 
     PBSTracker.trackPBSQueue(1, "multiqc")
 
