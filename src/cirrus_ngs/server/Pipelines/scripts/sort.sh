@@ -53,6 +53,6 @@ $sambamba index -t $num_threads $workspace/$fastq_end1.sort.bam \
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.sort.bam*" --recursive
+aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.sort.bam*" --recursive
 ##END_UPLOAD##
 

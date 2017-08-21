@@ -55,6 +55,6 @@ $sambamba index -t $num_threads $workspace/$fastq_end1.dedup.bam \
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.dedup.bam*" --include "*.matrics.txt" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.dedup.bam*" --include "$fastq_end1.matrics.txt" --recursive
 ##END_UPLOAD##
 

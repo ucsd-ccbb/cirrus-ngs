@@ -58,9 +58,6 @@ fi
 
 ##POSTALIGN##
 #picard - mark duplicates
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "running picard"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 $java -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g -jar $mark_duplicates \
     INPUT=$workspace/$fastq_end1$file_suffix \
     OUTPUT=$workspace/$fastq_end1.$chromosome.dedup.bam \
@@ -68,24 +65,15 @@ $java -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g -jar $mark_duplicates \
     AS=true VALIDATION_STRINGENCY=LENIENT
 
 #sambamba - indexing
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "running sambamba"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 $sambamba index  $workspace/$fastq_end1.$chromosome.dedup.bam \
     $workspace/$fastq_end1.$chromosome.dedup.bam.bai
 
 #bedtools - create bed file
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "running bedtools"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 $bedtools genomecov -split -ibam $workspace/$fastq_end1.$chromosome.dedup.bam \
     -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.$chromosome.dedup.bed
 
 #gatk - realigner target creator
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "running RealignerTargetCreator"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-$java -jar -Djava.io.tmpdir=$workspace/temp -Xmx4g \
+$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx4g \
     $gatk -T RealignerTargetCreator -R $genome_fasta \
     -I $workspace/$fastq_end1.$chromosome.dedup.bam \
     --known $G1000 --known $mills \
@@ -93,10 +81,7 @@ $java -jar -Djava.io.tmpdir=$workspace/temp -Xmx4g \
     --allow_potentially_misencoded_quality_scores
 
 #gatk - indel realigner
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "running IndelRealigner"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-$java -jar -Djava.io.tmpdir=$workspace/temp -Xmx4g \
+$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx4g \
     $gatk -T IndelRealigner -R $genome_fasta \
     -I $workspace/$fastq_end1.$chromosome.dedup.bam \
     -known $G1000 -known $mills \
@@ -104,11 +89,8 @@ $java -jar -Djava.io.tmpdir=$workspace/temp -Xmx4g \
     -o $workspace/$fastq_end1.realign.$chromosome.bam -L chr$chromosome \
     --allow_potentially_misencoded_quality_scores
 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "running BaseRecalibrator"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 #gatk - base recalibrator
-$java -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
+$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
     $gatk -T BaseRecalibrator -R $genome_fasta \
     -I $workspace/$fastq_end1.$chromosome.dedup.bam \
     --knownSites $dbsnp --knownSites $hapmap \
@@ -116,11 +98,8 @@ $java -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
     -dcov 2 -L $workspace/$fastq_end1.$chromosome.dedup.bed \
     --allow_potentially_misencoded_quality_scores
 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "running PrintReads"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 #gatk - print reads
-$java -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
+$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
     $gatk -T PrintReads -R $genome_fasta \
     -I $workspace/$fastq_end1.realign.$chromosome.bam \
     --BQSR $workspace/$fastq_end1.$chromosome.grp \
@@ -131,11 +110,9 @@ $java -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
 
 $sambamba index  $workspace/$fastq_end1.final.$chromosome.bam \
     $workspace/$fastq_end1.final.$chromosome.bam.bai
+
 ##END_POSTALIGN##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.$chromosome.dedup.bam*" \
-    --include "*.$chromosome.dedup.bed" --include "*$chromosome.metrics.txt" \
-    --include "*.$chromosome.interval_list" --include "*.realign.$chromosome.bam" \
-    --include "*.$chromosome.grp" --include "*.final.$chromosome.bam*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.final.$chromosome.bam*" --recursive
 ##END_UPLOAD##

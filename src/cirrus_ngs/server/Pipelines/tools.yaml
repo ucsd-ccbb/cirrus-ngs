@@ -47,15 +47,34 @@ haplotype:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
+ghaplotype:
+    script_name: "haplo"
+    download_suffix: ".final.{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
 merge:
-    script_name: "gatkmerge"
-    download_suffix: ".final.1.bam"
+    script_name: "merge"
+    download_suffix: ".raw.vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+gmerge:
+    script_name: "merge"
+    download_suffix: ".g.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 combine_vcf:
     script_name: "group_vcf"
-    download_suffix: ".final.vcf.gz"
+    download_suffix: ".merged.vcf"
+    input_is_output: False
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_group: True
+filter:
+    script_name: "filter"
+    download_suffix: ".g.vcf.gz"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False

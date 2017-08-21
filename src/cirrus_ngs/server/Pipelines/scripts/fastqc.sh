@@ -65,5 +65,7 @@ fi
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*_fastqc*" --recursive
+include_end1=$fastq_end1"_fastqc*"
+include_end2=$fastq_end2"_fastqc*"
+aws s3 cp $workspace $output_address --exclude "*" --include "$include_end1" --include "$include_end2" --recursive
 ##END_UPLOAD##

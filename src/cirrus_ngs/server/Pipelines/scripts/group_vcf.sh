@@ -57,8 +57,8 @@ then
     #download all separated vcf and bam files
     for file in $files_in_group
     do
-        aws s3 cp $input_address/$file$file_suffix $workspace/
-        aws s3 cp $input_address/$file$file_suffix.tbi $workspace/
+        aws s3 cp $input_address/$project_name/$file/$file$file_suffix $workspace/
+        aws s3 cp $input_address/$project_name/$file/$file$file_suffix.tbi $workspace/
     done
 fi
 ##END_DOWNLOAD##
@@ -79,9 +79,16 @@ $java -Xmx2g -Djava.io.tmpdir=$workspace/temp \
     $variant_list \
     -o $workspace/$group_name.merged.vcf
 
+$java -Xms454m -Xmx3181m -Djava.io.tmpdir=$workspace/temp \
+    -jar $gatk \
+    -T GenotypeGVCFs \
+    -R $genome_fasta \
+    --variant $workspace/$group_name.merged.vcf \
+    -o $workspace/$group_name.g.vcf.gz \
+    --dbsnp $dbsnp
+
 #END_COMBINEVCF##
 
-
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo "`ls $workspace`"
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+##UPLOAD##
+aws s3 cp $workspace/ $output_address --exclude "*" --include "$group_name.g.vcf*" --recursive
+##END_UPLOAD

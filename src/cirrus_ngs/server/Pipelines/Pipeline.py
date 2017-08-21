@@ -8,11 +8,10 @@ import yaml
 
 ROOT_DIR = "/scratch"
 SCRIPTS = "/shared/workspace/Pipelines/scripts/"
-LOG_DIR = "/shared/workspace/logs/DNASeq/"
 CHROMOSOME_LIST = list(map(str, range(1,23))) + ["X", "Y", "M"]
 
 ##run the actual pipeline
-def run_analysis(yaml_file):
+def run_analysis(yaml_file, log_dir, pipeline_config_file):
     documents = YamlFileReader.parse_yaml_file(yaml_file)
 
     project_name = documents.get("project")
@@ -21,7 +20,10 @@ def run_analysis(yaml_file):
     sample_list = documents.get("sample")
 
     analysis_steps = [x.strip() for x in analysis_steps.split(",")]
-    print(analysis_steps)
+
+    global LOG_DIR
+    LOG_DIR = log_dir
+    print(LOG_DIR)
 
     group_list = {}
 
@@ -33,21 +35,15 @@ def run_analysis(yaml_file):
         else:
             group_list[curr_group] = [curr_sample]
 
+    global_config_file = open("/shared/workspace/Pipelines/tools.yaml", "r")
+    global_config_dict = yaml.load(global_config_file)
 
-    global LOG_DIR
-    LOG_DIR += project_name
+    specific_config_file = open("/shared/workspace/Pipelines/{}".format(pipeline_config_file), "r")
+    specific_config_dict = yaml.load(specific_config_file)
 
-    config_file = open("/shared/workspace/Pipelines/tools.yaml", "r")
-    tool_config_dict = yaml.load(config_file)
-
-    wgs_specific_config_file = open("/shared/workspace/Pipelines/WGSTools.yaml", "r")
-    wgs_config_dict = yaml.load(wgs_specific_config_file)
-
-    for step in wgs_config_dict["steps"]:
+    for step in specific_config_dict["steps"]:
         if step in analysis_steps:
-            print(step)
-            run_tool(tool_config_dict[step], wgs_config_dict[step], project_name, sample_list, output_address, group_list)
-
+            run_tool(global_config_dict[step], specific_config_dict[step], project_name, sample_list, output_address, group_list)
 
 
 def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, output_address, group_list):
@@ -162,4 +158,4 @@ def _by_group_argument_generator(project_name, group_list, output_address, confi
 
 
 if __name__ == "__main__":
-    run_analysis(sys.argv[1])
+    run_analysis(sys.argv[1], sys.argv[2], sys.argv[3])

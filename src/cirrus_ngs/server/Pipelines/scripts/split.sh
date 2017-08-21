@@ -44,10 +44,6 @@ then
 fi
 ##END_DOWNLOAD##
 
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo "`ls -l $workspace`"
-echo
-
 
 ##SPLIT##
 $samtools view -b $workspace/$fastq_end1$file_suffix chr$chromosome > \
@@ -58,5 +54,5 @@ $sambamba index -t $num_threads $workspace/$fastq_end1.$chromosome.bam \
 ##END_SPLIT##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.$chromosome.bam*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.bam*" --recursive
 ##END_UPLOAD##
