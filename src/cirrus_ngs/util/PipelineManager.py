@@ -32,7 +32,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
     ConnectionManager.execute_command(ssh_client,
                                       "qsub -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
                                       + workspace + "yaml_examples/" + yaml_file + " " + logs_dir + " "
-                                      + pipeline_file)
+                                      + pipeline)
 
 
 # get the name of the pipeline file
@@ -40,9 +40,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
 # DiverseQC: post-alignment QC
 def get_pipeline_file(pipeline):
 
-    file_dict = {"MultiQC": "PrimaryQcPipeline.py",
-                 "DiverseQC": "DiverseQcPipeline.py",
-                 "ChiPSeq": "ChipSeqPipeline.py",
+    file_dict = {"ChiPSeq": "ChipSeqPipeline.py",
                  "DNASeq": "WGSPipeline.py",
                  "RNASeq": "RNASeqPipeline.py",
                  "SmallRNASeq": "miRNAPipeline.py"}[pipeline]

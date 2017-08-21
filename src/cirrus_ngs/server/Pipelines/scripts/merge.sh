@@ -23,16 +23,17 @@ workspace=$root_dir/$project_name/$fastq_end1
 software_dir=/shared/workspace/software
 sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 vcf_concat=$software_dir/vcftools_0.1.12b/bin/vcf-concat
-vcf_sort=$software_dir/vcftools_0.1.12b/bin/vcf-sort
+vcf_sort=$software_dir/vcftools_0.1.12b/bin/vcf-sort-hg19
 bgzip=$software_dir/tabix-0.2.6/bgzip
 tabix=$software_dir/tabix-0.2.6/tabix
 mkdir -p $workspace
+mkdir -p $workspace/temp
 
 ##DOWNLOAD##
 downloads_needed="False"
 for chrom in $chromosome_list
 do
-    if [ ! -f $workspace/$fastq_end1.final.$chrom.bam ] || [ ! -f $workspace/$fastq_end1.$chrom.g.vcf.gz ] || [ ! -f $workspace/$fastq_end1.$chrom.g.vcf.gz.tbi ]
+    if [ ! -f $workspace/$fastq_end1.final.$chrom.bam ] || [ ! -f $workspace/$fastq_end1.$chrom$file_suffix ]
     then
         downloads_needed="True"
     fi
@@ -53,8 +54,7 @@ then
     for chrom in $chromosome_list
     do
         aws s3 cp $input_address/$fastq_end1.final.$chrom.bam $workspace/
-        aws s3 cp $input_address/$fastq_end1.$chrom.g.vcf.gz $workspace/
-        aws s3 cp $input_address/$fastq_end1.$chrom.g.vcf.gz.tbi $workspace/
+        aws s3 cp $input_address/$fastq_end1.$chrom$file_suffix $workspace/
     done
 fi
 ##END_DOWNLOAD##
@@ -65,21 +65,20 @@ vcf_file_list=""
 for chrom in $chromosome_list
 do
     bam_file_list=$bam_file_list"$workspace/$fastq_end1.final.$chrom.bam "
-    vcf_file_list=$vcf_file_list"$workspace/$fastq_end1.raw.$chrom.vcf.gz "
+    vcf_file_list=$vcf_file_list"$workspace/$fastq_end1.$chrom$file_suffix "
 done
 
 
 ##MERGE##
+export PERL5LIB=/shared/workspace/software/vcftools_0.1.12b/perl/
 $sambamba merge -t $num_threads $workspace/$fastq_end1.final.bam $bam_file_list 
 
-$vcf_concat $vcf_file_list | $bgzip -c > $workspace/$fastq_end1.raw.vcf.gz
-$vcf_sort -t $workspace/temp $workspace/$fastq_end1.raw.vcf.gz > $workspace/$fastq_end1.final.vcf
-$bgzip -c $workspace/$fastq_end1.final.vcf > $workspace/$fastq_end1.final.vcf.gz
-$tabix -p vcf $workspace/$fastq_end1.final.vcf.gz
+$vcf_concat $vcf_file_list > $workspace/$fastq_end1.raw.vcf
+$vcf_sort $workspace/temp $workspace/$fastq_end1.raw.vcf > $workspace/$fastq_end1.merged.vcf
 ##END_MERGE##
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.final.bam" \
-    --include "$fastq_end1.final.vcf.gz*" --include "$fastq_end1.raw.vcf.gz" \
+    --include "$fastq_end1.merged.vcf" \
     --recursive
 ##END_UPLOAD##

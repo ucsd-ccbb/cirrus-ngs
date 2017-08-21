@@ -83,7 +83,7 @@ $java -Xmx2g -Djava.io.tmpdir=$workspace/temp \
     -T CombineGVCFs \
     -R $genome_fasta \
     $variant_list \
-    -o $workspace/$group_name.merged.vcf
+    -o $workspace/$fastq_end1.merged.vcf.gz
 
 ##END_MERGE##
 
