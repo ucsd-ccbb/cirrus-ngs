@@ -12,8 +12,6 @@ is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 files_in_group=${10}    #all files in current group
 num_threads=${11}
 
-output_address=$output_address/$project_name/$group_name
-
 #logging
 mkdir -p $log_dir
 log_file=$log_dir/'filter_variant.log'
@@ -41,7 +39,7 @@ G1000indels=$software_dir/variation/1000G_phase1.indels.hg19.sites.vcf
 
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$group_name$file_suffix ] || [ ! -f $workspace/$group_name$file_suffix.idx ]
+if [ ! -f $workspace/$group_name$file_suffix ] || [ ! -f $workspace/$group_name$file_suffix.tbi ]
 then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
@@ -62,7 +60,7 @@ fi
 ##VARIANTFILTERING##
 $java -Xmx4g -jar $gatk \
     -nt $num_threads \
-    -R $genome_fasta -l debug \
+    -R $genome_fasta \
     -T VariantRecalibrator \
     --maxGaussians 4 \
     -resource:hapmap,known=false,training=true,truth=true,prior=15.0 $hapmap \

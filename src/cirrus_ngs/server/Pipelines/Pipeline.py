@@ -64,6 +64,10 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, outpu
         PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
         return
 
+    if tool_config_dict.get("all_samples", False):
+        subprocess.call(subprocess_call_list + _by_all_samples_argument_generator(project_name, sample_list, output_address, tool_config_dict) + extra_bash_args)
+        return
+
     for curr_sample_arguments in _sample_argument_generator(project_name, sample_list, output_address, tool_config_dict):
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = curr_sample_arguments[1]
@@ -155,6 +159,19 @@ def _by_group_argument_generator(project_name, group_list, output_address, confi
         yield [project_name, download_suffix, ROOT_DIR, group, "NULL", input_address,
                 curr_output_address, LOG_DIR, "False", samples]
 
+def _by_all_samples_argument_generator(project_name, sample_list, output_address, config_dictionary):
+    download_suffix = config_dictionary["download_suffix"]
+    curr_output_address = output_address + "/{}".format(project_name)
+    input_address = curr_output_address
+    samples = ""
+
+    for sample in sample_list:
+        samples += sample.get("description") + " "
+
+    samples = samples.strip()
+
+    return [project_name, download_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
+            curr_output_address, LOG_DIR, "False", samples]
 
 
 if __name__ == "__main__":
