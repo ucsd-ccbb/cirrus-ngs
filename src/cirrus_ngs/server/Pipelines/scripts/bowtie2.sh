@@ -23,7 +23,6 @@ bowtie=$software/bowtie2-2.3.2-legacy
 samtools=$software/samtools/samtools-1.1/samtools
 # fa_file=$software/bowtie_index/hairpin_human/hairpin_human.fa   # fa file as the reference genome
 basename=hairpin_human
-cut=.cut
 sam=.sam
 txt=.txt
 
@@ -31,15 +30,15 @@ mkdir -p $workspace
 
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$cut$file_suffix ]
+if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
     #this is the suffix of the input from s3
-    download_suffix=$cut$file_suffix
+    download_suffix=$file_suffix
 
     #changes extension if S3 input is zipped
     if [ "$is_zipped" == "True" ]
     then
-        download_suffix=$cut$file_suffix".gz"
+        download_suffix=$file_suffix".gz"
     fi
 
     #always download forward reads
@@ -68,12 +67,12 @@ cd $software/bowtie2_index/
 if [ "$fastq_end2" == "NULL" ]
 then
     # single end
-    $bowtie/bowtie2 -x $basename -U $workspace/$fastq_end1$cut$file_suffix \
+    $bowtie/bowtie2 -x $basename -U $workspace/$fastq_end1$file_suffix \
     -S $workspace/$fastq_end1$sam
 else
     # paired end: using the same output file name ($fastq_end1.sam)
-    $bowtie/bowtie2 -x $basename -1 $workspace/$fastq_end1$cut$file_suffix \
-    -2 $workspace/$fastq_end2/$cut$file_suffix -S $workspace/$fastq_end1$sam
+    $bowtie/bowtie2 -x $basename -1 $workspace/$fastq_end1$file_suffix \
+    -2 $workspace/$fastq_end2/$file_suffix -S $workspace/$fastq_end1$sam
 fi
 
 ##END BOWTIE 2 ##
