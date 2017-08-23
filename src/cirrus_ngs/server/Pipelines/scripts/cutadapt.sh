@@ -16,16 +16,6 @@ log_file=$log_dir/'cutadapt.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
-echo $project_name
-echo $file_suffix
-echo $root_dir
-echo $fastq_end1
-echo $fastq_end2
-echo $input_address
-echo $output_address
-echo $log_dir
-echo $is_zipped
-
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
 software=/shared/workspace/software
@@ -36,7 +26,6 @@ cut=.cut
 threeprime=_3
 
 mkdir -p $workspace
-
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$trim$file_suffix ]
@@ -84,7 +73,7 @@ fi
 ##END_CUT_ADAPT##
 
 
-##UPLOAD--only upload the final cut file##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.*" --recursive
+##UPLOAD##
+aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.fastq*" --recursive
 ##END_UPLOAD##
 
