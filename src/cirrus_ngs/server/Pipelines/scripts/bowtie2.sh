@@ -24,10 +24,10 @@ samtools=$software/samtools/samtools-1.1/samtools
 # fa_file=$software/bowtie_index/hairpin_human/hairpin_human.fa   # fa file as the reference genome
 basename=hairpin_human
 sam=.sam
+stats=.stats
 txt=.txt
 
 mkdir -p $workspace
-
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -78,13 +78,13 @@ fi
 ##END BOWTIE 2 ##
 
 # Produce text files to workspace, for multiqc analysis
-$samtools stats $workspace/$fastq_end1$sam > $workspace/$fastq_end1$txt
+$samtools stats $workspace/$fastq_end1$sam > $workspace/$fastq_end1$stats$txt
 echo "Finished samtools stats"
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --recursive
 
 # upload the txt files from samtool stats
-aws s3 cp $workspace $output_address --exclude "*" --include "*.txt*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.stats.txt*" --recursive
 ##END_UPLOAD##
 
