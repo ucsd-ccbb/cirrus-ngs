@@ -2,7 +2,7 @@
 
 yaml_file=$1
 log_dir=$2
-pipeline=$3     #specific pipeline file
+pipeline=$3     #specific yaml file for a pipeline
 
 mkdir -p $log_dir
 log_file=$log_dir/'run.log'

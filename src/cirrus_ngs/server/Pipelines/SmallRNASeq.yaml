@@ -7,8 +7,8 @@ steps:
    - "multiqc"
 fastqc: []
 trim:
-   - 1
-   - 27
+   - 1  # number of threads
+   - 27  # drop the read if it is below this minimum length
 cut_adapt: []
 bowtie2: []
 counting: []
