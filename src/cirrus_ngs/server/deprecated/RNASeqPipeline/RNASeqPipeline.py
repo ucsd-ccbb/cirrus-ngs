@@ -12,6 +12,7 @@ data_dir = "/shared/workspace/data_archive/RNASeq"
 ## run all analysis from download, alignment, counting and differential calculation.
 def run_analysis(yaml_file):
     documents = YamlFileReader.parse_yaml_file(yaml_file)
+    
     workflow = documents.get("workflow")
     project_name = documents.get("project")
     analysis_steps = documents.get("analysis")
@@ -202,7 +203,7 @@ def merge_count_files(workflow, project_name, sample_list):
 
     subprocess.call(["qsub", workspace + "scripts/merge_counts.sh", workflow, project_name, sample_str[:-1]])
 
-    PBSTracker.trackPBSQueue(1, "merge_coun")
+    PBSTracker.trackPBSQueue(1, "merge_count")
 
     ## viewing count files
     subprocess.call(["head", sample_dir + "all_gene_counts.txt"])

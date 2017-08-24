@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 # Place this file under /shared/workspace/Pipelines/util
 
@@ -7,14 +6,10 @@ import csv
 import sys
 
 
+# samfiles in "AD2 AD26" format
 def count(fafile, countsfilepath, mappingratesfilepath, samfiles, workspace):
-
-    # sys.stderr.write("In counter, samfiles: " + samfiles)
-
-    # turn the comma separated string into a list
-    samfiles = samfiles.split(",")
-
-    print(samfiles)
+    # turn the string into a list, append .sam
+    samfiles = list(map(lambda x: x+ ".sam", samfiles.split()))
 
     numfiles = (len(samfiles))
 
@@ -35,12 +30,13 @@ def count(fafile, countsfilepath, mappingratesfilepath, samfiles, workspace):
     mappingRates = []
 
     # list of sample files
-    samples = ['            ']
+    samples = []
 
     for i in range(0, numfiles):
-        samplename = os.path.basename(samfiles[i])
-        samplename = samplename.replace('.sam', '')
+        samplename = samfiles[i].replace('.sam', '')
         samples.append(samplename)
+
+        # all samfiles downloaded to workspace
         samfile = open(workspace+"/"+samfiles[i])
 
         unmapped = 0  # count number of reads not mapped to RNA
@@ -91,11 +87,6 @@ def count(fafile, countsfilepath, mappingratesfilepath, samfiles, workspace):
         writer.writerow(['     ','Total Reads','Mapped Reads','Mapping Rate'])
         for sample in mappingRates:
             writer.writerow(sample)
-
-"""
-def eprint(*args, **kwargs):
-    print(*args, file = sys.stderr, **kwargs)
-"""
 
 
 if __name__ == "__main__":
