@@ -20,25 +20,28 @@ exec 2>>$log_file
 workspace=$root_dir/$project_name/$fastq_end1
 software=/shared/workspace/software
 bowtie=$software/bowtie2-2.3.2-legacy
-samtools=$software/samtools/samtools-1.1/samtools
-# fa_file=$software/bowtie_index/hairpin_human/hairpin_human.fa   # fa file as the reference genome
-basename=hairpin_human
+fa_file=$software/bowtie_index/hairpin_human/hairpin_human.fa   # fa file as the reference
+fa_name=hairpin_human
+cut=.cut
 sam=.sam
-stats=.stats
-txt=.txt
+
+echo $bowtie
+echo $fa_file
+echo $fa_name
 
 mkdir -p $workspace
 
+
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ]
+if [ ! -f $workspace/$fastq_end1$cut$file_suffix ]
 then
     #this is the suffix of the input from s3
-    download_suffix=$file_suffix
+    download_suffix=$cut$file_suffix
 
     #changes extension if S3 input is zipped
     if [ "$is_zipped" == "True" ]
     then
-        download_suffix=$file_suffix".gz"
+        download_suffix=$cut$file_suffix".gz"
     fi
 
     #always download forward reads
@@ -56,35 +59,23 @@ fi
 
 
 ##BOWTIE 2 ALIGNMENT##
-
-# go to the directory of the index file
-cd $software/bowtie2_index/
-
-# indexing a reference genome (already built, moved under software/bowtie2_index)
-# cd ~
-# $bowtie/bowtie2-build $fa_file $basename
+# index already built (index a reference genome)
+# $bowtie"/bowtie2-build" $fa_file $fa_name
 
 if [ "$fastq_end2" == "NULL" ]
 then
     # single end
-    $bowtie/bowtie2 -x $basename -U $workspace/$fastq_end1$file_suffix \
-    -S $workspace/$fastq_end1$sam
+    $bowtie/bowtie2 -x $fa_name -U $workspace/$fastq_end1$cut$file_suffix -S $workspace/$fastq_end1$sam
 else
-    # paired end: using the same output file name ($fastq_end1.sam)
-    $bowtie/bowtie2 -x $basename -1 $workspace/$fastq_end1$file_suffix \
-    -2 $workspace/$fastq_end2/$file_suffix -S $workspace/$fastq_end1$sam
+    # paired end
+    $bowtie/bowtie2 -x $fa_name -1 $workspace/$fastq_end1$cut$file_suffix \
+        -2 $workspace/$fastq_end2/$cut$file_suffix -S $workspace/$fastq_end2$sam
 fi
 
 ##END BOWTIE 2 ##
 
-# Produce text files to workspace, for multiqc analysis
-$samtools stats $workspace/$fastq_end1$sam > $workspace/$fastq_end1$stats$txt
-echo "Finished samtools stats"
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --recursive
-
-# upload the txt files from samtool stats
-aws s3 cp $workspace $output_address --exclude "*" --include "*.stats.txt*" --recursive
 ##END_UPLOAD##
 

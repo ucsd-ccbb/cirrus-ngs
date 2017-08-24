@@ -34,6 +34,20 @@ No tabs were found in line:\n\t\"{}\" """.format(line.strip()))
     
     return sample_list, group_list
 
+def load_mutect_pairs_file(mutect_file):
+    mutect_pairs = {}
+    if not mutect_file:
+        return None
+
+    with open(mutect_file, "r") as f:
+        for line in f:
+            if line.startswith("##"):
+                continue
+            normal, tumor = map(lambda x: x.split(".")[0], line.strip().split("\t"))
+            mutect_pairs[normal] = tumor
+
+    return mutect_pairs
+
 
 ## load chipseq design file
 def load_chipseq_design_file(design_file):

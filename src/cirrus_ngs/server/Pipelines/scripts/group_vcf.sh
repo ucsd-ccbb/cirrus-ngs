@@ -18,13 +18,10 @@ log_file=$log_dir/'combine_vcf.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+. /shared/workspace/software/software.conf
+
 #prepare output directories
 workspace=$root_dir/$project_name/$group_name
-software_dir=/shared/workspace/software
-java=$software_dir/java/jre1.8.0_144/bin/java
-gatk=$software_dir/gatk/GenomeAnalysisTK-3.3-0/GenomeAnalysisTK.jar
-bgzip=$software_dir/tabix-0.2.6/bgzip
-tabix=$software_dir/tabix-0.2.6/tabix
 mkdir -p $workspace
 
 #reference files

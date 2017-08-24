@@ -18,11 +18,10 @@ log_file=$log_dir/'split.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+. /shared/workspace/software/software.conf
+
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software_dir=/shared/workspace/software
-samtools=$software_dir/samtools/samtools-1.1/samtools
-sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
 
 ##DOWNLOAD##

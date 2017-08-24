@@ -23,7 +23,6 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 
     global LOG_DIR
     LOG_DIR = log_dir
-    print(LOG_DIR)
 
     group_list = {}
 
@@ -34,6 +33,8 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
             group_list.get(curr_group).append(curr_sample)
         else:
             group_list[curr_group] = [curr_sample]
+
+    pair_list = documents.get("mutect")
 
     global_config_file = open("/shared/workspace/Pipelines/tools.yaml", "r")
     global_config_dict = yaml.load(global_config_file)
@@ -52,7 +53,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, outpu
     else:
         num_threads = 1
 
-    subprocess_call_list = ["qsub", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
+    subprocess_call_list = ["qsub", "-V", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
             SCRIPTS + tool_config_dict["script_name"] + ".sh"]
     
     extra_bash_args = list(map(str, extra_bash_args))
