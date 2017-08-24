@@ -79,6 +79,7 @@ filter:
     can_be_zipped: False
     uses_chromosomes: False
     by_group: True
+
 # SmallRNA specific #
 cut_adapt:
     script_name: "cutadapt"
@@ -99,6 +100,7 @@ counting:
     can_be_zipped: False
     uses_chromosomes: False
     all_samples: True
+
 # MultiQC #
 multiqc:
     script_name: "multiqc"
@@ -107,3 +109,25 @@ multiqc:
     can_be_zipped: False
     uses_chromosomes: False
     all_samples: True
+
+# RNA-seq specific #
+#
+# Kallisto workflow:
+kallisto_fastqc:
+    script_name: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+kallisto_trim:
+    script_name: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+kallisto_align: 
+    script_name: "k_align"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
