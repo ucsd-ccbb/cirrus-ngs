@@ -10,8 +10,7 @@ output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$8
 is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 num_threads=${10}
-output_gvcf=${11}
-chromosome=${12}
+chromosome=${11}
 
 #logging
 mkdir -p $log_dir
@@ -19,14 +18,10 @@ log_file=$log_dir/'haplo.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+. /shared/workspace/software/software.conf
+
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software_dir=/shared/workspace/software
-java=$software_dir/java/jre1.8.0_144/bin/java
-gatk=$software_dir/gatk/GenomeAnalysisTK-3.3-0/GenomeAnalysisTK.jar
-bedtools=$software_dir/bedtools2/bin/bedtools
-vcf_sort=$software_dir/vcftools_0.1.12b/bin/vcf-sort
-bgzip=$software_dir/tabix-0.2.6/bgzip
 mkdir -p $workspace
 
 #reference files
@@ -59,8 +54,6 @@ fi
 $bedtools genomecov -split -ibam $workspace/$fastq_end1$file_suffix \
     -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.final.$chromosome.bed
 
-if [ "$output_gvcf" == "True" ]
-then
 $java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk -T HaplotypeCaller -R $genome_fasta \
     -I $workspace/$fastq_end1$file_suffix \
@@ -83,33 +76,8 @@ $java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     --standard_min_confidence_threshold_for_calling 30.0 \
     -ERC GVCF \
     --dbsnp $dbsnp
-else
-$java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
-    -jar $gatk -T HaplotypeCaller -R $genome_fasta \
-    -I $workspace/$fastq_end1$file_suffix \
-    -L $workspace/$fastq_end1.final.$chromosome.bed \
-    --out $workspace/$fastq_end1.$chromosome.raw.vcf \
-    -nct $num_threads \
-    -G none \
-    --annotation BaseQualityRankSumTest \
-    --annotation FisherStrand \
-    --annotation GCContent \
-    --annotation HomopolymerRun \
-    --annotation MappingQualityRankSumTest \
-    --annotation MappingQualityZero \
-    --annotation QualByDepth \
-    --annotation ReadPosRankSumTest \
-    --annotation RMSMappingQuality \
-    --annotation DepthPerAlleleBySample \
-    --annotation Coverage \
-    --annotation ClippingRankSumTest \
-    --standard_min_confidence_threshold_for_calling 30.0 \
-    --dbsnp $dbsnp
-fi
-
-
 ##END_HAPLOTYPE##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.g.vcf" --include "$fastq_end1.$chromosome.raw.vcf" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.g.vcf" --recursive
 ##END_UPLOAD##

@@ -4,7 +4,7 @@ import time
 
 ## make a yaml file for analysis of any Pipeline
 def make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_address,
-                   sample_list, group_list, s3_output_files_address, genome, style):
+        sample_list, group_list, s3_output_files_address, genome, style, mutect_pairs):
     filewriter = open(yaml_file, "w")
     filewriter.write("project: " + project_name + "\n")
 
@@ -16,7 +16,13 @@ def make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_addre
     filewriter.write("date: " + time.strftime("%Y/%m/%d") + "\n")
     filewriter.write("upload: " + s3_output_files_address + "\n")
     filewriter.write("genome: " + genome + "\n")
-    filewriter.write("style: " + style)
+    filewriter.write("style: " + style + "\n")
+    filewriter.write("mutect:\n")
+    if not mutect_pairs:
+        filewriter.write("  {}\n")
+    else:
+        for normal, tumor in mutect_pairs.items():
+            filewriter.write("  {}: {}\n".format(normal, tumor))
 
     for index, sample in enumerate(sample_list):
         filewriter.write("\n")

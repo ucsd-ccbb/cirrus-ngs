@@ -18,14 +18,10 @@ log_file=$log_dir/'merge.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+. /shared/workspace/software/software.conf
+
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software_dir=/shared/workspace/software
-sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
-vcf_concat=$software_dir/vcftools_0.1.12b/bin/vcf-concat
-vcf_sort=$software_dir/vcftools_0.1.12b/bin/vcf-sort-hg19
-bgzip=$software_dir/tabix-0.2.6/bgzip
-tabix=$software_dir/tabix-0.2.6/tabix
 mkdir -p $workspace
 mkdir -p $workspace/temp
 

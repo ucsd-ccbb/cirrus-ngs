@@ -18,14 +18,10 @@ log_file=$log_dir/'post.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+. /shared/workspace/software/software.conf
+
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software_dir=/shared/workspace/software
-java=$software_dir/java/jre1.8.0_144/bin/java
-mark_duplicates=$software_dir/picard-1.96/MarkDuplicates.jar
-sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
-bedtools=$software_dir/bedtools2/bin/bedtools
-gatk=$software_dir/gatk/GenomeAnalysisTK-3.3-0/GenomeAnalysisTK.jar
 mkdir -p $workspace
 
 #reference files

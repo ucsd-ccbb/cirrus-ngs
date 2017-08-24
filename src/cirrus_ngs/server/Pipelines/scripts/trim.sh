@@ -15,14 +15,15 @@ min_len=${11}
 #logging
 mkdir -p $log_dir
 log_file=$log_dir/'trim.log'
+curr_log_file=$log_dir/"trim_$fastq_end1.log"
 exec 1>>$log_file
 exec 2>>$log_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software_dir=/shared/workspace/software
-trimmomatic=$software_dir/Trimmomatic-0.36/trimmomatic-0.36.jar
 mkdir -p $workspace
+
+check_step_already_done $fastq_end1.trim$file_suffix $JOB_NAME $log_file $curr_log_file
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -53,22 +54,25 @@ fi
 ##TRIM##
 if [ "$fastq_end2" == "NULL" ]
 then
-    java -jar $trimmomatic SE -threads $num_threads -phred33 -trimlog /dev/null \
+    check_exit_status "java -jar $trimmomatic SE -threads $num_threads -phred33 -trimlog /dev/null \
         $workspace/$fastq_end1$file_suffix \
         $workspace/$fastq_end1.trim$file_suffix \
-        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len
+        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len" $fastq_end1.trim$file_suffix $JOB_NAME
 else
-    java -jar $trimmomatic PE -threads $num_threads -phred33 -trimlog /dev/null \
+    check_exit_status "java -jar $trimmomatic PE -threads $num_threads -phred33 -trimlog /dev/null \
         $workspace/$fastq_end1$file_suffix \
         $workspace/$fastq_end2$file_suffix \
         $workspace/$fastq_end1.trim$file_suffix \
         $workspace/$fastq_end1.unpaired$file_suffix \
         $workspace/$fastq_end2.trim$file_suffix \
         $workspace/$fastq_end2.unpaired$file_suffix \
-        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len
+        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len" $fastq_end1.trim$file_suffix $JOB_NAME
 fi
 ##END_TRIM##
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.trim*" --include "$fastq_end2.trim*" --recursive
 ##END_UPLOAD##
+
+cat $curr_log_file >> $log_file
+rm $curr_log_file

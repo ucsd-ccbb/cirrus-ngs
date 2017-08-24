@@ -17,11 +17,13 @@ log_file=$log_dir/'sort.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+. /shared/workspace/software/software.conf
+
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software_dir=/shared/workspace/software
-sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
+
+check_step_already_done $output_address $fastq_end1.sort.bam
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -44,11 +46,11 @@ fi
 
 
 ##SORT##
-$sambamba sort -t $num_threads -m 5G --tmpdir $workspace/temp \
-    -o $workspace/$fastq_end1.sort.bam $workspace/$fastq_end1$file_suffix
+check_exit_status "$sambamba sort -t $num_threads -m 5G --tmpdir $workspace/temp \
+    -o $workspace/$fastq_end1.sort.bam $workspace/$fastq_end1$file_suffix" $fastq_end1.sort.bam
 
-$sambamba index -t $num_threads $workspace/$fastq_end1.sort.bam \
-    $workspace/$fastq_end1.sort.bam.bai
+check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.sort.bam \
+    $workspace/$fastq_end1.sort.bam.bai" $fastq_end1.sort.bam
 ##END_SORT##
 
 

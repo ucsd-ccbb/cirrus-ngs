@@ -17,12 +17,13 @@ log_file=$log_dir/'dedup.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+. /shared/workspace/software/software.conf
+
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software_dir=/shared/workspace/software
-mark_duplicates=$software_dir/picard-1.96/MarkDuplicates.jar
-sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
+
+check_step_already_done $output_address $fastq_end1.dedup.bam
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -44,13 +45,13 @@ fi
 
 
 ##MARKDUPLICATES##
-java -jar -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g $mark_duplicates \
+check_exit_status "java -jar -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g $mark_duplicates \
     INPUT=$workspace/$fastq_end1$file_suffix OUTPUT=$workspace/$fastq_end1.dedup.bam \
     METRICS_FILE=$workspace/$fastq_end1.matrics.txt AS=true \
-    VALIDATION_STRINGENCY=LENIENT
+    VALIDATION_STRINGENCY=LENIENT" $fastq_end1.dedup.bam
 
-$sambamba index -t $num_threads $workspace/$fastq_end1.dedup.bam \
-    $workspace/$fastq_end1.dedup.bam.bai
+check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.dedup.bam \
+    $workspace/$fastq_end1.dedup.bam.bai" $fastq_end1.dedup.bam
 ##END_MARKDUPLICATES##
 
 
