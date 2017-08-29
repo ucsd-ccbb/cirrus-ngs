@@ -4,12 +4,17 @@ steps:
    - "kallisto_align" # from here, kallisto-specific
    - "kallisto_count"
    - "kallisto_merge"
-   - "kallisto_diff_cal" # only for kallisto
+   - "kallisto_differential_calculate" # only for kallisto
 kallisto_fastqc: []
 kallisto_trim:
-   - 5
-   - 27    # 36 for paired end, handled in shell script
-kallisto_align: []
+   - 5      # number of threads
+   - 27     # 36 for paired end, handled in shell script
+kallisto_align:
+   - 4      # number of threads
+kallisto_count: []
+kallisto_merge:
+   - 1      # number of threads
+   - "kallisto_deseq_workflow"
 
 
 # different for paired/single end
