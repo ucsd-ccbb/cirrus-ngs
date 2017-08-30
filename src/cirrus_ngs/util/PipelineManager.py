@@ -11,13 +11,21 @@ logs_dir = "/shared/workspace/logs/{}/{}"
 def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_address,
             sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
     yaml_file = project_name + ".yaml"
+
     # specify the log directory
     global logs_dir
-    logs_dir = logs_dir.format(pipeline, project_name)
+    # for RNA-seq, needs directory for the specific workflow
+    if pipeline.startswith("RNA"):
+        general_pipeline = "RNASeq"
+        workflow = pipeline[7:]
+        logs_dir = logs_dir.format(general_pipeline, project_name + "/" + workflow)
+    else:
+        logs_dir = logs_dir.format(pipeline, project_name)
 
     print("making the yaml file...")
     YamlFileMaker.make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_address,
                                  sample_list, group_list, s3_output_files_address, genome, style, pairs_list)
+
 
     print("copying yaml file to remote master node...")
     ConnectionManager.copy_file(ssh_client, yaml_file, workspace + "yaml_examples")
@@ -30,15 +38,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
                                       "qsub -V -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
                                       + workspace + "yaml_examples/" + yaml_file + " " + logs_dir + " "
                                       + pipeline)
-# get the name of the pipeline file
-def get_pipeline_file(pipeline):
 
-    file_dict = {"ChiPSeq": "ChipSeqPipeline.py",
-                 "DNASeq": "WGSPipeline.py",
-                 "RNASeq": "RNASeqPipeline.py",
-                 "SmallRNASeq": "miRNAPipeline.py"}[pipeline]
-
-    return file_dict
 
 def check_status(ssh_client, job_name):
     print("checking status of jobs...")

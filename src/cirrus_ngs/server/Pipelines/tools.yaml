@@ -139,10 +139,41 @@ kallisto_align:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-
 # ChipSeq #
 bowtie:
     script_name: "bowtie"
+kallisto_count:
+    script_name: "k_count"
+    download_suffix: ~ 
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+kallisto_merge:
+    script_name: "merge"
+    download_suffix: ~ 
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+
+# Star_gatk workflow:
+star_gatk_fastqc:
+    script_name: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_gatk_trim:
+    script_name: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_gatk_align:
+star_gatkc_vc:
+
+# Star_htseq workflow:
+star_htseq_fastqc:
+    script_name: "fastqc"
     download_suffix: ~
     input_is_output: False
     can_be_zipped: True
@@ -166,3 +197,28 @@ findpeaks:
     can_be_zipped: False
     uses_chromosomes: False
     by_pair: True
+star_htseq_trim:
+    script_name: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_htseq_align:
+    script_name: "ht_align"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_htseq_count:
+    script_name: "ht_count"
+    download_suffix: ".Aligned.out.sorted.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_htseq_merge:  # same with kallisto
+    script_name: "merge"
+    download_suffix: "_counts.txt"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
