@@ -133,6 +133,13 @@ kallisto_merge:
     uses_chromosomes: False
 
 # Star_gatk workflow:
+star_gatk_make_group:
+    script_name: "make_group"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
 star_gatk_fastqc:
     script_name: "fastqc"
     download_suffix: ~
@@ -149,6 +156,13 @@ star_gatk_align:
 star_gatkc_vc:
 
 # Star_htseq workflow:
+star_htseq_make_group:
+    script_name: "make_group"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
 star_htseq_fastqc:
     script_name: "fastqc"
     download_suffix: ~
