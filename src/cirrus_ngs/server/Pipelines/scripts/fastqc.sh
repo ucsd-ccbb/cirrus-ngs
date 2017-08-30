@@ -11,17 +11,24 @@ log_dir=$8
 is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 
 #logging
+log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
 log_file=$log_dir/'fastqc.log'
-curr_log_file=$log_dir/"fastqc_$fastq_end1.log"
-exec 1>>$curr_log_file
-exec 2>>$curr_log_file
+exec 1>>$log_file
+exec 2>>$log_file
+
+status_file=$log_dir/'status.log'
+touch $status_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
 mkdir -p $workspace
 
-check_step_already_done $fastq_end1"_fastqc.html" $JOB_NAME $log_file $curr_log_file
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+check_step_already_done $JOB_NAME $status_file
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -50,17 +57,16 @@ fi
 
 
 ##FASTQC##
-check_exit_status "$fastqc $workspace/$fastq_end1$file_suffix -o $workspace/" $fastq_end1"_fastqc.html" $JOB_NAME
+check_exit_status "$fastqc $workspace/$fastq_end1$file_suffix -o $workspace/" $JOB_NAME $status_file
 mv $workspace/$fastq_end1$file_suffix"_fastqc.html" $workspace/$fastq_end1"_fastqc.html" 2>/dev/null
 mv $workspace/$fastq_end1$file_suffix"_fastqc.zip" $workspace/$fastq_end1"_fastqc.zip" 2>/dev/null
 
 if [ "$fastq_end2" != "NULL" ];
 then
-    check_exit_status "$fastqc $workspace/$fastq_end2$file_suffix -o $workspace/" $fastq_end1"_fastqc.html" $JOB_NAME
+    check_exit_status "$fastqc $workspace/$fastq_end2$file_suffix -o $workspace/" $JOB_NAME $status_file
     mv $workspace/$fastq_end2$file_suffix"_fastqc.html" $workspace/$fastq_end2"_fastqc.html" 2>/dev/null
     mv $workspace/$fastq_end2$file_suffix"_fastqc.zip" $workspace/$fastq_end2"_fastqc.zip" 2>/dev/null
 fi
-
 ##END_FASTQC##
 
 
@@ -69,6 +75,3 @@ include_end1=$fastq_end1"_fastqc*"
 include_end2=$fastq_end2"_fastqc*"
 aws s3 cp $workspace $output_address --exclude "*" --include "$include_end1" --include "$include_end2" --recursive
 ##END_UPLOAD##
-
-cat $curr_log_file >> $log_file
-rm $curr_log_file
