@@ -1,6 +1,6 @@
 __author__ = 'Guorong Xu<g1xu@ucsd.edu>'
 
-## make a group file for analysis of Small RNA Sequencing pipeline
+## make a group file for analysis of the pipeline
 def make_group_file(workflow, project_name, group_file, sample_list):
     localpath = "/shared/workspace/data_archive/RNASeq/" + project_name + "/" + workflow + "/"
 
