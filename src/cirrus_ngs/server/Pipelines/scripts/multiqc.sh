@@ -19,22 +19,20 @@ exec 2>>$log_file
 # set workspace to the multiqc directory so that multiqc would search for files
 # in this directory
 workspace=$root_dir/$project_name/multiqc
-software=/shared/workspace/software
-multiqc=$software/anaconda3/bin/multiqc
-fastqc=_fastqc.zip
-stats=.stats.txt
 
 mkdir -p $workspace
 
+# Download fastqc zip files and text files from alignment
 for file in $all_samples; do
-    aws s3 cp $input_address/$file/$file$fastqc $workspace/
-    aws s3 cp $input_address/$file/$file$stats $workspace/
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*_fastqc.zip" --recursive
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*.txt" --recursive
+
 done
 
-
-# Multiqc on all:
-#       .txt files from alignment
+# Multiqc on all
 #       fastqc.zip files
+#       .txt files from alignment
+
 $multiqc -f $workspace -o $workspace
 
 # Upload the html file to s3

@@ -11,7 +11,6 @@ log_dir=$8
 is_zipped=$9    # always "False" in this case
 all_samples=${10}
 
-fa_file=/shared/workspace/software/bowtie_index/hairpin_human/hairpin_human.fa
 sam=.sam
 
 mkdir -p $log_dir
@@ -33,7 +32,7 @@ done
 
 # Call counter.count
 /shared/workspace/software/anaconda3/bin/python /shared/workspace/Pipelines/util/counter.py \
-$fa_file $workspace/counts.out $workspace/rates.out "$all_samples" $workspace
+$hairpin_human_fa $workspace/counts.out $workspace/rates.out "$all_samples" $workspace
 
 # Upload the output file to s3
 aws s3 cp $workspace $output_address --exclude "*" --include "*.out*" --recursive
