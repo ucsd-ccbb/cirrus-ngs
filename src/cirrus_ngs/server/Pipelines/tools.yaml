@@ -12,76 +12,76 @@ trim:
     can_be_zipped: True
     uses_chromosomes: False
 bwa:
-    script_name: "bwa"
+    script_name: "WGS/bwa"
     download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 sort:
-    script_name: "sort"
+    script_name: "WGS/sort"
     download_suffix: ".bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 dedup:
-    script_name: "dedup"
+    script_name: "WGS/dedup"
     download_suffix: ".sort.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 split:
-    script_name: "split"
+    script_name: "WGS/split"
     download_suffix: ".dedup.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
 postalignment:
-    script_name: "post"
+    script_name: "WGS/post"
     download_suffix: ".{}.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
 haplotype:
-    script_name: "haplo"
+    script_name: "WGS/haplo"
     download_suffix: ".final.{}.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
 mutect:
-    script_name: "mutect"
+    script_name: "WGS/mutect"
     download_suffix: ".final.{}.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True
     by_pair: True
 merge:
-    script_name: "merge"
+    script_name: "WGS/merge"
     download_suffix: ".g.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 bam_merge:
-    script_name: "merge"
+    script_name: "WGS/merge"
     download_suffix: ".g.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 pair_vcf_merge:
-    script_name: "pair_merge"
+    script_name: "WGS/pair_merge"
     download_suffix: ".vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_pair: True
 combine_vcf:
-    script_name: "group_vcf"
+    script_name: "WGS/group_vcf"
     download_suffix: ".merged.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_group: True
 filter:
-    script_name: "filter"
+    script_name: "WGS/filter"
     download_suffix: ".g.vcf.gz"
     input_is_output: True
     can_be_zipped: False
@@ -108,6 +108,34 @@ counting:
     can_be_zipped: False
     uses_chromosomes: False
     all_samples: True
+
+# ChipSeq #
+bowtie:
+    script_name: "Chip/bowtie"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+make_tag_directory:
+    script_name: "Chip/make_tag_directory"
+    download_suffix: ".sam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+make_UCSC_file:
+    script_name: "Chip/make_UCSC_file"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+findpeaks:
+    script_name: "Chip/findpeaks"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+
 
 # MultiQC #
 multiqc:
@@ -139,9 +167,9 @@ kallisto_align:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-# ChipSeq #
-bowtie:
-    script_name: "bowtie"
+
+
+
 kallisto_count:
     script_name: "k_count"
     download_suffix: ~ 
@@ -192,25 +220,6 @@ star_htseq_fastqc:
     input_is_output: False
     can_be_zipped: True
     uses_chromosomes: False
-make_tag_directory:
-    script_name: "make_tag_directory"
-    download_suffix: ".sam"
-    input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
-make_UCSC_file:
-    script_name: "make_UCSC_file"
-    download_suffix: ~
-    input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
-findpeaks:
-    script_name: "findpeaks"
-    download_suffix: ~
-    input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
-    by_pair: True
 star_htseq_trim:
     script_name: "trim"
     download_suffix: ~
