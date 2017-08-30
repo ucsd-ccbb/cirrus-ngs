@@ -11,6 +11,7 @@ log_dir=$8
 is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 
 #logging
+log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
 log_file=$log_dir/'cutadapt.log'
 exec 1>>$log_file
@@ -18,8 +19,6 @@ exec 2>>$log_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software=/shared/workspace/software
-cutadapt=$software/anaconda3/bin/cutadapt
 adapter=TGGAATTCTCGGGTGCCAAGG
 trim=.trim
 cut=.cut
@@ -33,12 +32,6 @@ then
     #this is the suffix of the input from s3
     download_suffix=$trim$file_suffix
 
-    #changes extension if S3 input is zipped
-    if [ "$is_zipped" == "True" ]
-    then
-        download_suffix=$trim$file_suffix.gz
-    fi
-
     #always download forward reads
     aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
     gunzip -q $workspace/$fastq_end1$download_suffix
@@ -51,7 +44,6 @@ then
     fi
 fi
 ##END_DOWNLOAD##
-
 
 ##CUT_ADAPT##
 # cut 3' end
@@ -76,4 +68,3 @@ fi
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.fastq*" --recursive
 ##END_UPLOAD##
-
