@@ -1,0 +1,5 @@
+## design file format
+## column 1: chip file
+## column 2: input file
+Sample_cDNA93_R1.fq.gz,Sample_cDNA93_R2.fq.gz	groupA
+Sample_cDNA94_R1.fq.gz,Sample_cDNA94_R2.fq.gz	groupA
