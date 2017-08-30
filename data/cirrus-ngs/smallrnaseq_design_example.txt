@@ -2,4 +2,5 @@
 ## column 1: fastq file
 ## column 2: group name
 AD2-WK4_GTAGAG_S16_L001_R1_001.fastq.gz	groupA
-AD2-WK4_GTAGAG_S16_L001_R1_002.fastq.gz	groupB
+AD26_Wk0_S39_L002_R1_001.fastq.gz	groupB
+##AD2-WK4_GTAGAG_S16_L001_R1_002.fastq.gz	groupB
