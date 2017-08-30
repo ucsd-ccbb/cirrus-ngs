@@ -9,32 +9,25 @@ input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
 output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$8
 is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+num_threads=${10}
+chromosome=${11}
 
 #logging
-log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
-log_file=$log_dir/'make_UCSC_file.log'
+log_file=$log_dir/'split.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
-status_file=$log_dir/'status.log'
-touch $status_file
-
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
+software_dir=/shared/workspace/software
+samtools=$software_dir/samtools/samtools-1.1/samtools
+sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
 
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-date
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-
-check_step_already_done $JOB_NAME $status_file
-
 ##DOWNLOAD##
-if [ ! -d $workspace/tags_$fastq_end1 ]
+if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
-    mkdir -p $workspace/tags_$fastq_end1
-
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
 
@@ -45,16 +38,21 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/tags_$fastq_end1 $workspace/tags_$fastq_end1 --recursive
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    aws s3 cp $input_address/$fastq_end1$download_suffix.bai $workspace/
+    gunzip -q $workspace/$fastq_end1$download_suffix
 fi
 ##END_DOWNLOAD##
 
 
-##FASTQC##
-check_exit_status "$make_UCSC_file $workspace/tags_$fastq_end1 -o auto" $JOB_NAME $status_file
-##END_FASTQC##
+##SPLIT##
+$samtools view -b $workspace/$fastq_end1$file_suffix chr$chromosome > \
+    $workspace/$fastq_end1.$chromosome.bam
 
+$sambamba index -t $num_threads $workspace/$fastq_end1.$chromosome.bam \
+    $workspace/$fastq_end1.$chromosome.bam.bai
+##END_SPLIT##
 
 ##UPLOAD##
-aws s3 sync $workspace/tags_$fastq_end1 $output_address/tags_$fastq_end1 
+aws s3 cp $workspace $output_address --exclude "*" --include "*.$chromosome.bam*" --recursive
 ##END_UPLOAD##
