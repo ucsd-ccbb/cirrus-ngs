@@ -56,24 +56,25 @@ fi
 ##CUT_ADAPT##
 # cut 3' end
 $cutadapt -a $adapter -o $workspace/$fastq_end1$cut$threeprime$file_suffix \
-$workspace/$fastq_end1$trim$file_suffix -m 2
+$workspace/$fastq_end1$trim$file_suffix
 # cut anchored 5' end
 $cutadapt -g ^$adapter -o $workspace/$fastq_end1$cut$file_suffix \
-$workspace/$fastq_end1$cut$threeprime$file_suffix -m 2
+$workspace/$fastq_end1$cut$threeprime$file_suffix
 
+## Paired end
 if [ "$fastq_end2" != "NULL" ];
 then
     # cut 3' end
     $cutadapt -a $adapter -o $workspace/$fastq_end2$cut$threeprime$file_suffix \
-    $workspace/$fastq_end2$trim$file_suffix -m 2
+    $workspace/$fastq_end2$trim$file_suffix
     # cut anchored 5' end
     $cutadapt -g ^$adapter -o $workspace/$fastq_end2$cut$file_suffix \
-    $workspace/$fastq_end2$cut$threeprime$file_suffix -m 2
+    $workspace/$fastq_end2$cut$threeprime$file_suffix
 fi
 ##END_CUT_ADAPT##
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.fastq*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.*" --recursive
 ##END_UPLOAD##
 

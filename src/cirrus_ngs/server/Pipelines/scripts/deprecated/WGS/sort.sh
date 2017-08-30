@@ -12,24 +12,16 @@ is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 num_threads=${10}
 
 #logging
-log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
 log_file=$log_dir/'sort.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
-status_file=$log_dir/'status.log'
-touch $status_file
-
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
+software_dir=/shared/workspace/software
+sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
-
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-date
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-
-check_step_already_done $JOB_NAME $status_file
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -52,14 +44,15 @@ fi
 
 
 ##SORT##
-check_exit_status "$sambamba sort -t $num_threads -m 5G --tmpdir $workspace/temp \
-    -o $workspace/$fastq_end1.sort.bam $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file
+$sambamba sort -t $num_threads -m 5G --tmpdir $workspace/temp \
+    -o $workspace/$fastq_end1.sort.bam $workspace/$fastq_end1$file_suffix
 
-check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.sort.bam \
-    $workspace/$fastq_end1.sort.bam.bai" $JOB_NAME $status_file
+$sambamba index -t $num_threads $workspace/$fastq_end1.sort.bam \
+    $workspace/$fastq_end1.sort.bam.bai
 ##END_SORT##
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.sort.bam*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.sort.bam*" --recursive
 ##END_UPLOAD##
+

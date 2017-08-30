@@ -12,24 +12,17 @@ is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 num_threads=${10}
 
 #logging
-log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
 log_file=$log_dir/'dedup.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
-status_file=$log_dir/'status.log'
-touch $status_file
-
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
+software_dir=/shared/workspace/software
+mark_duplicates=$software_dir/picard-1.96/MarkDuplicates.jar
+sambamba=$software_dir/sambamba/0.4.7/bin/sambamba
 mkdir -p $workspace
-
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-date
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-
-check_step_already_done $JOB_NAME $status_file
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -51,16 +44,17 @@ fi
 
 
 ##MARKDUPLICATES##
-check_exit_status "java -jar -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g $mark_duplicates \
+java -jar -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g $mark_duplicates \
     INPUT=$workspace/$fastq_end1$file_suffix OUTPUT=$workspace/$fastq_end1.dedup.bam \
     METRICS_FILE=$workspace/$fastq_end1.matrics.txt AS=true \
-    VALIDATION_STRINGENCY=LENIENT" $JOB_NAME $status_file
+    VALIDATION_STRINGENCY=LENIENT
 
-check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.dedup.bam \
-    $workspace/$fastq_end1.dedup.bam.bai" $JOB_NAME $status_file
+$sambamba index -t $num_threads $workspace/$fastq_end1.dedup.bam \
+    $workspace/$fastq_end1.dedup.bam.bai
 ##END_MARKDUPLICATES##
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.dedup.bam*" --include "$fastq_end1.matrics.txt" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.dedup.bam*" --include "*.matrics.txt" --recursive
 ##END_UPLOAD##
+

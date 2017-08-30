@@ -13,27 +13,27 @@ num_threads=${10}
 chromosome=${11}
 
 #logging
+log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
-log_file=$log_dir/'haplo.log'
+log_file=$log_dir/"haplo.$chromosome.log"
 exec 1>>$log_file
 exec 2>>$log_file
 
+status_file=$log_dir/'status.log'
+touch $status_file
+
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
-software_dir=/shared/workspace/software
-java=$software_dir/java/jre1.8.0_144/bin/java
-gatk=$software_dir/gatk/GenomeAnalysisTK-3.3-0/GenomeAnalysisTK.jar
-bedtools=$software_dir/bedtools2/bin/bedtools
 mkdir -p $workspace
 
-#reference files
-genome_fai=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta.fai
-genome_fasta=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta
-dbsnp=$software_dir/variation/dbsnp_138.hg19.vcf
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
+check_step_already_done $JOB_NAME"_$chromosome" $status_file
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ]
+if [ ! -f $workspace/$fastq_end1$file_suffix ] || [ ! -f $workspace/$fastq_end1$file_suffix.bai ]
 then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
@@ -53,16 +53,16 @@ fi
 
 
 ##HAPLOTYPE##
-$bedtools genomecov -split -ibam $workspace/$fastq_end1$file_suffix \
-    -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.final.$chromosome.bed
+check_exit_status "$bedtools genomecov -split -ibam $workspace/$fastq_end1$file_suffix \
+    -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.final.$chromosome.bed" $JOB_NAME"_$chromosome" $status_file
 
-echo "`ls -l $workspace`"
-
-$java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
+check_exit_status "$java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk -T HaplotypeCaller -R $genome_fasta \
     -I $workspace/$fastq_end1$file_suffix \
     -L $workspace/$fastq_end1.final.$chromosome.bed \
-    --out $workspace/$fastq_end1.raw.$chromosome.vcf.gz \
+    --out $workspace/$fastq_end1.$chromosome.g.vcf \
+    -nct $num_threads \
+    -G none \
     --annotation BaseQualityRankSumTest \
     --annotation FisherStrand \
     --annotation GCContent \
@@ -76,13 +76,10 @@ $java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     --annotation Coverage \
     --annotation ClippingRankSumTest \
     --standard_min_confidence_threshold_for_calling 30.0 \
-    --dbsnp $dbsnp
-    #--annotation HaplotypeScore \ DOESN'T WORK
-#    --standard_min_confidence_threshold_for_emitting 30.0 \
-
-
+    -ERC GVCF \
+    --dbsnp $dbsnp" $JOB_NAME"_$chromosome" $status_file
 ##END_HAPLOTYPE##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.$chromosome.vcf.gz" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.g.vcf" --recursive
 ##END_UPLOAD##
