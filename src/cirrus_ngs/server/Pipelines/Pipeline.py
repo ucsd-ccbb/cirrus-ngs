@@ -274,6 +274,9 @@ def _by_pair_argument_generator(project_name, group_list, pair_list, input_addre
 
 def _by_all_samples_argument_generator(project_name, sample_list, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
+    # turn download suffix to an empty string when it's a Nonetype
+    if download_suffix is None:
+        download_suffix = ""
     curr_output_address = output_address + "/{}".format(project_name)
     input_address = curr_output_address
     samples = ""

@@ -1,8 +1,10 @@
 steps:
+   - "star_gatk_make_group"
    - "star_gatk_fastqc"
    - "star_gatk_trim"
    - "star_gatk_align"
    - "star_gatk_vc"  # only in star_gatk
+star_gatk_make_group: []
 star_gatk_fastqc: []
 star_gatk_trim:
    - 5      # number of threads
