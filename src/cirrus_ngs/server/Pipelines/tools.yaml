@@ -47,16 +47,36 @@ haplotype:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
+mutect:
+    script_name: "mutect"
+    download_suffix: ".final.{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True
+    by_pair: True
 merge:
     script_name: "merge"
     download_suffix: ".g.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
+bam_merge:
+    script_name: "merge"
+    download_suffix: ".g.vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+pair_vcf_merge:
+    script_name: "pair_merge"
+    download_suffix: ".vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
 combine_vcf:
     script_name: "group_vcf"
     download_suffix: ".merged.vcf"
-    input_is_output: False
+    input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_group: True
@@ -119,3 +139,30 @@ kallisto_align:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
+
+# ChipSeq #
+bowtie:
+    script_name: "bowtie"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+make_tag_directory:
+    script_name: "make_tag_directory"
+    download_suffix: ".sam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+make_UCSC_file:
+    script_name: "make_UCSC_file"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+findpeaks:
+    script_name: "findpeaks"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
