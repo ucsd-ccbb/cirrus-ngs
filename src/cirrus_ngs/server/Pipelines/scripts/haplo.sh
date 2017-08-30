@@ -13,22 +13,24 @@ num_threads=${10}
 chromosome=${11}
 
 #logging
+log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
-log_file=$log_dir/'haplo.log'
+log_file=$log_dir/"haplo.$chromosome.log"
 exec 1>>$log_file
 exec 2>>$log_file
 
-. /shared/workspace/software/software.conf
+status_file=$log_dir/'status.log'
+touch $status_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
 mkdir -p $workspace
 
-#reference files
-genome_fai=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta.fai
-genome_fasta=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta
-dbsnp=$software_dir/variation/dbsnp_138.hg19.vcf
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
+check_step_already_done $JOB_NAME"_$chromosome" $status_file
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ] || [ ! -f $workspace/$fastq_end1$file_suffix.bai ]
@@ -51,10 +53,10 @@ fi
 
 
 ##HAPLOTYPE##
-$bedtools genomecov -split -ibam $workspace/$fastq_end1$file_suffix \
-    -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.final.$chromosome.bed
+check_exit_status "$bedtools genomecov -split -ibam $workspace/$fastq_end1$file_suffix \
+    -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.final.$chromosome.bed" $JOB_NAME"_$chromosome" $status_file
 
-$java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
+check_exit_status "$java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk -T HaplotypeCaller -R $genome_fasta \
     -I $workspace/$fastq_end1$file_suffix \
     -L $workspace/$fastq_end1.final.$chromosome.bed \
@@ -75,7 +77,7 @@ $java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
     --annotation ClippingRankSumTest \
     --standard_min_confidence_threshold_for_calling 30.0 \
     -ERC GVCF \
-    --dbsnp $dbsnp
+    --dbsnp $dbsnp" $JOB_NAME"_$chromosome" $status_file
 ##END_HAPLOTYPE##
 
 ##UPLOAD##

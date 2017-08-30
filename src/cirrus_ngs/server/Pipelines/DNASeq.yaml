@@ -7,7 +7,10 @@ steps:
     - "split"
     - "postalignment"
     - "haplotype"
+    - "mutect"
     - "merge"
+    - "bam_merge"
+    - "pair_vcf_merge"
     - "combine_vcf"
     - "filter"
 fastqc: []
@@ -27,7 +30,17 @@ postalignment:
     - 2
 haplotype:
     - 4 
+mutect:
+    - 4
 merge:
+    - 4
+    - "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y M"
+    - "True"
+bam_merge:
+    - 4
+    - "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y M"
+    - "False"
+pair_vcf_merge:
     - 4
     - "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y M"
 combine_vcf: 

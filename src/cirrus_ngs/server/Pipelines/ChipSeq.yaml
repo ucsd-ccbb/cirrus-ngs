@@ -1,0 +1,12 @@
+steps:
+    - "fastqc"
+    - "bowtie"
+    - "make_tag_directory"
+    - "make_UCSC_file"
+    - "findpeaks"
+fastqc: []
+bowtie:
+    - 4
+make_tag_directory: []
+make_UCSC_file: []
+findpeaks: []

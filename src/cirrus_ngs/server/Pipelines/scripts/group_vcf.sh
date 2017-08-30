@@ -15,20 +15,15 @@ num_threads=${11}
 #logging
 mkdir -p $log_dir
 log_file=$log_dir/'combine_vcf.log'
-exec 1>>$log_file
-exec 2>>$log_file
-
-. /shared/workspace/software/software.conf
+curr_log_file=$root_dir/"combine_vcf_$group_name.log"
+exec 1>>$curr_log_file
+exec 2>>$curr_log_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$group_name
 mkdir -p $workspace
 
-#reference files
-genome_fai=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta.fai
-genome_fasta=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta
-dbsnp=$software_dir/variation/dbsnp_138.hg19.vcf
-
+check_step_already_done $group_name $JOB_NAME $log_file $curr_log_file
 
 ##DOWNLOAD##
 downloads_needed="False"
@@ -69,24 +64,27 @@ done
 
 
 ##COMBINEVCF##
-$java -Xmx2g -Djava.io.tmpdir=$workspace/temp \
+check_exit_status "$java -Xmx2g -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk \
     -T CombineGVCFs \
     -R $genome_fasta \
     $variant_list \
-    -o $workspace/$group_name.merged.vcf
+    -o $workspace/$group_name.merged.vcf" $group_name $JOB_NAME
 
-$java -Xms454m -Xmx3181m -Djava.io.tmpdir=$workspace/temp \
+check_exit_status "$java -Xms454m -Xmx3181m -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk \
     -T GenotypeGVCFs \
     -R $genome_fasta \
     -nt $num_threads \
     --variant $workspace/$group_name.merged.vcf \
     -o $workspace/$group_name.g.vcf.gz \
-    --dbsnp $dbsnp
+    --dbsnp $dbsnp" $group_name $JOB_NAME
 
 #END_COMBINEVCF##
 
 ##UPLOAD##
 aws s3 cp $workspace/ $output_address --exclude "*" --include "$group_name.g.vcf*" --recursive
 ##END_UPLOAD
+
+cat $curr_log_file >> $log_file
+rm $curr_log_file

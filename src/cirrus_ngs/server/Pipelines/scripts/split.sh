@@ -13,16 +13,24 @@ num_threads=${10}
 chromosome=${11}
 
 #logging
+log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
-log_file=$log_dir/'split.log'
+log_file=$log_dir/"split.$chromosome.log"
 exec 1>>$log_file
 exec 2>>$log_file
 
-. /shared/workspace/software/software.conf
+status_file=$log_dir/'status.log'
+touch $status_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$fastq_end1
 mkdir -p $workspace
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+check_step_already_done $JOB_NAME"_$chromosome" $status_file
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ] || [ ! -f $workspace/$fastq_end1$file_suffix.bai ]
@@ -45,11 +53,11 @@ fi
 
 
 ##SPLIT##
-$samtools view -b $workspace/$fastq_end1$file_suffix chr$chromosome > \
-    $workspace/$fastq_end1.$chromosome.bam
+check_exit_status "$samtools view -b $workspace/$fastq_end1$file_suffix chr$chromosome > \
+    $workspace/$fastq_end1.$chromosome.bam" $JOB_NAME"_$chromosome" $status_file
 
-$sambamba index -t $num_threads $workspace/$fastq_end1.$chromosome.bam \
-    $workspace/$fastq_end1.$chromosome.bam.bai
+check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.$chromosome.bam \
+    $workspace/$fastq_end1.$chromosome.bam.bai" $JOB_NAME"_$chromosome" $status_file
 ##END_SPLIT##
 
 ##UPLOAD##

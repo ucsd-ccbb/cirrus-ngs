@@ -9,7 +9,7 @@ logs_dir = "/shared/workspace/logs/{}/{}"
 
 # executing a specified pipeline with the specific yaml file
 def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_address,
-            sample_list, group_list, s3_output_files_address, genome, style, mutect_pairs):
+            sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
     yaml_file = project_name + ".yaml"
     # specify the log directory
     global logs_dir
@@ -17,7 +17,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
 
     print("making the yaml file...")
     YamlFileMaker.make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_address,
-                                 sample_list, group_list, s3_output_files_address, genome, style, mutect_pairs)
+                                 sample_list, group_list, s3_output_files_address, genome, style, pairs_list)
 
     print("copying yaml file to remote master node...")
     ConnectionManager.copy_file(ssh_client, yaml_file, workspace + "yaml_examples")
