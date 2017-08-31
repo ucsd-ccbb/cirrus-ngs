@@ -32,7 +32,7 @@ def make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_addre
         if len(sample) == 1:
             filewriter.write(filename_string + sample[0].rstrip() + "\n")
             filewriter.write("  description: " + sample[0].split(".")[0] + "\n")
-            filewriter.write("  group: " + group_list[index])
+            filewriter.write("  group: " + group_list[index] + "\n")
         elif len(sample) == 2:
             for sample_name in sample:
                 filename_string = filename_string + sample_name + ", "
