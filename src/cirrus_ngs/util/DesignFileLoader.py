@@ -29,12 +29,12 @@ No tabs were found in line:\n\t\"{}\" """.format(line.strip()))
 
                 if len(fields) == 3:
                     fields[2] = fields[2].rstrip()
-                    if fields[2] == "Normal":
+                    if fields[2] == "Normal" or fields[2] == "Chip":
                         normal_samples[group_list[-1]] = sample_list[-1][0].split(".")[0]
-                    elif fields[2] == "Tumor":
+                    elif fields[2] == "Tumor" or fields[2] == "Input":
                         tumor_samples[group_list[-1]] = sample_list[-1][0].split(".")[0]
                     else:
-                        raise ValueError("Design file third column must be either \"Normal\" or \"Tumor\". Current value is {}".format(fields[2]))
+                        raise ValueError("Design file third column must be either \"Normal\"/\"Tumor\" or \"Chip\"/\"Input\". Current value is {}".format(fields[2]))
 
     pair_list = {normal_samples[x]: tumor_samples[x] for x in normal_samples.keys()}
 
