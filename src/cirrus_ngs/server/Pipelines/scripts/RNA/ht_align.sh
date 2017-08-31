@@ -40,10 +40,10 @@ fi
 # Star align
 if [ "$fastq_end2" == "NULL" ]
 then
-    $STAR --genomeDir $STAR_genome --readFilesIn $workspace/$fastq_end1$file_suffix --outFileNamePrefix $workspace/$fastq_end1.
+    $STAR --genomeDir $genomeDir --readFilesIn $workspace/$fastq_end1$file_suffix --outFileNamePrefix $workspace/$fastq_end1.
 
 else
-    $STAR --genomeDir $STAR_genome --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
+    $STAR --genomeDir $genomeDir --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
     --outFileNamePrefix $workspace/$fastq_end1.
 fi
 

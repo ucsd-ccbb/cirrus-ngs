@@ -13,7 +13,7 @@ is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
 #logging
 log_dir=$log_dir/$chip_sample
 mkdir -p $log_dir
-log_file=$log_dir/'findpeaks.log'
+log_file=$log_dir/'annotate_peaks.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
@@ -30,41 +30,38 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
-
 rm -r $workspace/tags_$chip_sample $workspace/tags_$input_sample &>/dev/null
 
 pair_base_name=$chip_sample
 
 ##DOWNLOAD##
-if [ ! -d $workspace/tags_$chip_sample ] || [ "$pairs_exist" == "True" ]
+if [ ! -f $workspace/$chip_sample$style_ext ] || [ "$pairs_exist" == "True" ]
 then
-    mkdir -p $workspace/tags_$chip_sample
-
     if [ "$pairs_exist" == "True" ]
     then
-        mkdir -p $workspace/tags_$input_sample
         pair_base_name=$chip_sample'_vs_'$input_sample
-        aws s3 cp $input_address/$project_name/$input_sample/tags_$input_sample $workspace/tags_$input_sample --recursive
         input_address=$input_address/$project_name/$chip_sample
     fi
 
-    aws s3 cp $input_address/tags_$chip_sample $workspace/tags_$chip_sample --recursive
+    aws s3 cp $input_address/$pair_base_name$style_ext $workspace/
 fi
 ##END_DOWNLOAD##
 
 
-##FINDPEAKS##
-if [ "$pairs_exist" == "True" ]
-then
-    check_exit_status "$find_peaks $workspace/tags_$chip_sample -style $style \
-        -o $workspace/$pair_base_name$style_ext -i $workspace/tags_$input_sample" $JOB_NAME $status_file
-else
-    check_exit_status "$find_peaks $workspace/tags_$chip_sample -style $style \
-        -o $workspace/$pair_base_name$style_ext" $JOB_NAME $status_file
-fi
-##END_FINDPEAKS##
+##ANNOTATEPEAKS##
+mkdir -p $workspace/go_$pair_base_name
+mkdir -p $workspace/ontology_$pair_base_name
 
+check_exit_status "$annotate_peaks $workspace/$pair_base_name$style_ext $genome \
+    -go "$workspace/go_$pair_base_name" -genomeOntology "$workspace/ontology_$pair_base_name" \
+    > $workspace/$pair_base_name.annotated$style_ext" $JOB_NAME $status_file
+##END_ANNOTATEPEAKS##
+
+echo "lsing"
+echo "`ls $workspace`"
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name$style_ext" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name.annotated$style_ext" --recursive
+aws s3 cp $workspace/go_$pair_base_name $output_address/go_$pair_base_name --recursive
+aws s3 cp $workspace/ontology_$pair_base_name $output_address/ontology_$pair_base_name --recursive
 ##END_UPLOAD##

@@ -37,6 +37,9 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     #dictionary with key=normal_sample, value=tumor_sample
     pair_list = documents.get("pairs")
 
+    os.environ["pairs_exist"] = str(not len(pair_list) == 0)
+
+
     #used for group-based analysis
     #dictionary with key=group, value=list of tuples from _separate_file_suffix
     group_list = {}
@@ -66,6 +69,7 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     #steps list enforces order of possible steps in pipeline
     for step in specific_config_dict["steps"]:
         if step in analysis_steps:
+            print(step)
             run_tool(global_config_dict[step], specific_config_dict[step], 
                     project_name, sample_list, input_address, output_address, group_list, pair_list, log_dir)
 
@@ -102,7 +106,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
                 extra_bash_args)
         return
 
-    if tool_config_dict.get("by_pair", None) and len(pair_list) > 0:
+    if tool_config_dict.get("by_pair", None) and os.environ["pairs_exist"] == "True":
         for pair_arguments in _by_pair_argument_generator(project_name, group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = pair_arguments[1]
@@ -112,7 +116,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
             else:
                 subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args)
         
-        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"]+ ".sh")
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
         return
 
     #runsn tool on samples in each group
@@ -127,7 +131,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
             else:
                 subprocess.call(subprocess_call_list + group_arguments + extra_bash_args)
 
-        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"] + ".sh")
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
         return
 
     for curr_sample_arguments in _sample_argument_generator(project_name, sample_list, input_address, output_address, tool_config_dict, log_dir):
@@ -141,7 +145,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
         else:
             subprocess.call(subprocess_call_list + curr_sample_arguments + extra_bash_args)
 
-    PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"] + ".sh")
+    PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
 
 #returns tuple
 #first element is file name without suffix
@@ -243,13 +247,11 @@ def _by_pair_argument_generator(project_name, group_list, pair_list, input_addre
         if pair_list.get(first_sample, None):
             normal_sample = first_sample
             tumor_sample = second_sample
-            del pair_list[first_sample]
         elif pair_list.get(second_sample, None):
             normal_sample = second_sample
             tumor_sample = first_sample 
-            del pair_list[second_sample]
         else:
-            break
+            continue
 
         file_suffix = group_list[group][0][1]
         is_zipped = group_list[group][0][2]
@@ -266,6 +268,9 @@ def _by_pair_argument_generator(project_name, group_list, pair_list, input_addre
 
         if input_is_output:
             input_address = output_address
+
+        print([project_name, file_suffix, ROOT_DIR, normal_sample, tumor_sample, input_address,
+                curr_output_address, log_dir, is_zipped])
 
         yield [project_name, file_suffix, ROOT_DIR, normal_sample, tumor_sample, input_address,
                 curr_output_address, log_dir, is_zipped]
