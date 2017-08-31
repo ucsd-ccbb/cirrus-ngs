@@ -31,8 +31,8 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 check_step_already_done $JOB_NAME $status_file
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ]
-then
+#if [ ! -f $workspace/$fastq_end1$file_suffix ]
+#then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
 
@@ -45,7 +45,7 @@ then
     #always download forward reads
     aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
     gunzip -q $workspace/$fastq_end1$download_suffix
-fi
+#fi
 ##END_DOWNLOAD##
 
 
