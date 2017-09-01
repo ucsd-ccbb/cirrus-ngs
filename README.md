@@ -20,17 +20,17 @@ It supports both a two column and three column tab-separated format
 
 #### Two column format
 In the two column format the first column is the filename of the sample  
-    If the sample is paired end the first column should be:  
-    `name_of_forward_end_file,name_of_reverse_end_file`
-    Note that the two files are only separated by a comma, no spaces  
+    * If the sample is paired end the first column should be:  
+    * `name_of_forward_end_file,name_of_reverse_end_file`
+    * Note that the two files are only separated by a comma, no spaces  
 The second column is the name of the group associated with that sample  
 Group names are used for variant calling. Samples with the same group will have their vcf files merged and the group-based vcf files will be compared to one another.  
 
 #### Three column format
 The three column format has the same first two columns as the two column format.  
 The third column is an identifier that is either from Normal, Tumor, Chip, or Input (_case sensitive_)  
-    The Normal/Tumor identifiers are used for mutect in the WGS pipeline  
-    The Chip/Input indentifiers are used throughout the ChipSeq pipeline   
+    * The Normal/Tumor identifiers are used for mutect in the WGS pipeline  
+    * The Chip/Input indentifiers are used throughout the ChipSeq pipeline   
 If two files form a Normal/Tumor or Chip/Input pair they must have the same group and directly follow one another  
 Also, each group in the three column format must have exactly one of each identifier (one Normal && one Tumor) || (one Chip && one Input)  
 
