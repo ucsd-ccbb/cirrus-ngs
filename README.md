@@ -107,25 +107,27 @@ NAME_OF_TOOL:
 ```
 NAME_OF_TOOL is what the user will input into analysis_steps in the jupyter notebook in order to call this tool.
 
-Notes about the required entries for each tool:
+Basic notes about the required entries for each tool:
 * shell_script
-..* the name of the shell script to be executed
-..* should not contain any file extensions
-..* can contain a path to the shell script relative to the /shared/workspace/Pipelines/scripts/ directory
+    * the name of the shell script to be executed
+    * should not contain any file extensions
+    * can contain a path to the shell script relative to the /shared/workspace/Pipelines/scripts/ directory
 * download_suffix:
-..* file extension of prerequissite files for this step
-..* if ~ is passed in the prereq extension will default to the extension of the samples for this project (.fq or .fastq)
-..* this should contain the "." in the extension (".fq" not "fq")
+    * file extension of prerequissite files for this step
+    * if ~ is passed in the prereq extension will default to the extension of the samples for this project (.fq or .fastq)
+    * this should contain the "." in the extension (".fq" not "fq")
+    * can contain one {} format specifier that takes on a value of
+        * .fq or .fastq if uses_chromosomes is false (.trim{} becomes .trim(.fq|.fastq))
+        * ${curr_chromosome_number} if uses_chromsomes is true (.final.{}.bam becomes .final.$CHROMOSOMENUMBER.bam)
 * input_is_output
-..* boolean value describing location of prerequisite files for this step
-..* if true downloads will be from user's specified output s3 bucket instead of their input s3 bucket
+    * boolean value describing location of prerequisite files for this step
+    * if true downloads will be from user's specified output s3 bucket instead of their input s3 bucket
 * can_be_zipped
     * boolean value describing if the prerequisites for this step can exist in gzipped format
     * when set to true the download will be for "download_suffix.gz" if the original samples are gzipped
-..* when set to false the .gz extension will never be set
+    * when set to false the .gz extension will never be set
 * uses_chromosomes
-..* boolean value describing if this step should be run on each chromosome
-..* the last bash argument to the script will be the chromosome's number
-
+    * boolean value describing if this step should be run on each chromosome
+    * the last bash argument to the script will be the chromosome's number
 
 #### Pipeline specific yaml files
