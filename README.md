@@ -30,7 +30,8 @@ Group names are used for variant calling. Samples with the same group will have 
 The three column format has the same first two columns as the two column format.  
 The third column is an identifier that is either from Normal, Tumor, Chip, or Input (_case sensitive_)  
    * The Normal/Tumor identifiers are used for mutect in the WGS pipeline  
-   * The Chip/Input indentifiers are used throughout the ChipSeq pipeline   
+   * The Chip/Input indentifiers are used throughout the ChipSeq pipeline 
+  
 If two files form a Normal/Tumor or Chip/Input pair they must have the same group and directly follow one another  
 Also, each group in the three column format must have exactly one of each identifier (one Normal && one Tumor) || (one Chip && one Input)  
 
