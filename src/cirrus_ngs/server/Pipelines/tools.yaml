@@ -128,13 +128,21 @@ make_UCSC_file:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-findpeaks:
+find_peaks:
     script_name: "Chip/findpeaks"
     download_suffix: ~
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_pair: True
+annotate_peaks:
+    script_name: "Chip/annotate_peaks"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+
 
 
 # MultiQC #
