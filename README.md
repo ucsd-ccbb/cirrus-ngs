@@ -120,8 +120,8 @@ Notes about the required entries for each tool:
 ..* boolean value describing location of prerequisite files for this step
 ..* if true downloads will be from user's specified output s3 bucket instead of their input s3 bucket
 * can_be_zipped
-..* boolean value describing if the prerequisites for this step can exist in gzipped format
-..* when set to true the download will be for "download_suffix.gz" if the original samples are gzipped
+    * boolean value describing if the prerequisites for this step can exist in gzipped format
+    * when set to true the download will be for "download_suffix.gz" if the original samples are gzipped
 ..* when set to false the .gz extension will never be set
 * uses_chromosomes
 ..* boolean value describing if this step should be run on each chromosome
