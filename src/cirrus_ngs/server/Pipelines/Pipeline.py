@@ -40,16 +40,13 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     # dictionary with key=normal_sample, value=tumor_sample
     pair_list = documents.get("pairs")
 
-<<<<<<< HEAD
     # used for group-based analysis
     # dictionary with key=group, value=list of tuples from _separate_file_suffix
-=======
     os.environ["pairs_exist"] = str(not len(pair_list) == 0)
 
 
     #used for group-based analysis
     #dictionary with key=group, value=list of tuples from _separate_file_suffix
->>>>>>> 5c8da3ee6592a062af148a022f4f202bd7d295ed
     group_list = {}
 
     for sample_pair in sample_list:
@@ -76,15 +73,10 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     # steps list enforces order of possible steps in pipeline
     for step in specific_config_dict["steps"]:
         if step in analysis_steps:
-<<<<<<< HEAD
             run_tool(global_config_dict[step], specific_config_dict[step],
                      project_name, sample_list, input_address, output_address, group_list, pair_list, log_dir)
-
-=======
-            print(step)
             run_tool(global_config_dict[step], specific_config_dict[step], 
                     project_name, sample_list, input_address, output_address, group_list, pair_list, log_dir)
->>>>>>> 5c8da3ee6592a062af148a022f4f202bd7d295ed
 
 # function to run any tool
 # arguments:
@@ -121,14 +113,8 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
                                                  tool_config_dict, log_dir) + extra_bash_args)
         return
 
-<<<<<<< HEAD
-    if tool_config_dict.get("by_pair", None) and len(pair_list) > 0:
-        for pair_arguments in _by_pair_argument_generator(project_name, group_list, pair_list, input_address,
-                                                          output_address, tool_config_dict, log_dir):
-=======
     if tool_config_dict.get("by_pair", None) and os.environ["pairs_exist"] == "True":
         for pair_arguments in _by_pair_argument_generator(project_name, group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
->>>>>>> 5c8da3ee6592a062af148a022f4f202bd7d295ed
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = pair_arguments[1]
                 for chromosome in CHROMOSOME_LIST:
@@ -136,13 +122,8 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
                     subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args + [chromosome])
             else:
                 subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args)
-<<<<<<< HEAD
-
-        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"] + ".sh")
-=======
         
         PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
->>>>>>> 5c8da3ee6592a062af148a022f4f202bd7d295ed
         return
 
     # runsn tool on samples in each group
@@ -282,12 +263,7 @@ def _by_pair_argument_generator(project_name, group_list, pair_list, input_addre
             tumor_sample = second_sample
         elif pair_list.get(second_sample, None):
             normal_sample = second_sample
-<<<<<<< HEAD
-            tumor_sample = first_sample
-            del pair_list[second_sample]
-=======
             tumor_sample = first_sample 
->>>>>>> 5c8da3ee6592a062af148a022f4f202bd7d295ed
         else:
             continue
 
