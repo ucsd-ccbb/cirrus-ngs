@@ -11,4 +11,5 @@ star_gatk_trim:
    - 27     # 36 for paired end, handled in shell script
 star_gatk_align:
    - 4      # number of threads
-star_gatk_vc: []
+star_gatk_vc:
+   - 4      # number of threads

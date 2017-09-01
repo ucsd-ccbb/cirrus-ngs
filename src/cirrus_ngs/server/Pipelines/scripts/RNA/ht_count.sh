@@ -30,7 +30,7 @@ fi
 # Count reads #
 
 if [ ! -f $workspace/$fastq_end1"_counts.txt" ]; then
-   $samtools view $workspace/$fastq_end1$file_suffix | sort -s -k 1,1 - |  htseq-count - $STAR_ref_genes > $workspace/$fastq_end1"_counts.txt"
+   $samtools view $workspace/$fastq_end1$file_suffix | sort -s -k 1,1 - |  htseq-count - $ref_genes > $workspace/$fastq_end1"_counts.txt"
 fi
 
 ##UPLOAD##

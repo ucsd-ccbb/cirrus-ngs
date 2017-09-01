@@ -1,5 +1,7 @@
 ## design file format
 ## column 1: chip file
 ## column 2: input file
-Sample_cDNA93_R1.fq.gz,Sample_cDNA93_R2.fq.gz	groupA
-Sample_cDNA94_R1.fq.gz,Sample_cDNA94_R2.fq.gz	groupA
+chipseq_sample1_chip.fastq.gz	groupA
+chipseq_sample1_input.fastq.gz	groupA
+chipseq_sample2_chip.fastq.gz	groupB
+chipseq_sample2_input.fastq.gz	groupB

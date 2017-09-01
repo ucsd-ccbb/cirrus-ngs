@@ -1,0 +1,5 @@
+## design file format
+## column 1: fastq file
+## column 2: group name
+exome_sample1_R1.fq.gz,exome_sample1_R1.fq.gz	groupA	Normal
+exome_sample2_R1.fq.gz,exome_sample2_R2.fq.gz	groupA	Tumor
