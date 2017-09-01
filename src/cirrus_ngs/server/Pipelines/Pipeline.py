@@ -1,23 +1,27 @@
+
 import sys
 import os
 import subprocess
 from util import PBSTracker
-#from util import YamlFileReader
+# from util import YamlFileReader
 import re
 import yaml
 
 ROOT_DIR = "/scratch"
 SCRIPTS = "/shared/workspace/Pipelines/scripts/"
-CHROMOSOME_LIST = list(map(str, range(1,23))) + ["X", "Y", "M"]
+CHROMOSOME_LIST = list(map(str, range(1, 23))) + ["X", "Y", "M"]
+
 
 ##run the actual pipeline
 def run_analysis(yaml_file, log_dir, pipeline_config_file):
-    #reads in the project's yaml file, YamlFileReader deprecated
+    print(yaml_file)
+
+    # reads in the project's yaml file, YamlFileReader deprecated
     yaml_file_stream = open(yaml_file)
     documents = yaml.load(yaml_file_stream)
     yaml_file_stream.close()
 
-    #from the sample agnostic region of the yaml file
+    # from the sample agnostic region of the yaml file
     project_name = documents.get("project")
     analysis_steps = documents.get("analysis")
     output_address = documents.get("upload")
@@ -32,13 +36,12 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     elif os.environ["style"] == "factor":
         os.environ["style_ext"] = ".peaks.txt"
 
-
-    #used for pair-based analysis
-    #dictionary with key=normal_sample, value=tumor_sample
+    # used for pair-based analysis
+    # dictionary with key=normal_sample, value=tumor_sample
     pair_list = documents.get("pairs")
 
-    #used for group-based analysis
-    #dictionary with key=group, value=list of tuples from _separate_file_suffix
+    # used for group-based analysis
+    # dictionary with key=group, value=list of tuples from _separate_file_suffix
     group_list = {}
 
     for sample_pair in sample_list:
@@ -52,25 +55,25 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 
     print(group_list)
 
-
-    #tools.yaml contains general configuration for all shell scripts
-    #see comments in tools.yaml for more information
+    # tools.yaml contains general configuration for all shell scripts
+    # see comments in tools.yaml for more information
     global_config_file = open("/shared/workspace/Pipelines/tools.yaml", "r")
     global_config_dict = yaml.load(global_config_file)
 
-    #configuration file for current pipeline
-    #contains order of steps and extra arguments to each shell script
+    # configuration file for current pipeline
+    # contains order of steps and extra arguments to each shell script
     specific_config_file = open("/shared/workspace/Pipelines/{}".format(pipeline_config_file), "r")
     specific_config_dict = yaml.load(specific_config_file)
 
-    #steps list enforces order of possible steps in pipeline
+    # steps list enforces order of possible steps in pipeline
     for step in specific_config_dict["steps"]:
         if step in analysis_steps:
-            run_tool(global_config_dict[step], specific_config_dict[step], 
-                    project_name, sample_list, input_address, output_address, group_list, pair_list, log_dir)
+            run_tool(global_config_dict[step], specific_config_dict[step],
+                     project_name, sample_list, input_address, output_address, group_list, pair_list, log_dir)
 
-#function to run any tool
-#arguments:
+
+# function to run any tool
+# arguments:
 #   tool_config_dict: dictionary from parsing tools.yaml file
 #   extra_bash_args: list from current step's value in current pipeline's yaml file
 #   project_name: the project_name from the project's yaml file
@@ -80,30 +83,33 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 #   group_list: a dictionary as described in function run_analysis' group_list variable
 #   pair_list: a dictionary as described in function run_analysis' pair_list variable
 #   log_dir: root directory where logs will be stored
-def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input_address, output_address, group_list, pair_list, log_dir):
-    #num_threads used to request nodes with a specific amount of threads for step
+def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input_address, output_address, group_list,
+             pair_list, log_dir):
+    # num_threads used to request nodes with a specific amount of threads for step
     if len(extra_bash_args) > 0:
         num_threads = extra_bash_args[0]
     else:
         num_threads = 1
 
-    #contains all qsub flags and the name of the shell script for this step
+    # contains all qsub flags and the name of the shell script for this step
     subprocess_call_list = ["qsub", "-V", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
-            SCRIPTS + tool_config_dict["script_name"] + ".sh"]
-    
-    #extra arguments to the current shell script outside of the 9 necessary ones (see shell script format documentation)
-    #if not empty, first extra argument must be a number representing number of threads used by script
+                            SCRIPTS + tool_config_dict["script_name"] + ".sh"]
+
+    # extra arguments to the current shell script outside of the 9 necessary ones (see shell script format documentation)
+    # if not empty, first extra argument must be a number representing number of threads used by script
     extra_bash_args = list(map(str, extra_bash_args))
 
-    #runs tool on every sample in project
+    # runs tool on every sample in project
     if tool_config_dict.get("all_samples", False):
-        subprocess.call(subprocess_call_list + 
-                _by_all_samples_argument_generator(project_name, sample_list, input_address, output_address, tool_config_dict, log_dir) + 
-                extra_bash_args)
+
+        subprocess.call(subprocess_call_list +
+                        _by_all_samples_argument(project_name, sample_list, output_address,
+                                                 tool_config_dict, log_dir) + extra_bash_args)
         return
 
     if tool_config_dict.get("by_pair", None) and len(pair_list) > 0:
-        for pair_arguments in _by_pair_argument_generator(project_name, group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
+        for pair_arguments in _by_pair_argument_generator(project_name, group_list, pair_list, input_address,
+                                                          output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = pair_arguments[1]
                 for chromosome in CHROMOSOME_LIST:
@@ -111,45 +117,48 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
                     subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args + [chromosome])
             else:
                 subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args)
-        
-        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"]+ ".sh")
+
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"] + ".sh")
         return
 
-    #runsn tool on samples in each group
+    # runsn tool on samples in each group
     if tool_config_dict.get("by_group", False):
-        for group_arguments in _by_group_argument_generator(project_name, group_list, input_address, output_address, tool_config_dict, log_dir):
+        for group_arguments in _by_group_argument_generator(project_name, group_list, input_address, output_address,
+                                                            tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = group_arguments[1]
                 for chromosome in CHROMOSOME_LIST:
                     group_arguments[1] = original_suffix.format(chromosome)
-                    subprocess.call(subprocess_call_list + group_arguments + 
-                            extra_bash_args + [chromosome])
+                    subprocess.call(subprocess_call_list + group_arguments +
+                                    extra_bash_args + [chromosome])
             else:
                 subprocess.call(subprocess_call_list + group_arguments + extra_bash_args)
 
         PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"] + ".sh")
         return
 
-    for curr_sample_arguments in _sample_argument_generator(project_name, sample_list, input_address, output_address, tool_config_dict, log_dir):
-        #for tools that run on each chromosome the file suffix has the current chrom number added to it
+    for curr_sample_arguments in _sample_argument_generator(project_name, sample_list, input_address, output_address,
+                                                            tool_config_dict, log_dir):
+        # for tools that run on each chromosome the file suffix has the current chrom number added to it
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = curr_sample_arguments[1]
             for chromosome in CHROMOSOME_LIST:
                 curr_sample_arguments[1] = original_suffix.format(chromosome)
-                subprocess.call(subprocess_call_list + curr_sample_arguments + 
-                        extra_bash_args + [chromosome])
+                subprocess.call(subprocess_call_list + curr_sample_arguments +
+                                extra_bash_args + [chromosome])
         else:
             subprocess.call(subprocess_call_list + curr_sample_arguments + extra_bash_args)
 
     PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"] + ".sh")
 
-#returns tuple
-#first element is file name without suffix
-#second element is .fastq or .fq
-#third element is str boolean representing if file was zipped
+
+# returns tuple
+# first element is file name without suffix
+# second element is .fastq or .fq
+# third element is str boolean representing if file was zipped
 def _separate_file_suffix(sample_file):
-    #regex matches .fastq or .fq and then any extensions following them
-    #user shouldn't have "fastq" or "fq" in their file names before the ext
+    # regex matches .fastq or .fq and then any extensions following them
+    # user shouldn't have "fastq" or "fq" in their file names before the ext
     original_suffix = re.search("\.f(?:ast){0,1}q.*$", sample_file).group()
     file_prefix = sample_file.replace(original_suffix, "")
     is_zipped = ".gz" in original_suffix
@@ -157,9 +166,10 @@ def _separate_file_suffix(sample_file):
 
     return file_prefix, file_suffix, str(is_zipped)
 
-#generator that yields tuple containing arguments for shell script
-#yielded arguments are standard for every tool
-#returned tuple:
+
+# generator that yields tuple containing arguments for shell script
+# yielded arguments are standard for every tool
+# returned tuple:
 #   file_suffix:    file extension (.fq or .fastq) without .gz
 #   ROOT_DIR:       directory under which output will be saved
 #   fastq_end1:     forward reads (or single end file)
@@ -180,30 +190,31 @@ def _sample_argument_generator(project_name, sample_list, input_address, output_
 
         curr_output_address = output_address + "/{}/{}".format(project_name, fastq_end1)
 
-        #puts "NULL" in fastq_end2 if sample isn't paired end
+        # puts "NULL" in fastq_end2 if sample isn't paired end
         if len(curr_samples) > 1:
             fastq_end2 = _separate_file_suffix(curr_samples[1])[0]
         else:
             fastq_end2 = "NULL"
 
-        #used if different precursor than .fq or .fastq is needed
+        # used if different precursor than .fq or .fastq is needed
         if download_suffix:
             if uses_chromosomes:
                 file_suffix = download_suffix
             else:
                 file_suffix = download_suffix.format(file_suffix)
 
-        #for tools later in pipeline the precursors are 
-        #downloaded from the output address
+        # for tools later in pipeline the precursors are
+        # downloaded from the output address
         if input_is_output:
             input_address = output_address + "/{}/{}".format(project_name, fastq_end1)
 
-        #some precursors are never zipped
+        # some precursors are never zipped
         if not can_be_zipped:
             is_zipped = "False"
 
-        yield [project_name, file_suffix, ROOT_DIR, fastq_end1, fastq_end2, 
-                input_address, curr_output_address, log_dir, is_zipped]
+        yield [project_name, file_suffix, ROOT_DIR, fastq_end1, fastq_end2,
+               input_address, curr_output_address, log_dir, is_zipped]
+
 
 def _by_group_argument_generator(project_name, group_list, input_address, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
@@ -230,9 +241,11 @@ def _by_group_argument_generator(project_name, group_list, input_address, output
             is_zipped = "False"
 
         yield [project_name, file_suffix, ROOT_DIR, group, "NULL", input_address,
-                curr_output_address, log_dir, is_zipped, samples]
+               curr_output_address, log_dir, is_zipped, samples]
 
-def _by_pair_argument_generator(project_name, group_list, pair_list, input_address, output_address, config_dictionary, log_dir):
+
+def _by_pair_argument_generator(project_name, group_list, pair_list, input_address, output_address, config_dictionary,
+                                log_dir):
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
     uses_chromosomes = config_dictionary["uses_chromosomes"]
@@ -246,7 +259,7 @@ def _by_pair_argument_generator(project_name, group_list, pair_list, input_addre
             del pair_list[first_sample]
         elif pair_list.get(second_sample, None):
             normal_sample = second_sample
-            tumor_sample = first_sample 
+            tumor_sample = first_sample
             del pair_list[second_sample]
         else:
             break
@@ -268,11 +281,10 @@ def _by_pair_argument_generator(project_name, group_list, pair_list, input_addre
             input_address = output_address
 
         yield [project_name, file_suffix, ROOT_DIR, normal_sample, tumor_sample, input_address,
-                curr_output_address, log_dir, is_zipped]
+               curr_output_address, log_dir, is_zipped]
 
 
-
-def _by_all_samples_argument_generator(project_name, sample_list, output_address, config_dictionary, log_dir):
+def _by_all_samples_argument(project_name, sample_list, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
     # turn download suffix to an empty string when it's a Nonetype
     if download_suffix is None:
@@ -286,9 +298,13 @@ def _by_all_samples_argument_generator(project_name, sample_list, output_address
 
     samples = samples.strip()
 
-    return [project_name, download_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
+    return [project_name, download_suffix, ROOT_DIR, "NULL", "NULL", input_address,
             curr_output_address, log_dir, "False", samples]
 
 
 if __name__ == "__main__":
+    yaml_file = sys.argv[1]
+    log_dir = sys.argv[2]
+    pipeline_config_file = sys.argv[3]
+
     run_analysis(sys.argv[1], sys.argv[2], sys.argv[3])
