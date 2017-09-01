@@ -90,19 +90,19 @@ filter:
 
 # SmallRNA specific #
 cut_adapt:
-    script_name: "cutadapt"
+    script_name: "miRNA/cutadapt"
     download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 bowtie2:  
-    script_name: "bowtie2"
+    script_name: "miRNA/bowtie2"
     download_suffix: ".cut{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 counting:
-    script_name: "count"
+    script_name: "miRNA/count"
     download_suffix: ".sam"
     input_is_output: True
     can_be_zipped: False
@@ -157,6 +157,14 @@ multiqc:
 # RNA-seq specific #
 #
 # Kallisto workflow:
+
+kallisto_make_group:
+    script_name: "RNA/make_group"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
 kallisto_fastqc:
     script_name: "fastqc"
     download_suffix: ~
@@ -170,22 +178,19 @@ kallisto_trim:
     can_be_zipped: True
     uses_chromosomes: False
 kallisto_align: 
-    script_name: "k_align"
+    script_name: "RNA/k_align"
     download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-
-
-
 kallisto_count:
-    script_name: "k_count"
+    script_name: "RNA/k_count"
     download_suffix: ~ 
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 kallisto_merge:
-    script_name: "merge"
+    script_name: "RNA/merge_counts"
     download_suffix: ~ 
     input_is_output: True
     can_be_zipped: False
@@ -193,7 +198,7 @@ kallisto_merge:
 
 # Star_gatk workflow:
 star_gatk_make_group:
-    script_name: "make_group"
+    script_name: "RNA/make_group"
     download_suffix: ~
     input_is_output: False
     can_be_zipped: False
@@ -212,11 +217,21 @@ star_gatk_trim:
     can_be_zipped: True
     uses_chromosomes: False
 star_gatk_align:
-star_gatkc_vc:
+    script_name: "RNA/gatk_align"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_gatk_vc:
+    script_name: "RNA/gatk_vc"
+    download_suffix: ".Aligned.out.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
 
 # Star_htseq workflow:
 star_htseq_make_group:
-    script_name: "make_group"
+    script_name: "RNA/make_group"
     download_suffix: ~
     input_is_output: False
     can_be_zipped: False
@@ -235,19 +250,19 @@ star_htseq_trim:
     can_be_zipped: True
     uses_chromosomes: False
 star_htseq_align:
-    script_name: "ht_align"
+    script_name: "RNA/ht_align"
     download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 star_htseq_count:
-    script_name: "ht_count"
+    script_name: "RNA/ht_count"
     download_suffix: ".Aligned.out.sorted.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 star_htseq_merge:  # same with kallisto
-    script_name: "merge"
+    script_name: "RNA/merge_counts"
     download_suffix: "_counts.txt"
     input_is_output: True
     can_be_zipped: False
