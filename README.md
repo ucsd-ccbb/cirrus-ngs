@@ -14,6 +14,58 @@ All dependencies can be installed with pip
 * ChipSeqPipeline
 * SmallRNASeqPipeline
 
+## The Design File
+This txt file specifies what samples will be used in this project.
+It supports both a two column and three column tab-separated format
+
+#### Two column format
+In the two column format the first column is the filename of the sample
+    If the sample is paired end the first column should be:
+    `name_of_forward_end_file,name_of_reverse_end_file`
+    Note that the two files are only separated by a comma, no spaces
+The second column is the name of the group associated with that sample
+Group names are used for variant calling. Samples with the same group will have their vcf files merged and the group-based vcf files will be compared to one another.
+
+#### Three column format
+The three column format has the same first two columns as the two column format.
+The third column is an identifier that is either from Normal, Tumor, Chip, or Input (_case sensitive_)
+    The Normal/Tumor identifiers are used for mutect in the WGS pipeline
+    The Chip/Input indentifiers are used throughout the ChipSeq pipeline 
+If two files form a Normal/Tumor or Chip/Input pair they must have the same group and directly follow one another
+Also, each group in the three column format must have exactly one of each identifier (one Normal && one Tumor) || (one Chip && one Input)
+
+###### Examples:
+
+**GOOD**
+```
+sample1_forward,sample1_reverse<TAB>group1<TAB>Normal
+sample2_forward,sample2_reverse<TAB>group1<TAB>Tumor
+```
+```
+sample1<TAB>group1<TAB>Chip
+sample2<TAB>group1<TAB>Input
+```
+
+**BAD**
+```
+sample1<TAB>group1<TAB>Normal
+sample2<TAB>group2<TAB>Tumor
+```
+```
+sample1<TAB>group1<TAB>Normal
+sample2<TAB>group1<TAB>Input
+```
+```
+sample1<TAB>group1<TAB>Tumor
+sample2<TAB>group1<TAB>Tumor
+```
+```
+sample1<TAB>group1<TAB>Tumor
+sample2<TAB>group1<TAB>Normal
+```
+^ wrong order of samples in last one
+
+
 ## Adding additional tools
 All tools are run by Pipeline.py on the cluster. Adding additional tools requires:
 1. A shell script following the standard format
@@ -131,5 +183,7 @@ Basic notes about the required entries for each tool:
 * uses_chromosomes
     * boolean value describing if this step should be run on each chromosome
     * the last bash argument to the script will be the chromosome's number
+
+By default the tool will be run on all the samples in the project. Each tool can also be run on all samples at once, on each group, and on pairs of samples if needed.
 
 #### Pipeline specific yaml files
