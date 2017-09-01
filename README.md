@@ -35,9 +35,9 @@ The third column is an identifier that is either from Normal, Tumor, Chip, or In
 If two files form a Normal/Tumor or Chip/Input pair they must have the same group and directly follow one another  
 Also, each group in the three column format must have exactly one of each identifier (one Normal && one Tumor) || (one Chip && one Input)  
 
-###### Examples:
+##### Examples:
 
-**GOOD**
+##### GOOD
 ```
 sample1_forward,sample1_reverse<TAB>group1<TAB>Normal
 sample2_forward,sample2_reverse<TAB>group1<TAB>Tumor
@@ -47,7 +47,7 @@ sample1<TAB>group1<TAB>Chip
 sample2<TAB>group1<TAB>Input
 ```
 
-**BAD**
+##### BAD
 ```
 sample1<TAB>group1<TAB>Normal
 sample2<TAB>group2<TAB>Tumor
