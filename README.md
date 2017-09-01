@@ -117,8 +117,9 @@ Basic notes about the required entries for each tool:
     * if ~ is passed in the prereq extension will default to the extension of the samples for this project (.fq or .fastq)
     * this should contain the "." in the extension (".fq" not "fq")
     * can contain one {} format specifier that takes on a value of
-        * .fq or .fastq if uses_chromosomes is false (.trim{} becomes .trim(.fq|.fastq))
-        * ${curr_chromosome_number} if uses_chromsomes is true (.final.{}.bam becomes .final.$CHROMOSOMENUMBER.bam)
+        * .fq or .fastq if uses_chromosomes is false **_.trim{} becomes .trim(.fq|.fastq)_**
+        * ${curr_chromosome_number} if uses_chromsomes is true 
+        **_.final.{}.bam becomes .final.$CHROMOSOMENUMBER.bam)_**
 * input_is_output
     * boolean value describing location of prerequisite files for this step
     * if true downloads will be from user's specified output s3 bucket instead of their input s3 bucket
