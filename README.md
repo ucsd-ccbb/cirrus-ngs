@@ -18,4 +18,4 @@ All dependencies can be installed with pip
 All tools are run by Pipeline.py on the cluster. Adding additional tools requires:
 1. A shell script following the standard format
 2. An entry in the tools.yaml file
-3. An entry in the _Pipeline_.yaml file for extra arguments to shell script
+3. An entry in the _X_ Pipeline.yaml file for extra arguments to shell script
