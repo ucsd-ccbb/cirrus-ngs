@@ -230,6 +230,20 @@ Second, each tool can have extra arguments passed in through this pipeline-speci
   ```yaml
   fastqc: []
 trim:
-    - 4 
-    - 36
+    - 4   #number of threads
+    - 36  #minlen parameter for trimmomatic
   ```
+
+#### software.conf
+This configuration file contains environment variables for paths to executables and reference files. If more variables are required they can simply be added to this file anywhere. This file must be sourced in the .bashrc in the head node.
+
+This file also contains two bash functions used in all shell scripts.
+* check_step_already_done
+  * args: name of the job being run, path to status.log 
+  * This function checks the status.log file passed in to see if the currently running job has already passed. If it has already passed, then the shell script will terminate early and not run the step unnecessarily.
+
+* check_exit_status
+  * args: string command to be run, name of the job being run, path to status.log
+  * This function checks the exit status of the command passed in. If it is non-zero it attempts the step twice more. If it is still non-zero then the error messages are logged and a "failed" specifier is added to status.log
+  
+These two functions prevent running tools when not needed.
