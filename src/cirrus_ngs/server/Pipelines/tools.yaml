@@ -91,7 +91,7 @@ filter:
 # SmallRNA specific #
 cut_adapt:
     script_name: "miRNA/cutadapt"
-    download_suffix: ".trim{}"
+    download_suffix: ~ 
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
