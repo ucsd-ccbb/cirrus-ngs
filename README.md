@@ -27,11 +27,19 @@ In the two column format the first column is the filename of the sample
 The second column is the name of the group associated with that sample  
 Group names are used for variant calling. Samples with the same group will have their vcf files merged and the group-based vcf files will be compared to one another.  
 
+#### Examples
+```
+sample1_forward,sample1_reverse<TAB>group
+```
+```
+sample1<TAB>group
+```
+
 ### Three column format
 The three column format has the same first two columns as the two column format.  
 The third column is an identifier that is either from Normal, Tumor, Chip, or Input (_case sensitive_)  
    * The Normal/Tumor identifiers are used for mutect in the WGS pipeline  
-   * The Chip/Input indentifiers are used throughout the ChipSeq pipeline 
+   * The Chip/Input indentifiers are used throughout the ChipSeq pipeline (Input is used to normalize)
   
 If two files form a Normal/Tumor or Chip/Input pair they must have the same group and directly follow one another  
 Also, each group in the three column format must have exactly one of each identifier (one Normal && one Tumor) || (one Chip && one Input)  
@@ -186,23 +194,63 @@ Basic notes about the required entries for each tool:
     * boolean value describing if this step should be run on each chromosome
     * the last bash argument to the script will be the chromosome's number
 
-By default the tool will be run on all the samples in the project. Each tool can also be run on all samples at once, on each group, and on pairs of samples if needed. An additional field can be added to each tool's specification to force a different kind of run.  
+By default the tool will be run on all the samples one at a time in the project. Each tool can also be run on all samples at once, on each group, and on pairs of samples if needed. An additional field can be added to each tool's specification to force a different kind of run.  
 
 * all_samples:
   * If set to true the tool will be run once on all samples within the project. These samples will be passed into the tool's shell script as a space-delimited list of the sample forward-read file names. 
   * The input and output addresses will not contain the sample name as the others do. Intead of $path/proj_name/sample the output will be to $path/proj_name
+  * shell script arguments:
+  ```yaml
+  project_name=$1
+  file_suffix=$2  #extension of input file, does not include .gz if present in input
+  root_dir=$3
+  fastq_end1=$4
+  fastq_end2=$5
+  input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
+  output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
+  log_dir=$8
+  is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+  all_samples=${10}
+  EXTRA_BASH_ARGUMENTS
+  ```
   
 * by_pair:
   * If set to true the tool will be run on pairs of samples. Sample pairs are determined by the user's design file. Pair-based analysis requires the third field in the design file. Samples that constitute a pair must be the only two samples in their group. More details in design file section.
   * The output address parameter will be set to $path/proj_name/normal_sample_name, where the normal sample is whichever was placed first in the pair in the design file. 
   * The input address parameter is partially determined by input_is_output; if input_is_output is true then input address is set to the user-given path to the output address without any additions. This allows for more control in downloading files from different s3 buckets. If input_is_output is false then the input address will be the user's specified input address.
   * If by_pair is set to true for some tool but the design file doesn't have a third field then said tool will be run on a by sample basis instead.  
+  * shell script arguments:
+  ```yaml
+  project_name=$1
+  file_suffix=$2  #extension of input file, does not include .gz if present in input
+  root_dir=$3
+  fastq_end1=$4
+  fastq_end2=$5
+  input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
+  output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
+  log_dir=$8
+  is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+  EXTRA_BASH_ARGUMENTS
+  ```
   
 * by_group:
   * If set to true the tool will be run on each group of samples as specified by the design file. Group based analysis will create a new directory $path/proj_name/group_name to store analysis for that group. 
   * When run by_group the shell script will take an extra argument containing a space-delimited list of samples in that group.
   * The output address and input address parameters will be set in the same manner as the by_pair output and input addresses. However, instead of $path/proj_name/normal_sample_name the output address will be set to $path/proj_name/group_name 
-  
+  * shell script arguments:
+  ```yaml
+  project_name=$1
+  file_suffix=$2  #extension of input file, does not include .gz if present in input
+  root_dir=$3
+  fastq_end1=$4
+  fastq_end2=$5
+  input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
+  output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
+  log_dir=$8
+  is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+  group_samples=${10}
+  EXTRA_BASH_ARGUMENTS
+  ```
 
 #### Pipeline specific yaml files
 Each pipeline has its own configuration file with two specific sections.  
