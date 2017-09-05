@@ -279,6 +279,8 @@ def _by_pair_argument_generator(project_name, group_list, pair_list, input_addre
 
 def _by_all_samples_argument_generator(project_name, sample_list, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
+    input_is_output = config_dictionary["input_is_output"]
+    can_be_zipped = config_dictionary["can_be_zipped"]
 
     first_sample = sample_list[0].get("filename").split(",")[0].strip()
     fastq_end1, file_suffix, is_zipped = _separate_file_suffix(first_sample)
@@ -291,7 +293,12 @@ def _by_all_samples_argument_generator(project_name, sample_list, output_address
             file_suffix - download_suffix.format(file_suffix)
 
     curr_output_address = output_address + "/{}".format(project_name)
-    input_address = curr_output_address
+
+    if input_is_output:
+        input_address = curr_output_address
+
+    if not can_be_zipped:
+        is_zipped = "False"
 
     samples = []
 
@@ -301,7 +308,7 @@ def _by_all_samples_argument_generator(project_name, sample_list, output_address
     samples = " ".join(samples)
 
     return [project_name, file_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
-            curr_output_address, log_dir, "False", samples]
+            curr_output_address, log_dir, is_zipped, samples]
 
 
 if __name__ == "__main__":
