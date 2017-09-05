@@ -21,7 +21,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
     # for RNA-seq, needs directory for the specific workflow
     if pipeline.startswith("RNA"):
         general_pipeline = "RNASeq"
-        workflow = pipeline.split("_")[1]
+        workflow = pipeline.split("_")[-1]
         logs_dir = logs_dir.format(general_pipeline, workflow + "/" + project_name)
     else:
         logs_dir = logs_dir.format(pipeline, project_name)

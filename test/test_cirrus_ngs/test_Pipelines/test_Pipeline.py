@@ -152,7 +152,35 @@ class Tests(unittest.TestCase):
             self.assertEquals(result, correct_results[index])
 
     def test_by_group_argument_generator(self):
-        group_list = []
+        group_list = {  "groupA": [ ["sample1_R1", ".fq", "False"], ["sample2", ".fq". "False"]],
+                        "groupB": [ ["sample3_R1", ".fastq", "True"]] }
+
+        config_dicts = [{"script_name": "test",
+                        "download_suffix": None,
+                        "input_is_output": False,
+                        "can_be_zipped": True,
+                        "uses_chromosomes": False},
+                        {"script_name": "test",
+                        "download_suffix": ".ext{}.ext2",
+                        "input_is_output": False,
+                        "can_be_zipped": False,
+                        "uses_chromosomes": False},
+                        {"script_name": "test",
+                        "download_suffix": ".ext{}.ext2",
+                        "input_is_output": True,
+                        "can_be_zipped": False,
+                        "uses_chromosomes": True}]
+
+        base_correct_result = "test_proj {} /scratch {} {} {} {} /path/to/logs {}"
+        curr_correct_result = base_correct_result
+
+
+        result1 = [curr_correct_result.format(".fq", "sample1_forward", "sample1_backward", "s3://path/to/input", "s3://path/to/output/test_proj/sample1_forward", "False").split() ]
+        curr_correct_result = base_correct_result
+        result1.append(curr_correct_result.format(".fq", "sample2", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/sample2", "True").split() )
+        curr_correct_result = base_correct_result
+
+        result1 = 
         self.fail()
 
 
