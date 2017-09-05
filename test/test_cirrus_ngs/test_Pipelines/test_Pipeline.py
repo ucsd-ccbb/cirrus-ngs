@@ -149,10 +149,10 @@ class Tests(unittest.TestCase):
                     config, "/path/to/logs"):
                 result.append(output)
 
-            self.assertEquals(result, correct_results[index])
+            self.assertEqual(result, correct_results[index])
 
     def test_by_group_argument_generator(self):
-        group_list = {  "groupA": [ ["sample1_R1", ".fq", "False"], ["sample2", ".fq". "False"]],
+        group_list = {  "groupA": [ ["sample1_R1", ".fq", "False"], ["sample2", ".fq", "False"]],
                         "groupB": [ ["sample3_R1", ".fastq", "True"]] }
 
         config_dicts = [{"script_name": "test",
@@ -175,14 +175,77 @@ class Tests(unittest.TestCase):
         curr_correct_result = base_correct_result
 
 
-        result1 = [curr_correct_result.format(".fq", "sample1_forward", "sample1_backward", "s3://path/to/input", "s3://path/to/output/test_proj/sample1_forward", "False").split() ]
+        result1 = [curr_correct_result.format(".fq", "groupA", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/groupA", "False").split() + ["sample1_R1 sample2"]]
         curr_correct_result = base_correct_result
-        result1.append(curr_correct_result.format(".fq", "sample2", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/sample2", "True").split() )
+        result1.append(curr_correct_result.format(".fastq", "groupB", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/groupB", "True").split() + ["sample3_R1"] )
         curr_correct_result = base_correct_result
 
-        result1 = 
-        self.fail()
+        result2 = [curr_correct_result.format(".ext.fq.ext2", "groupA", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/groupA", "False").split() + ["sample1_R1 sample2"]] 
+        curr_correct_result = base_correct_result
+        result2.append(curr_correct_result.format(".ext.fastq.ext2", "groupB", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/groupB", "False").split() + ["sample3_R1"])
+        curr_correct_result = base_correct_result
 
+        result3 = [curr_correct_result.format(".ext{}.ext2", "groupA", "NULL", "s3://path/to/output",  "s3://path/to/output/test_proj/groupA", "False").split() + ["sample1_R1 sample2"] ]
+        curr_correct_result = base_correct_result
+        result3.append(curr_correct_result.format(".ext{}.ext2", "groupB", "NULL", "s3://path/to/output",  "s3://path/to/output/test_proj/groupB", "False").split() + ["sample3_R1"])
+
+        correct_results = [result1, result2, result3]
+        for index, config in enumerate(config_dicts):
+            result = []
+            for output in Pipeline._by_group_argument_generator("test_proj",
+                    group_list, "s3://path/to/input", "s3://path/to/output",
+                    config, "/path/to/logs"):
+                result.append(output)
+
+            self.assertEqual(result, correct_results[index])
+
+    def test_by_pair_argument_generator(self):
+        group_list = {  "groupA": [ ["sample1_R1", ".fq", "False"], ["sample2", ".fq", "False"]],
+                        "groupB": [ ["sample3_R1", ".fastq", "True"], ["sample4", ".fastq", "True"]] }
+        pair_list =  {"sample1_R1": "sample2", "sample3_R1": "sample4"}
+
+        config_dicts = [{"script_name": "test",
+                        "download_suffix": None,
+                        "input_is_output": False,
+                        "can_be_zipped": True,
+                        "uses_chromosomes": False},
+                        {"script_name": "test",
+                        "download_suffix": ".ext{}.ext2",
+                        "input_is_output": False,
+                        "can_be_zipped": False,
+                        "uses_chromosomes": False},
+                        {"script_name": "test",
+                        "download_suffix": ".ext{}.ext2",
+                        "input_is_output": True,
+                        "can_be_zipped": False,
+                        "uses_chromosomes": True}]
+
+        base_correct_result = "test_proj {} /scratch {} {} {} {} /path/to/logs {}"
+        curr_correct_result = base_correct_result
+
+        result1 = [curr_correct_result.format(".fq", "sample1_R1", "sample2", "s3://path/to/input", "s3://path/to/output/test_proj/sample1_R1", "False").split() ]
+        curr_correct_result = base_correct_result
+        result1.append(curr_correct_result.format(".fastq", "sample3_R1", "sample4", "s3://path/to/input", "s3://path/to/output/test_proj/sample3_R1", "True").split() )
+        curr_correct_result = base_correct_result
+
+        result2 = [curr_correct_result.format(".ext.fq.ext2", "sample1_R1", "sample2", "s3://path/to/input", "s3://path/to/output/test_proj/sample1_R1", "False").split() ] 
+        curr_correct_result = base_correct_result
+        result2.append(curr_correct_result.format(".ext.fastq.ext2", "sample3_R1", "sample4", "s3://path/to/input", "s3://path/to/output/test_proj/sample3_R1", "False").split() )
+        curr_correct_result = base_correct_result
+
+        result3 = [curr_correct_result.format(".ext{}.ext2", "sample1_R1", "sample2", "s3://path/to/output",  "s3://path/to/output/test_proj/sample1_R1", "False").split() ] 
+        curr_correct_result = base_correct_result
+        result3.append(curr_correct_result.format(".ext{}.ext2", "sample3_R1", "sample4", "s3://path/to/output",  "s3://path/to/output/test_proj/sample3_R1", "False").split() )
+
+        correct_results = [result1, result2, result3]
+        for index, config in enumerate(config_dicts):
+            result = []
+            for output in Pipeline._by_pair_argument_generator("test_proj",
+                    group_list, pair_list, "s3://path/to/input", "s3://path/to/output",
+                    config, "/path/to/logs"):
+                result.append(output)
+
+            self.assertEqual(result, correct_results[index])
 
 
         
