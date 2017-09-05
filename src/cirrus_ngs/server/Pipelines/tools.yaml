@@ -87,6 +87,8 @@ filter:
     can_be_zipped: False
     uses_chromosomes: False
     by_group: True
+holder:
+    hold: hold
 
 # SmallRNA specific #
 cut_adapt:
