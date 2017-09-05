@@ -4,7 +4,7 @@ import time
 
 ## make a yaml file for analysis of any Pipeline
 def make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_address,
-        sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
+        sample_list, group_list, s3_output_files_address, genome, style, pairs_list, workflow):
     filewriter = open(yaml_file, "w")
     filewriter.write("project: " + project_name + "\n")
 
@@ -15,6 +15,7 @@ def make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_addre
     filewriter.write("date: " + time.strftime("%Y/%m/%d") + "\n")
     filewriter.write("upload: " + s3_output_files_address + "\n")
     filewriter.write("download: " + s3_input_files_address + "\n")
+    filewriter.write("workflow: " + workflow + "\n")
     filewriter.write("genome: " + genome + "\n")
     filewriter.write("style: " + style + "\n")
     filewriter.write("pairs:\n")
