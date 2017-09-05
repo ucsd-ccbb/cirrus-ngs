@@ -34,7 +34,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
                                  sample_list, group_list, s3_output_files_address, genome, style, pairs_list)
 
     print("copying yaml file to remote master node...")
-    ConnectionManager.copy_file(ssh_client, yaml_file, workspace + "yaml_examples/" + general_pipeline)
+    ConnectionManager.copy_file(ssh_client, yaml_file, workspace + "yaml_files/" + general_pipeline)
 
     # Remove the local yaml file
     os.remove(yaml_file)
@@ -42,7 +42,7 @@ def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_a
     print("executing pipeline...")
     ConnectionManager.execute_command(ssh_client,
                                       "qsub -V -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
-                                      + workspace + "yaml_examples/" + general_pipeline + "/" + yaml_file + " "
+                                      + workspace + "yaml_files/" + general_pipeline + "/" + yaml_file + " "
                                       + logs_dir + " " + pipeline)
 
 
