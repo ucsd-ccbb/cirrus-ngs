@@ -204,3 +204,32 @@ By default the tool will be run on all the samples in the project. Each tool can
   
 
 #### Pipeline specific yaml files
+Each pipeline has its own configuration file with two specific sections.  
+First, there must be a steps list that contains the order of the steps that can be run.
+  Example: 
+  ```yaml
+  steps:
+    - "fastqc"
+    - "trim"
+    - "bwa"
+    - "sort"
+    - "dedup"
+    - "split"
+    - "postalignment"
+    - "haplotype"
+    - "mutect"
+    - "merge"
+    - "bam_merge"
+    - "pair_vcf_merge"
+    - "combine_vcf"
+    - "filter"
+  ```
+
+Second, each tool can have extra arguments passed in through this pipeline-specific configuration file. Each tool can take a list of extra parameters or an empty list that signifies that no extra bash parameters are needed. **If extra parameters are required the first one must be a integer number of threads needed for that step**  
+  Example:
+  ```yaml
+  fastqc: []
+trim:
+    - 4 
+    - 36
+  ```
