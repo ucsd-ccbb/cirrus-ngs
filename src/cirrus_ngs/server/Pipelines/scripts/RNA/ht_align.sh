@@ -9,7 +9,6 @@ input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
 output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$8
 is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
-num_threads=${10}  #number of threads
 
 #logging
 mkdir -p $log_dir/$fastq_end1
@@ -41,10 +40,10 @@ fi
 # Star align
 if [ "$fastq_end2" == "NULL" ]
 then
-    $STAR --runThreadN $num_threads --genomeDir $STAR_genome --readFilesIn $workspace/$fastq_end1$file_suffix --outFileNamePrefix $workspace/$fastq_end1.
+    $STAR --genomeDir $genomeDir --readFilesIn $workspace/$fastq_end1$file_suffix --outFileNamePrefix $workspace/$fastq_end1.
 
 else
-    $STAR --runThreadN $num_threads --genomeDir $STAR_genome --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
+    $STAR --genomeDir $genomeDir --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
     --outFileNamePrefix $workspace/$fastq_end1.
 fi
 

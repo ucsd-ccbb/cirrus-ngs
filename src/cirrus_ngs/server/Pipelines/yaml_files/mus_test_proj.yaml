@@ -1,0 +1,18 @@
+project: mus_test_proj
+analysis:
+  - merge
+  - combine_vcf
+date: 2017/09/05
+upload: s3://ucsd-ccbb-interns/Mustafa/wgs_test/exome_sample1/runoverweekend
+download: s3://ucsd-ccbb-interns/Mustafa/wgs_test/exome_sample1
+genome: hg19
+style: genome
+pairs:
+  exome_sample1_R1: exome_sample2_R1
+sample:
+- filename: exome_sample1_R1.fq.gz, exome_sample1_R1.fq.gz
+  description: exome_sample1_R1
+  group: groupA
+- filename: exome_sample2_R1.fq.gz, exome_sample2_R2.fq.gz
+  description: exome_sample2_R1
+  group: groupA

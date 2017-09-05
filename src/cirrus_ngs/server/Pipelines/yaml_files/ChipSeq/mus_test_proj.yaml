@@ -1,0 +1,30 @@
+project: mus_test_proj
+analysis:
+  - annotate_peaks
+  - fastqc
+  - find_motifs_genome
+  - make_UCSC_file
+  - bowtie
+  - find_peaks
+  - make_tag_directory
+  - pos2bed
+date: 2017/09/05
+upload: s3://ucsd-ccbb-interns/Mustafa/chip_test/histone_no_pairs
+download: s3://ucsd-ccbb-interns/Mustafa/chip_test
+genome: hg19
+style: histone
+pairs:
+  {}
+sample:
+- filename: chipseq_sample1_chip.fastq.gz
+  description: chipseq_sample1_chip
+  group: groupA
+- filename: chipseq_sample1_input.fastq.gz
+  description: chipseq_sample1_input
+  group: groupA
+- filename: chipseq_sample2_chip.fastq.gz
+  description: chipseq_sample2_chip
+  group: groupB
+- filename: chipseq_sample2_input.fastq.gz
+  description: chipseq_sample2_input
+  group: groupB

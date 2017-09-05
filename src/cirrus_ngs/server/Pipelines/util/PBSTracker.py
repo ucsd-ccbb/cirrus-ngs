@@ -26,6 +26,3 @@ def trackPBSQueue(minutes, shell_script):
 
     print()
     print("No jobs are running")
-
-if __name__ == "__main__":
-    trackPBSQueue(1, "reallylongname.sh")
