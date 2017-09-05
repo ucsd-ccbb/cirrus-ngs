@@ -23,6 +23,7 @@ In the two column format the first column is the filename of the sample
    * If the sample is paired end the first column should be:  
    * `name_of_forward_end_file,name_of_reverse_end_file`
    * Note that the two files are only separated by a comma, no spaces  
+   
 The second column is the name of the group associated with that sample  
 Group names are used for variant calling. Samples with the same group will have their vcf files merged and the group-based vcf files will be compared to one another.  
 
