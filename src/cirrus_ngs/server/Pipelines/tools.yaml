@@ -12,83 +12,81 @@ trim:
     can_be_zipped: True
     uses_chromosomes: False
 bwa:
-    script_name: "WGS/bwa"
+    script_name: "DNASeq/bwa"
     download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 sort:
-    script_name: "WGS/sort"
+    script_name: "DNASeq/sort"
     download_suffix: ".bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 dedup:
-    script_name: "WGS/dedup"
+    script_name: "DNASeq/dedup"
     download_suffix: ".sort.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 split:
-    script_name: "WGS/split"
+    script_name: "DNASeq/split"
     download_suffix: ".dedup.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
 postalignment:
-    script_name: "WGS/post"
+    script_name: "DNASeq/post"
     download_suffix: ".{}.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
 haplotype:
-    script_name: "WGS/haplo"
+    script_name: "DNASeq/haplo"
     download_suffix: ".final.{}.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
 mutect:
-    script_name: "WGS/mutect"
+    script_name: "DNASeq/mutect"
     download_suffix: ".final.{}.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True
     by_pair: True
 merge:
-    script_name: "WGS/merge"
+    script_name: "DNASeq/merge"
     download_suffix: ".g.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 bam_merge:
-    script_name: "WGS/merge"
+    script_name: "DNASeq/merge"
     download_suffix: ".g.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 pair_vcf_merge:
-    script_name: "WGS/pair_merge"
+    script_name: "DNASeq/pair_merge"
     download_suffix: ".vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_pair: True
 combine_vcf:
-    script_name: "WGS/group_vcf"
+    script_name: "DNASeq/group_vcf"
     download_suffix: ".merged.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_group: True
 filter:
-    script_name: "WGS/filter"
+    script_name: "DNASeq/filter"
     download_suffix: ".g.vcf.gz"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_group: True
-holder:
-    hold: hold
 
 # SmallRNA specific #
 cut_adapt:
@@ -113,25 +111,46 @@ counting:
 
 # ChipSeq #
 bowtie:
-    script_name: "Chip/bowtie"
+    script_name: "ChiPSeq/bowtie"
     download_suffix: ~
     input_is_output: False
     can_be_zipped: True
     uses_chromosomes: False
 make_tag_directory:
-    script_name: "Chip/make_tag_directory"
+    script_name: "ChiPSeq/make_tag_directory"
     download_suffix: ".sam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 make_UCSC_file:
-    script_name: "Chip/make_UCSC_file"
+    script_name: "ChiPSeq/make_UCSC_file"
     download_suffix: ~
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 findpeaks:
-    script_name: "Chip/findpeaks"
+    script_name: "ChiPSeq/findpeaks"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+annotate_peaks:
+    script_name: "ChiPSeq/annotate_peaks"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+pos2bed:
+    script_name: "ChiPSeq/pos2bed"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+find_motifs_genome:
+    script_name: "ChiPSeq/find_motifs_genome"
     download_suffix: ~
     input_is_output: True
     can_be_zipped: False
