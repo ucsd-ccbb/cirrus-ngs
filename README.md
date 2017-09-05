@@ -193,6 +193,20 @@ Basic notes about the required entries for each tool:
 * uses_chromosomes
     * boolean value describing if this step should be run on each chromosome
     * the last bash argument to the script will be the chromosome's number
+    * shell script arguments:
+    ```yaml
+    project_name=$1
+    file_suffix=$2  #extension of input file, does not include .gz if present in input
+    root_dir=$3
+    fastq_end1=$4
+    fastq_end2=$5
+    input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
+    output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
+    log_dir=$8
+    is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+    EXTRA_BASH_ARGUMENTS
+    chromosome=${last_parameter}
+    ```
 
 By default the tool will be run on all the samples one at a time in the project. Each tool can also be run on all samples at once, on each group, and on pairs of samples if needed. An additional field can be added to each tool's specification to force a different kind of run.  
 
@@ -204,8 +218,8 @@ By default the tool will be run on all the samples one at a time in the project.
   project_name=$1
   file_suffix=$2  #extension of input file, does not include .gz if present in input
   root_dir=$3
-  fastq_end1=$4
-  fastq_end2=$5
+  fastq_end1=$4     #always "NULL" for all_samples iteration
+  fastq_end2=$5     #always "NULL" for all_samples iteration
   input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
   output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
   log_dir=$8
@@ -224,8 +238,8 @@ By default the tool will be run on all the samples one at a time in the project.
   project_name=$1
   file_suffix=$2  #extension of input file, does not include .gz if present in input
   root_dir=$3
-  fastq_end1=$4
-  fastq_end2=$5
+  first_in_pair=$4    #Normal or Chip sample
+  second_in_pair=$5   #Tumor or Input sample
   input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
   output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
   log_dir=$8
@@ -242,8 +256,8 @@ By default the tool will be run on all the samples one at a time in the project.
   project_name=$1
   file_suffix=$2  #extension of input file, does not include .gz if present in input
   root_dir=$3
-  fastq_end1=$4
-  fastq_end2=$5
+  group_name=$4
+  fastq_end2=$5   #this is always "NULL" for by_group iteration
   input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
   output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
   log_dir=$8
@@ -284,9 +298,9 @@ trim:
   ```
 
 #### software.conf
-This configuration file contains environment variables for paths to executables and reference files. If more variables are required they can simply be added to this file anywhere. This file must be sourced in the .bashrc in the head node.
+This configuration file contains environment variables for paths to executables and reference files. If more variables are required they can simply be added to this file anywhere. This file is sourced in the .bashrc in the head node.
 
-This file also contains two bash functions used in all shell scripts.
+This file also contains two bash functions used in all shell scripts to prevent duplicate tool running.
 * check_step_already_done
   * args: name of the job being run, path to status.log 
   * This function checks the status.log file passed in to see if the currently running job has already passed. If it has already passed, then the shell script will terminate early and not run the step unnecessarily.
@@ -295,4 +309,3 @@ This file also contains two bash functions used in all shell scripts.
   * args: string command to be run, name of the job being run, path to status.log
   * This function checks the exit status of the command passed in. If it is non-zero it attempts the step twice more. If it is still non-zero then the error messages are logged and a "failed" specifier is added to status.log
   
-These two functions prevent running tools when not needed.
