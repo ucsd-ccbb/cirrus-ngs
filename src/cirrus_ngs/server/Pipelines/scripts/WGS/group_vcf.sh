@@ -13,17 +13,24 @@ files_in_group=${10}    #all files in current group
 num_threads=${11}
 
 #logging
+log_dir=$log_dir/$group_name
 mkdir -p $log_dir
 log_file=$log_dir/'combine_vcf.log'
-curr_log_file=$root_dir/"combine_vcf_$group_name.log"
-exec 1>>$curr_log_file
-exec 2>>$curr_log_file
+exec 1>>$log_file
+exec 2>>$log_file
+
+status_file=$log_dir/'status.log'
+touch $status_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$group_name
 mkdir -p $workspace
 
-check_step_already_done $group_name $JOB_NAME $log_file $curr_log_file
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+check_step_already_done $JOB_NAME $status_file
 
 ##DOWNLOAD##
 downloads_needed="False"
@@ -69,7 +76,7 @@ check_exit_status "$java -Xmx2g -Djava.io.tmpdir=$workspace/temp \
     -T CombineGVCFs \
     -R $genome_fasta \
     $variant_list \
-    -o $workspace/$group_name.merged.vcf" $group_name $JOB_NAME
+    -o $workspace/$group_name.merged.vcf" $JOB_NAME $status_file
 
 check_exit_status "$java -Xms454m -Xmx3181m -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk \
@@ -78,13 +85,10 @@ check_exit_status "$java -Xms454m -Xmx3181m -Djava.io.tmpdir=$workspace/temp \
     -nt $num_threads \
     --variant $workspace/$group_name.merged.vcf \
     -o $workspace/$group_name.g.vcf.gz \
-    --dbsnp $dbsnp" $group_name $JOB_NAME
+    --dbsnp $dbsnp" $JOB_NAME $status_file
 
 #END_COMBINEVCF##
 
 ##UPLOAD##
 aws s3 cp $workspace/ $output_address --exclude "*" --include "$group_name.g.vcf*" --recursive
 ##END_UPLOAD
-
-cat $curr_log_file >> $log_file
-rm $curr_log_file

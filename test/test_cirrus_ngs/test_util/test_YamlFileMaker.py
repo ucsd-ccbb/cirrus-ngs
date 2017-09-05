@@ -17,14 +17,14 @@ class Tests(unittest.TestCase):
         s3_input_files_address = "s3://fake/s3/path"
         sample_list = [["sample1.fq"], ["sample2.fq"]]
         group_list = ["groupA", "groupB"]
-        pair_list = None
+        pair_list = {}
         s3_output_files_address = "s3://fake/s3/out/path"
         genome = "hg19"
         style = "histone"
 
         yfm.make_yaml_file(yaml_file.name, project_name, analysis_steps,
                 s3_input_files_address, sample_list, group_list,
-                s3_output_files_address, genome, style, None)
+                s3_output_files_address, genome, style, pair_list)
 
         date = time.strftime("%Y/%m/%d")
 
@@ -116,7 +116,7 @@ sample:
         s3_input_files_address = "s3://fake/s3/path"
         sample_list = [["sample1.fq", "reverse1.fq"], ["sample2.fq", "reverse2.fq"]]
         group_list = ["groupA", "groupB"]
-        pair_list = None
+        pair_list = {}
         s3_output_files_address = "s3://fake/s3/out/path"
         genome = "hg19"
         style = "histone"

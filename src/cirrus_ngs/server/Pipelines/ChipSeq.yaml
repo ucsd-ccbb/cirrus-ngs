@@ -5,6 +5,8 @@ steps:
     - "make_UCSC_file"
     - "find_peaks"
     - "annotate_peaks"
+    - "pos2bed"
+    - "find_motifs_genome"
 fastqc: []
 bowtie:
     - 4
@@ -12,3 +14,6 @@ make_tag_directory: []
 make_UCSC_file: []
 find_peaks: []
 annotate_peaks: []
+pos2bed: []
+find_motifs_genome:
+    - 4

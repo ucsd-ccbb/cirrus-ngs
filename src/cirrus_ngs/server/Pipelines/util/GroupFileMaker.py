@@ -1,8 +1,7 @@
 __author__ = 'Guorong Xu<g1xu@ucsd.edu>'
 
 import sys
-import yaml
-#import YamlFileReader
+import YamlFileReader
 
 
 ## make a group file for analysis of the pipeline
@@ -10,15 +9,9 @@ import yaml
 # yaml_file: path to yaml file for the project
 # s3_path: directory for the all_gene_counts file on s3
 def make_group_file(group_file, yaml_file, s3_path):
-    # TODO: deprecate YamlFileReader
 
-    yaml_file_stream = open(yaml_file)
-    documents = yaml.load(yaml_file_stream)
-    yaml_file_stream.close()
-
-    #documents = YamlFileReader.parse_yaml_file(yaml_file)
+    documents = YamlFileReader.parse_yaml_file(yaml_file)
     sample_list = documents.get("sample")
-    print("In GFM, sample list: "+sample_list)
 
     group_table = {}
     for sample in sample_list:

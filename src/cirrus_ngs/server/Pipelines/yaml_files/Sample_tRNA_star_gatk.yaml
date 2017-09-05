@@ -1,0 +1,17 @@
+project: Sample_tRNA
+workflow: star_gatk_workflow
+analysis: fastqc
+date: 2016/07/28
+upload: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/analysis_data/RNASeq
+---
+sample:
+  filename: Sample_tRNA42488.fastq
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/RNASeq/Sample_tRNA
+  description: Sample_tRNA42488.fastq
+  group: groupA
+---
+sample:
+  filename: Sample_tRNA42491.fastq
+  download: s3://ccbb-analysis/Guorong/jupyter-genomics/data_archive/test_data/RNASeq/Sample_tRNA
+  description: Sample_tRNA42491.fastq
+  group: groupA
