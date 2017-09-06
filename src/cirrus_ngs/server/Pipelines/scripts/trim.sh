@@ -9,7 +9,7 @@ fastq_end2=$6
 input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
 output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$9
-is_zipped=$10    #either "True" or "False", indicates whether input is gzipped
+is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
 num_threads=${11}
 min_len=${12}
 
