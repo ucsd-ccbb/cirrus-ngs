@@ -1,16 +1,17 @@
 #!/bin/bash
 
 project_name=$1
-file_suffix=$2  #extension of input file, does not include .gz if present in input
-root_dir=$3
-normal_sample=$4
-tumor_sample=$5
-input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
-output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
-log_dir=$8
-is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
-num_threads=${10}
-chromosome_list=${11}
+workflow=$2
+file_suffix=$3  #extension of input file, does not include .gz if present in input
+root_dir=$4
+normal_sample=$5
+tumor_sample=$6
+input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
+output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
+log_dir=$9
+is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
+num_threads=${11}
+chromosome_list=${12}
 
 #logging
 log_dir=$log_dir/$normal_sample
