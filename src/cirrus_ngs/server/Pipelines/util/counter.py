@@ -1,6 +1,3 @@
-
-# Place this file under /shared/workspace/Pipelines/util
-
 import os
 import csv
 import sys
