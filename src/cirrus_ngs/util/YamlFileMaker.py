@@ -3,8 +3,8 @@ __author__ = 'Guorong Xu<g1xu@ucsd.edu>'
 import time
 
 ## make a yaml file for analysis of any Pipeline
-def make_yaml_file(yaml_file, project_name, analysis_steps, s3_input_files_address,
-        sample_list, group_list, s3_output_files_address, genome, style, pairs_list, workflow):
+def make_yaml_file(yaml_file, project_name, workflow, analysis_steps, s3_input_files_address,
+        sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
     filewriter = open(yaml_file, "w")
     filewriter.write("project: " + project_name + "\n")
 
