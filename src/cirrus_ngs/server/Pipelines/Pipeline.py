@@ -92,7 +92,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
 
     #contains all qsub flags and the name of the shell script for this step
     subprocess_call_list = ["qsub", "-V", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
-            SCRIPTS + tool_config_dict["script_name"] + ".sh"]
+            SCRIPTS + tool_config_dict["script_dir"] + ".sh"]
     
     #extra arguments to the current shell script outside of the 9 necessary ones (see shell script format documentation)
     #if not empty, first extra argument must be a number representing number of threads used by script
@@ -120,7 +120,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
             else:
                 subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args)
         
-        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_dir"])
         return
 
     #runsn tool on samples in each group
@@ -135,7 +135,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
             else:
                 subprocess.call(subprocess_call_list + group_arguments + extra_bash_args)
 
-        PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_dir"])
         return
 
     for curr_sample_arguments in _sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir):
@@ -149,7 +149,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         else:
             subprocess.call(subprocess_call_list + curr_sample_arguments + extra_bash_args)
 
-    PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
+    PBSTracker.trackPBSQueue(1, tool_config_dict["script_dir"])
 
 #returns tuple
 #first element is file name without suffix
@@ -186,7 +186,7 @@ def _sample_argument_generator(project_name, workflow, sample_list, input_addres
         curr_samples = [file_name.strip() for file_name in sample_pair.get("filename").split(",")]
         fastq_end1, file_suffix, is_zipped = _separate_file_suffix(curr_samples[0])
 
-        curr_output_address = output_address + "/{}/{}".format(project_name, fastq_end1)
+        curr_output_address = output_address + "/{}/{}/{}".format(project_name, workflow, fastq_end1)
 
         #puts "NULL" in fastq_end2 if sample isn't paired end
         if len(curr_samples) > 1:
@@ -204,13 +204,13 @@ def _sample_argument_generator(project_name, workflow, sample_list, input_addres
         #for tools later in pipeline the precursors are 
         #downloaded from the output address
         if input_is_output:
-            input_address = output_address + "/{}/{}".format(project_name, fastq_end1)
+            input_address = curr_output_address
 
         #some precursors are never zipped
         if not can_be_zipped:
             is_zipped = "False"
 
-        yield [project_name, file_suffix, ROOT_DIR, fastq_end1, fastq_end2, 
+        yield [project_name, workflow, file_suffix, ROOT_DIR, fastq_end1, fastq_end2, 
                 input_address, curr_output_address, log_dir, is_zipped]
 
 def _by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, config_dictionary, log_dir):
@@ -223,7 +223,7 @@ def _by_group_argument_generator(project_name, workflow, group_list, input_addre
         samples = " ".join([x[0] for x in group_list[group]])
         file_suffix = group_list[group][0][1]
         is_zipped = group_list[group][0][2]
-        curr_output_address = output_address + "/{}/{}".format(project_name, group)
+        curr_output_address = output_address + "/{}/{}/{}".format(project_name, workflow, group)
 
         if download_suffix:
             if uses_chromosomes:
@@ -232,12 +232,12 @@ def _by_group_argument_generator(project_name, workflow, group_list, input_addre
                 file_suffix = download_suffix.format(file_suffix)
 
         if input_is_output:
-            input_address = output_address
+            input_address = output_address + "/{}/{}".format(project_name, workflow)
 
         if not can_be_zipped:
             is_zipped = "False"
 
-        yield [project_name, file_suffix, ROOT_DIR, group, "NULL", input_address,
+        yield [project_name, workflow, file_suffix, ROOT_DIR, group, "NULL", input_address,
                 curr_output_address, log_dir, is_zipped, samples]
 
 def _by_pair_argument_generator(project_name, workflow, group_list, pair_list, input_address, output_address, config_dictionary, log_dir):
@@ -259,7 +259,7 @@ def _by_pair_argument_generator(project_name, workflow, group_list, pair_list, i
 
         file_suffix = group_list[group][0][1]
         is_zipped = group_list[group][0][2]
-        curr_output_address = output_address + "/{}/{}".format(project_name, normal_sample)
+        curr_output_address = output_address + "/{}/{}/{}".format(project_name, workflow, normal_sample)
 
         if download_suffix:
             if uses_chromosomes:
@@ -271,10 +271,10 @@ def _by_pair_argument_generator(project_name, workflow, group_list, pair_list, i
             is_zipped = "False"
 
         if input_is_output:
-            input_address = output_address
+            input_address = output_address + "/{}/{}".format(project_name, workflow)
 
 
-        yield [project_name, file_suffix, ROOT_DIR, normal_sample, tumor_sample, input_address,
+        yield [project_name, workflow, file_suffix, ROOT_DIR, normal_sample, tumor_sample, input_address,
                 curr_output_address, log_dir, is_zipped]
 
 
@@ -294,7 +294,7 @@ def _by_all_samples_argument_generator(project_name, workflow, sample_list, outp
         else:
             file_suffix - download_suffix.format(file_suffix)
 
-    curr_output_address = output_address + "/{}".format(project_name)
+    curr_output_address = output_address + "/{}/{}".format(project_name, workflow)
 
     if input_is_output:
         input_address = curr_output_address
@@ -309,7 +309,7 @@ def _by_all_samples_argument_generator(project_name, workflow, sample_list, outp
 
     samples = " ".join(samples)
 
-    return [project_name, file_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
+    return [project_name, workflow, file_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
             curr_output_address, log_dir, is_zipped, samples]
 
 
