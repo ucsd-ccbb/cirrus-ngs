@@ -37,7 +37,7 @@ def count(fafile, countsfilepath, mappingratesfilepath, samfiles, workspace):
         samples.append(samplename)
 
         # all samfiles downloaded to workspace
-        samfile = open(workspace + "/" + samplename + "/" + samfiles[i])
+        samfile = open(workspace + "/" + samfiles[i])
 
         unmapped = 0  # count number of reads not mapped to RNA
         mapped = 0  # count number of reads mapped
