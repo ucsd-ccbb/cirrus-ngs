@@ -1,0 +1,49 @@
+steps:
+    - "fastqc"
+    - "trim"
+    - "bwa"
+    - "sort"
+    - "dedup"
+    - "split"
+    - "postalignment"
+    - "haplotype"
+    - "mutect"
+    - "merge"
+    - "bam_merge"
+    - "pair_vcf_merge"
+    - "combine_vcf"
+    - "filter"
+fastqc: []
+trim:
+    - 4     #number of threads
+    - 36    #minlen for trimmomatic
+bwa:
+    - 4     #number of threads
+    - "ILLUMINA"    #platform technology
+sort:
+    - 4     #number of threads
+dedup:
+    - 4     #number of threads
+split:
+    - 1     #number of threads
+postalignment:
+    - 2     #number of threads
+haplotype:
+    - 4     #number of threads
+mutect:
+    - 4     #number of threads
+merge:
+    - 4     #number of threads
+    - "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y M"  #chromosomes
+    - "True"    #if vcf files should be merged or not
+bam_merge:
+    - 4     #number of threads
+    - "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y M"  #chromosomes
+    - "False"   #if vcf files should be merged or not
+pair_vcf_merge:
+    - 4     #number of threads
+    - "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y M"  #chromsomes
+combine_vcf: 
+    - 4     #number of threads
+filter:
+    - 4     #number of threads
