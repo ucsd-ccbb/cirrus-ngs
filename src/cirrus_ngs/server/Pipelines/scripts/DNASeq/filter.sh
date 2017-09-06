@@ -20,7 +20,7 @@ exec 1>>$log_file
 exec 2>>$log_file
 
 #prepare output directories
-workspace=$root_dir/$project_name/$group_name
+workspace=$root_dir/$project_name/$workflow/$group_name
 software_dir=/shared/workspace/software
 java=$software_dir/java/jre1.8.0_144/bin/java
 gatk=$software_dir/gatk/GenomeAnalysisTK-3.3-0/GenomeAnalysisTK.jar
