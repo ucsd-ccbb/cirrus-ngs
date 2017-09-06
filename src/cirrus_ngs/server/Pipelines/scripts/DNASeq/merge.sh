@@ -25,7 +25,7 @@ status_file=$log_dir/'status.log'
 touch $status_file
 
 #prepare output directories
-workspace=$root_dir/$project_name/$fastq_end1
+workspace=$root_dir/$project_name/$workflow/$fastq_end1
 mkdir -p $workspace
 mkdir -p $workspace/temp
 
