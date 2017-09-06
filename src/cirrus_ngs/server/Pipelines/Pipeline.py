@@ -18,7 +18,9 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     yaml_file_stream.close()
 
     #from the sample agnostic region of the yaml file
+    pipeline = documents.get("pipeline")
     project_name = documents.get("project")
+    workflow = documents.get("workflow")
     analysis_steps = documents.get("analysis")
     output_address = documents.get("upload")
     input_address = documents.get("download")
@@ -56,19 +58,19 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 
     #tools.yaml contains general configuration for all shell scripts
     #see comments in tools.yaml for more information
-    global_config_file = open("/shared/workspace/Pipelines/tools.yaml", "r")
+    global_config_file = open("/shared/workspace/Pipelines/config/tools.yaml", "r")
     global_config_dict = yaml.load(global_config_file)
 
     #configuration file for current pipeline
     #contains order of steps and extra arguments to each shell script
-    specific_config_file = open("/shared/workspace/Pipelines/{}".format(pipeline_config_file), "r")
+    specific_config_file = open("/shared/workspace/Pipelines/config/{}/{}".format(pipeline, pipeline_config_file), "r")
     specific_config_dict = yaml.load(specific_config_file)
 
     #steps list enforces order of possible steps in pipeline
     for step in specific_config_dict["steps"]:
         if step in analysis_steps:
             run_tool(global_config_dict[step], specific_config_dict[step], 
-                    project_name, sample_list, input_address, output_address, group_list, pair_list, log_dir)
+                    project_name, workflow, sample_list, input_address, output_address, group_list, pair_list, log_dir)
 
 #function to run any tool
 #arguments:
@@ -81,7 +83,7 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 #   group_list: a dictionary as described in function run_analysis' group_list variable
 #   pair_list: a dictionary as described in function run_analysis' pair_list variable
 #   log_dir: root directory where logs will be stored
-def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input_address, output_address, group_list, pair_list, log_dir):
+def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_list, input_address, output_address, group_list, pair_list, log_dir):
     #num_threads used to request nodes with a specific amount of threads for step
     if len(extra_bash_args) > 0:
         num_threads = extra_bash_args[0]
@@ -98,7 +100,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
 
     #runs tool on every sample in project
     if tool_config_dict.get("all_samples", False):
-        all_sample_arguments = _by_all_sample_argument_generator(project_name, sample_list, input_address, output_address, tool_config_dict, log_dir)
+        all_sample_arguments = _by_all_sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = all_sample_arguments[1]
             for chromosome in CHROMOSOME_LIST:
@@ -109,7 +111,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
         return
 
     if tool_config_dict.get("by_pair", None) and os.environ["pairs_exist"] == "True":
-        for pair_arguments in _by_pair_argument_generator(project_name, group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
+        for pair_arguments in _by_pair_argument_generator(project_name, workflow, group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = pair_arguments[1]
                 for chromosome in CHROMOSOME_LIST:
@@ -123,7 +125,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
 
     #runsn tool on samples in each group
     if tool_config_dict.get("by_group", False):
-        for group_arguments in _by_group_argument_generator(project_name, group_list, input_address, output_address, tool_config_dict, log_dir):
+        for group_arguments in _by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = group_arguments[1]
                 for chromosome in CHROMOSOME_LIST:
@@ -136,7 +138,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, sample_list, input
         PBSTracker.trackPBSQueue(1, tool_config_dict["script_name"])
         return
 
-    for curr_sample_arguments in _sample_argument_generator(project_name, sample_list, input_address, output_address, tool_config_dict, log_dir):
+    for curr_sample_arguments in _sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir):
         #for tools that run on each chromosome the file suffix has the current chrom number added to it
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = curr_sample_arguments[1]
@@ -174,7 +176,7 @@ def _separate_file_suffix(sample_file):
 #   output_address: S3 address where final analysis will be uploaded
 #   LOG_DIR:        directory where logs will be stored
 #   is_zipped:      str version of boolean, indicates if files to be downloaded are gzipped
-def _sample_argument_generator(project_name, sample_list, input_address, output_address, config_dictionary, log_dir):
+def _sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
     can_be_zipped = config_dictionary["can_be_zipped"]
@@ -211,7 +213,7 @@ def _sample_argument_generator(project_name, sample_list, input_address, output_
         yield [project_name, file_suffix, ROOT_DIR, fastq_end1, fastq_end2, 
                 input_address, curr_output_address, log_dir, is_zipped]
 
-def _by_group_argument_generator(project_name, group_list, input_address, output_address, config_dictionary, log_dir):
+def _by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
     uses_chromosomes = config_dictionary["uses_chromosomes"]
@@ -238,7 +240,7 @@ def _by_group_argument_generator(project_name, group_list, input_address, output
         yield [project_name, file_suffix, ROOT_DIR, group, "NULL", input_address,
                 curr_output_address, log_dir, is_zipped, samples]
 
-def _by_pair_argument_generator(project_name, group_list, pair_list, input_address, output_address, config_dictionary, log_dir):
+def _by_pair_argument_generator(project_name, workflow, group_list, pair_list, input_address, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
     uses_chromosomes = config_dictionary["uses_chromosomes"]
@@ -277,7 +279,7 @@ def _by_pair_argument_generator(project_name, group_list, pair_list, input_addre
 
 
 
-def _by_all_samples_argument_generator(project_name, sample_list, output_address, config_dictionary, log_dir):
+def _by_all_samples_argument_generator(project_name, workflow, sample_list, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
     can_be_zipped = config_dictionary["can_be_zipped"]

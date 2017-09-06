@@ -3,10 +3,12 @@ __author__ = 'Guorong Xu<g1xu@ucsd.edu>'
 import time
 
 ## make a yaml file for analysis of any Pipeline
-def make_yaml_file(yaml_file, project_name, workflow, analysis_steps, s3_input_files_address,
+def make_yaml_file(yaml_file, pipeline, project_name, workflow, analysis_steps, s3_input_files_address,
         sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
     filewriter = open(yaml_file, "w")
     filewriter.write("project: " + project_name + "\n")
+    filewriter.write("pipeline: " + pipeline + "\n")
+    filewriter.write("workflow: " + workflow + "\n")
 
     filewriter.write("analysis:\n")
     for analysis in analysis_steps:
@@ -15,7 +17,7 @@ def make_yaml_file(yaml_file, project_name, workflow, analysis_steps, s3_input_f
     filewriter.write("date: " + time.strftime("%Y/%m/%d") + "\n")
     filewriter.write("upload: " + s3_output_files_address + "\n")
     filewriter.write("download: " + s3_input_files_address + "\n")
-    filewriter.write("workflow: " + workflow + "\n")
+
     filewriter.write("genome: " + genome + "\n")
     filewriter.write("style: " + style + "\n")
     filewriter.write("pairs:\n")
