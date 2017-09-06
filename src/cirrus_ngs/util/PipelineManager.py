@@ -8,8 +8,8 @@ logs_dir = "/shared/workspace/logs/{}/{}"
 
 
 # executing a specified pipeline with the specific yaml file
-def execute(pipeline, ssh_client, project_name, analysis_steps, s3_input_files_address,
-        sample_list, group_list, s3_output_files_address, genome, style, pairs_list, workflow):
+def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_input_files_address,
+        sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
     yaml_file = project_name + ".yaml"
 
     global logs_dir
