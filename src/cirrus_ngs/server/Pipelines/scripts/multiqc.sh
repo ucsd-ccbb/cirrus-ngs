@@ -17,10 +17,19 @@ log_file=$log_dir/'multiqc.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+status_file=$log_dir/'status.log'
+touch $status_file
+
 # set workspace to the multiqc directory so that multiqc would search for files
 # in this directory
 workspace=$root_dir/$project_name/multiqc
 mkdir -p $workspace
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+check_step_already_done $JOB_NAME $status_file
 
 # Download fastqc zip files and text files from alignment
 for file in $all_samples; do
@@ -33,7 +42,7 @@ done
 #       .fastqc.zip files
 #       .txt files from alignment
 
-$multiqc -f $workspace -o $workspace
+check_exit_status "$multiqc -f $workspace -o $workspace" $JOB_NAME $status_file
 
 # Upload the html file to s3
 aws s3 cp $workspace/multiqc_report.html $output_address/multiqc_report.html

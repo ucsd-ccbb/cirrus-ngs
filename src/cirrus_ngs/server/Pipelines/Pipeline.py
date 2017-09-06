@@ -100,7 +100,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
 
     #runs tool on every sample in project
     if tool_config_dict.get("all_samples", False):
-        all_sample_arguments = _by_all_sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
+        all_sample_arguments = _by_all_samples_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = all_sample_arguments[1]
             for chromosome in CHROMOSOME_LIST:
@@ -278,11 +278,11 @@ def _by_pair_argument_generator(project_name, workflow, group_list, pair_list, i
                 curr_output_address, log_dir, is_zipped]
 
 
-
-def _by_all_samples_argument_generator(project_name, workflow, sample_list, output_address, config_dictionary, log_dir):
+def _by_all_samples_argument_generator(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir):
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
     can_be_zipped = config_dictionary["can_be_zipped"]
+    uses_chromosomes = config_dictionary["uses_chromosomes"]
 
     first_sample = sample_list[0].get("filename").split(",")[0].strip()
     fastq_end1, file_suffix, is_zipped = _separate_file_suffix(first_sample)
@@ -292,7 +292,7 @@ def _by_all_samples_argument_generator(project_name, workflow, sample_list, outp
         if uses_chromosomes:
             file_suffix = download_suffix
         else:
-            file_suffix - download_suffix.format(file_suffix)
+            file_suffix = download_suffix.format(file_suffix)
 
     curr_output_address = output_address + "/{}/{}".format(project_name, workflow)
 
