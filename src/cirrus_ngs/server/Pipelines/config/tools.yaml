@@ -90,19 +90,19 @@ filter:
 
 # SmallRNA specific #
 cut_adapt:
-    script_name: "SmallRNASeq/cutadapt"
+    script_name: "SmallRNASeq/bowtie2/cutadapt"
     download_suffix: ~
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 bowtie2:  
-    script_name: "SmallRNASeq/bowtie2"
+    script_name: "SmallRNASeq/bowtie2/bowtie2"
     download_suffix: ".cut{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 counting:
-    script_name: "SmallRNASeq/count"
+    script_name: "SmallRNASeq/bowtie2/count"
     download_suffix: ".sam"
     input_is_output: True
     can_be_zipped: False
@@ -191,13 +191,13 @@ kallisto_trim:
     can_be_zipped: True
     uses_chromosomes: False
 kallisto_align: 
-    script_name: "RNASeq/k_align"
+    script_name: "RNASeq/kallisto/k_align"
     download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 kallisto_count:
-    script_name: "RNASeq/k_count"
+    script_name: "RNASeq/kallisto/k_count"
     download_suffix: ~ 
     input_is_output: True
     can_be_zipped: False
@@ -230,13 +230,13 @@ star_gatk_trim:
     can_be_zipped: True
     uses_chromosomes: False
 star_gatk_align:
-    script_name: "RNASeq/gatk_align"
+    script_name: "RNASeq/star_gatk/gatk_align"
     download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 star_gatk_vc:
-    script_name: "RNASeq/gatk_vc"
+    script_name: "RNASeq/star_gatk/gatk_vc"
     download_suffix: ".Aligned.out.bam"
     input_is_output: True
     can_be_zipped: False
@@ -263,13 +263,13 @@ star_htseq_trim:
     can_be_zipped: True
     uses_chromosomes: False
 star_htseq_align:
-    script_name: "RNASeq/ht_align"
+    script_name: "RNASeq/star_htseq/ht_align"
     download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 star_htseq_count:
-    script_name: "RNASeq/ht_count"
+    script_name: "RNASeq/star_htseq/ht_count"
     download_suffix: ".Aligned.out.sorted.bam"
     input_is_output: True
     can_be_zipped: False
