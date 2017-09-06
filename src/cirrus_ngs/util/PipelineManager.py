@@ -28,7 +28,7 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
     print("executing pipeline...")
     ConnectionManager.execute_command(ssh_client,
                                       "qsub -V -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
-                                      + workspace + "yaml_files/" + pipeline + "/" + yaml_file + " "
+                                      + workspace + "yaml_files/{}/{}/{} ".format(pipeline, workflow, yaml_file)
                                       + logs_dir + " " + pipeline+"_"+workflow)
 
 
