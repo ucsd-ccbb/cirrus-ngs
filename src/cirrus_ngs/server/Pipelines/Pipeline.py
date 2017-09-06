@@ -92,7 +92,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
 
     #contains all qsub flags and the name of the shell script for this step
     subprocess_call_list = ["qsub", "-V", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
-            SCRIPTS + tool_config_dict["script_dir"] + ".sh"]
+            SCRIPTS + tool_config_dict["script_path"] + ".sh"]
     
     #extra arguments to the current shell script outside of the 9 necessary ones (see shell script format documentation)
     #if not empty, first extra argument must be a number representing number of threads used by script
@@ -120,7 +120,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
             else:
                 subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args)
         
-        PBSTracker.trackPBSQueue(1, tool_config_dict["script_dir"])
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
         return
 
     #runsn tool on samples in each group
@@ -135,7 +135,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
             else:
                 subprocess.call(subprocess_call_list + group_arguments + extra_bash_args)
 
-        PBSTracker.trackPBSQueue(1, tool_config_dict["script_dir"])
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
         return
 
     for curr_sample_arguments in _sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir):
@@ -149,7 +149,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         else:
             subprocess.call(subprocess_call_list + curr_sample_arguments + extra_bash_args)
 
-    PBSTracker.trackPBSQueue(1, tool_config_dict["script_dir"])
+    PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
 
 #returns tuple
 #first element is file name without suffix
