@@ -24,7 +24,7 @@ status_file=$log_dir/'status.log'
 touch $status_file
 
 #prepare output directories
-workspace=$root_dir/$project_name/$group_name
+workspace=$root_dir/$project_name/$workflow/$group_name
 mkdir -p $workspace
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

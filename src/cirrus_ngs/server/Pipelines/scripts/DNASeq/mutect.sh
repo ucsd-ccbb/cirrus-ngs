@@ -25,7 +25,7 @@ status_file=$log_dir/'status.log'
 touch $status_file
 
 #prepare output directories
-workspace=$root_dir/$project_name/$normal_sample
+workspace=$root_dir/$project_name/$workflow/$normal_sample
 mkdir -p $workspace
 mkdir -p $workspace/temp
 
