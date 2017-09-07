@@ -39,12 +39,12 @@ then
     download_suffix=$file_suffix
 
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/" $JOB_NAME $status_file
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
+        check_exit_status "aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/" $JOB_NAME $status_file
     fi
 fi
 ##END_DOWNLOAD##
@@ -78,5 +78,5 @@ fi
 # End star align
 
 # Upload
-aws s3 cp $workspace $output_address/ --exclude "*" --include "*.Aligned*" --exclude "*.sam*" --recursive
+check_exit_status "aws s3 cp $workspace $output_address/ --exclude "*" --include "*.Aligned*" --exclude "*.sam*" --recursive" $JOB_NAME $status_file
 ##END_UPLOAD##
