@@ -48,13 +48,13 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/" $JOB_NAME $status_file
     gunzip -q $workspace/$fastq_end1$download_suffix
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
+        check_exit_status "aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/" $JOB_NAME $status_file
         gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi

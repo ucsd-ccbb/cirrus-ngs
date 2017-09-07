@@ -36,7 +36,7 @@ check_step_already_done $JOB_NAME $status_file
 for file in $all_samples; do
     if [ ! -f $workspace/$file$sam ]
     then
-        aws s3 cp $input_address/$file/$file$sam $workspace/
+        check_exit_status "aws s3 cp $input_address/$file/$file$sam $workspace/" $JOB_NAME $status_file
     fi
 done
 
