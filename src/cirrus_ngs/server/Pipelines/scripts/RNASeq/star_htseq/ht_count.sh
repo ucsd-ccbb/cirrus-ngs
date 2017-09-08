@@ -46,5 +46,5 @@ if [ ! -f $workspace/$fastq_end1"_counts.txt" ]; then
 fi
 
 ##UPLOAD##
-check_exit_status "aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt" --recursive" $JOB_NAME $status_file
+aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt*" --recursive
 ##END_UPLOAD##
