@@ -1,15 +1,12 @@
-
-# Place this file under /shared/workspace/Pipelines/util
-
 import os
 import csv
 import sys
 
 
-# samfiles in "AD2 AD26" format
-def count(fafile, countsfilepath, mappingratesfilepath, samfiles, workspace):
-    # turn the string into a list, append .sam
-    samfiles = list(map(lambda x: x+ ".sam", samfiles.split()))
+# samfiles in ["AD2", "AD26"] format (a list of strings)
+def count(fafile, countsfilepath, mappingratesfilepath, workspace, samfiles):
+    # append .sam
+    samfiles = map(lambda x: x+ ".sam", samfiles.split())
 
     numfiles = (len(samfiles))
 
@@ -90,4 +87,4 @@ def count(fafile, countsfilepath, mappingratesfilepath, samfiles, workspace):
 
 
 if __name__ == "__main__":
-    count(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    count(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5:])
