@@ -8,16 +8,14 @@ import GencodeGTFParser
 
 def merge_all_sample_count(workflow, workspace, samples):
 
-    gencode_gtf_file = os.environ["ref_genes"]   # path to reference genome is in software config file
+    gencode_gtf_file = os.environ["STAR_ref_genes"]   # path to reference genome is in software config file
     output_file = workspace + "/all_gene_counts.txt"
 
     gene_table = GencodeGTFParser.parse(gencode_gtf_file)
-
     all_gene_counts = []
-    # samples = get_sample_list(sample_list)  # this is a list of all samples names
+
     for sample_index, sample_file in enumerate(samples):
         line_index = 0
-        #count_file = sample_file.replace(".fastq", "_counts.txt")
         count_file = sample_file + "_counts.txt"
 
         with open(workspace + "/" + count_file, 'r+') as f:
@@ -68,19 +66,10 @@ def merge_all_sample_count(workflow, workspace, samples):
     filewriter.close()
 
 
-"""
-# parse sample string to a list, e.g. "A1 A2 A3" into [A1, A2, A3]
-def get_sample_list(sample_list):
-
-    samples = sample_list.split()
-    return samples  # return a list of all samples
-"""
-
-
 if __name__ == "__main__":
 
     workflow = sys.argv[1]
     workspace = sys.argv[2]
-    samples = sys.argv[3]
+    samples = sys.argv[3:]
 
     merge_all_sample_count(workflow, workspace, samples)
