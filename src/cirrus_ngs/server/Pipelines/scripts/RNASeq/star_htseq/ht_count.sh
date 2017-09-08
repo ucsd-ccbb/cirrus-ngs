@@ -34,7 +34,7 @@ check_step_already_done $JOB_NAME $status_file
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
-    aws s3 cp $input_address/$fastq_end1$file_suffix $workspace/
+    check_exit_status "aws s3 cp $input_address/$fastq_end1$file_suffix $workspace/" $JOB_NAME $status_file
 fi
 ##END_DOWNLOAD##
 
@@ -46,5 +46,5 @@ if [ ! -f $workspace/$fastq_end1"_counts.txt" ]; then
 fi
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt" --recursive
+check_exit_status "aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt" --recursive" $JOB_NAME $status_file
 ##END_UPLOAD##

@@ -20,20 +20,29 @@ log_file=$log_dir/'counting.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+status_file=$log_dir/'status.log'
+touch $status_file
+
 workspace=$root_dir/$project_name/$workflow
 mkdir -p $workspace
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+check_step_already_done $JOB_NAME $status_file
 
 # Download files from s3
 for file in $all_samples; do
     if [ ! -f $workspace/$file$sam ]
     then
-        aws s3 cp $input_address/$file/$file$sam $workspace/
+        check_exit_status "aws s3 cp $input_address/$file/$file$sam $workspace/" $JOB_NAME $status_file
     fi
 done
 
 # Call counter.count
 check_exit_status "/shared/workspace/software/anaconda3/bin/python /shared/workspace/Pipelines/util/counter.py \
-$hairpin_human_fa $workspace/counts.out $workspace/rates.out "$all_samples" $workspace" $JOB_NAME $status_file
+$hairpin_human_fa $workspace/counts.out $workspace/rates.out $workspace $all_samples" $JOB_NAME $status_file
 
 # Upload the output file to s3
 aws s3 cp $workspace $output_address --exclude "*" --include "*.out*" --recursive
