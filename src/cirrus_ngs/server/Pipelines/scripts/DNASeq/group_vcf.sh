@@ -57,8 +57,7 @@ then
     #download all separated vcf and bam files
     for file in $files_in_group
     do
-        aws s3 cp $input_address/$project_name/$file/$file$file_suffix $workspace/
-        aws s3 cp $input_address/$project_name/$file/$file$file_suffix.tbi $workspace/
+        aws s3 cp $input_address/$file/$file$file_suffix $workspace/
     done
 fi
 ##END_DOWNLOAD##

@@ -13,6 +13,8 @@ def load_design_file(design_file):
         for line in f:
             if not line.startswith("##"):
                 fields = line.split("\t")
+
+                #need at least two tab separated fields in design file
                 if not len(fields) >= 2:
                     raise IndexError("""Design file lines must follow format
 <sample_name><OPTIONAL sample_name_reverse_reads><TAB><group_name>.
@@ -25,8 +27,10 @@ No tabs were found in line:\n\t\"{}\" """.format(line.strip()))
                     sample_list.append([paired_samples_1, paired_samples_2])
                 else:
                     sample_list.append([fields[0]])
+
                 group_list.append(fields[1].rstrip())
 
+                #if paired data is available
                 if len(fields) == 3:
                     fields[2] = fields[2].rstrip()
                     if fields[2] == "Normal" or fields[2] == "Chip":
@@ -43,32 +47,3 @@ No tabs were found in line:\n\t\"{}\" """.format(line.strip()))
     print(pair_list)
     
     return sample_list, group_list, pair_list
-
-
-## load chipseq design file
-def load_chipseq_design_file(design_file):
-    sample_hash = {}
-    sample_list = []
-    group_list = []
-    
-    with open(design_file, 'r+') as f:
-        lines = f.readlines()
-        for line in lines:
-            if line.startswith("##"):
-                continue
-            else:
-                fields = re.split(r'\t+', line)
-                if len(fields) == 1:
-                    if fields[0].rstrip() not in sample_hash:
-                        sample_hash.update({fields[0].rstrip(): fields[0].rstrip()})
-                        sample_list.append(fields[0].rstrip())
-                if len(fields) > 1:
-                    if fields[0] not in sample_hash:
-                        sample_hash.update({fields[0]: fields[0]})
-                        sample_list.append(fields[0])
-                    if fields[1].rstrip() not in sample_hash:
-                        sample_hash.update({fields[1].rstrip(): fields[1].rstrip()})
-                        sample_list.append(fields[1].rstrip())
-                    group_list.append([fields[0], fields[1].rstrip()])
-
-    return sample_list, group_list
