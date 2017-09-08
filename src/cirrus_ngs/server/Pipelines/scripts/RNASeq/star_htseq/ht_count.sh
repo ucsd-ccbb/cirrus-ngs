@@ -29,22 +29,19 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 date
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
-check_step_already_done $JOB_NAME $status_file
+# check_step_already_done $JOB_NAME $status_file
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
-    check_exit_status "aws s3 cp $input_address/$fastq_end1$file_suffix $workspace/" $JOB_NAME $status_file
+    aws s3 cp $input_address/$fastq_end1$file_suffix $workspace/
 fi
 ##END_DOWNLOAD##
 
 # Count reads #
-
-if [ ! -f $workspace/$fastq_end1"_counts.txt" ]; then
-   check_exit_status "$samtools view $workspace/$fastq_end1$file_suffix | sort -s -k 1,1 - \
-   |  htseq-count - $STAR_ref_genes > $workspace/$fastq_end1"_counts.txt"" $JOB_NAME $status_file
-fi
+$samtools view $workspace/$fastq_end1$file_suffix | sort -s -k 1,1 - \
+   |  htseq-count - $STAR_ref_genes > $workspace/$fastq_end1"_counts.txt"
 
 ##UPLOAD##
-check_exit_status "aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt" --recursive" $JOB_NAME $status_file
+aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt*" --recursive
 ##END_UPLOAD##

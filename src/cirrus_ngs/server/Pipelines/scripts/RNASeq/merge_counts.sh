@@ -15,7 +15,7 @@ num_threads=${12}
 
 #logging
 mkdir -p $log_dir
-log_file=$log_dir/'merge.log'
+log_file=$log_dir/'merge_counts.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
@@ -41,7 +41,9 @@ for file in $all_samples; do
 done
 
 # Call the merge count file
-python /shared/workspace/Pipelines/util/MergeCountFile.py $workflow "$all_samples" $workspace
+echo $all_samples
+check_exit_status "python /shared/workspace/Pipelines/util/MergeCountFile.py $workflow $workspace $all_samples" $JOB_NAME $status_file
 
 # Upload the output file
-check_exit_status "aws s3 cp $workspace $output_address/ --exclude "*" --include "*all_gene_counts.txt*" --recursive" $JOB_NAME $status_file
+check_exit_status "aws s3 cp $workspace $output_address/ --exclude "*" --include "*all_gene_counts.txt*" \
+--recursive" $JOB_NAME $status_file

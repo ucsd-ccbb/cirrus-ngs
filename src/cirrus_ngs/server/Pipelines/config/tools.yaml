@@ -235,7 +235,7 @@ star_gatk_align:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-star_gatk_vc:
+star_gatk_variant_calling:
     script_path: "RNASeq/star_gatk/gatk_vc"
     download_suffix: ".Aligned.out.bam"
     input_is_output: True
