@@ -102,20 +102,20 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
     if tool_config_dict.get("all_samples", False):
         all_sample_arguments = _by_all_sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
         if tool_config_dict["uses_chromosomes"]:
-            original_suffix = all_sample_arguments[1]
+            original_suffix = all_sample_arguments[2]
             for chromosome in CHROMOSOME_LIST:
-                all_sample_arguments[1] = original_suffix.format(chromosome)
+                all_sample_arguments[2] = original_suffix.format(chromosome)
                 subprocess.call(subprocess_call_list + all_sample_arguments + extra_bash_args)
         else:
             subprocess.call(subprocess_call_list + all_sample_arguments + extra_bash_args)
         return
 
-    if tool_config_dict.get("by_pair", None) and os.environ["pairs_exist"] == "True":
+    if tool_config_dict.get("by_pair", False) and os.environ["pairs_exist"] == "True":
         for pair_arguments in _by_pair_argument_generator(project_name, workflow, group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
-                original_suffix = pair_arguments[1]
+                original_suffix = pair_arguments[2]
                 for chromosome in CHROMOSOME_LIST:
-                    pair_arguments[1] = original_suffix.format(chromosome)
+                    pair_arguments[2] = original_suffix.format(chromosome)
                     subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args + [chromosome])
             else:
                 subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args)
@@ -127,9 +127,9 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
     if tool_config_dict.get("by_group", False):
         for group_arguments in _by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
-                original_suffix = group_arguments[1]
+                original_suffix = group_arguments[2]
                 for chromosome in CHROMOSOME_LIST:
-                    group_arguments[1] = original_suffix.format(chromosome)
+                    group_arguments[2] = original_suffix.format(chromosome)
                     subprocess.call(subprocess_call_list + group_arguments + 
                             extra_bash_args + [chromosome])
             else:
@@ -141,9 +141,9 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
     for curr_sample_arguments in _sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir):
         #for tools that run on each chromosome the file suffix has the current chrom number added to it
         if tool_config_dict["uses_chromosomes"]:
-            original_suffix = curr_sample_arguments[1]
+            original_suffix = curr_sample_arguments[2]
             for chromosome in CHROMOSOME_LIST:
-                curr_sample_arguments[1] = original_suffix.format(chromosome)
+                curr_sample_arguments[2] = original_suffix.format(chromosome)
                 subprocess.call(subprocess_call_list + curr_sample_arguments + 
                         extra_bash_args + [chromosome])
         else:

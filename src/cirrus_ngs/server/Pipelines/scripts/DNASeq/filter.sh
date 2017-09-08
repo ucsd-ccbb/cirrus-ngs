@@ -14,30 +14,24 @@ files_in_group=${11}    #all files in current group
 num_threads=${12}
 
 #logging
+log_dir=$log_dir/$group_name
 mkdir -p $log_dir
 log_file=$log_dir/'filter_variant.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+status_file=$log_dir/'status.log'
+touch $status_file
+
 #prepare output directories
 workspace=$root_dir/$project_name/$workflow/$group_name
-software_dir=/shared/workspace/software
-java=$software_dir/java/jre1.8.0_144/bin/java
-gatk=$software_dir/gatk/GenomeAnalysisTK-3.3-0/GenomeAnalysisTK.jar
-bgzip=$software_dir/tabix-0.2.6/bgzip
-tabix=$software_dir/tabix-0.2.6/tabix
 mkdir -p $workspace
 
-#reference files
-genome_fai=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta.fai
-genome_fasta=$software_dir/sequences/Hsapiens/ucsc.hg19.fasta
-dbsnp=$software_dir/variation/dbsnp_138.hg19.vcf
-mills=$software_dir/variation/Mills_and_1000G_gold_standard.indels.hg19.sites.vcf
-omni=$software_dir/variation/1000G_omni2.5.hg19.sites.vcf
-hapmap=$software_dir/variation/hapmap_3.3.hg19.sites.vcf
-G1000snps=$software_dir/variation/1000G_phase1.snps.high_confidence.hg19.sites.vcf
-G1000indels=$software_dir/variation/1000G_phase1.indels.hg19.sites.vcf
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
+check_step_already_done $JOB_NAME $status_file
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$group_name$file_suffix ] || [ ! -f $workspace/$group_name$file_suffix.tbi ]
@@ -52,14 +46,14 @@ then
     fi
 
     #download all separated vcf and bam files
-    aws s3 cp $input_address/$group_name$file_suffix $workspace/
-    aws s3 cp $input_address/$group_name$file_suffix.tbi $workspace/
+    aws s3 cp $input_address/$group_name/$group_name$file_suffix $workspace/
+    aws s3 cp $input_address/$group_name/$group_name$file_suffix.tbi $workspace/
 fi
 ##END_DOWNLOAD##
 
 
 ##VARIANTFILTERING##
-$java -Xmx4g -jar $gatk \
+check_exit_status "$java -Xmx8g -jar $gatk \
     -nt $num_threads \
     -R $genome_fasta \
     -T VariantRecalibrator \
@@ -75,10 +69,9 @@ $java -Xmx4g -jar $gatk \
     -recalFile $workspace/$group_name.snp.recal \
     -tranchesFile $workspace/$group_name.snp.tranches \
     -rscriptFile $workspace/$group_name.snp.plots.R \
-    --disable_auto_index_creation_and_locking_when_reading_rods
+    --disable_auto_index_creation_and_locking_when_reading_rods" $JOB_NAME $status_file
 
-$java -Xmx4g -jar $gatk \
-    -nt $num_threads \
+check_exit_status "$java -Xmx8g -jar $gatk \
     -R $genome_fasta \
     -T VariantRecalibrator \
     --maxGaussians 4 \
@@ -91,38 +84,7 @@ $java -Xmx4g -jar $gatk \
     -recalFile $workspace/$group_name.indel.recal \
     -tranchesFile $workspace/$group_name.indel.tranches \
     -rscriptFile $workspace/$group_name.indel.plots.R \
-    --disable_auto_index_creation_and_locking_when_reading_rods
-
-$java -Xmx4g -jar $gatk \
-    -nt $num_threads \
-    -R $genome_fasta \
-    -T ApplyRecalibration \
-    -mode SNP \
-    --ts_filter_level 99.0 \
-    -input $workspace/$group_name$file_suffix \
-    -recalFile $workspace/$group_name.snp.recal \
-    -tranchesFile $workspace/$group_name.snp.tranches \
-    -o $workspace/$group_name.snpAr.vcf
-
-$java -Xmx4g -jar $gatk \
-    -nt $num_threads \
-    -R $genome_fasta \
-    -T ApplyRecalibration \
-    -mode indel \
-    --ts_filter_level 99.0 \
-    -input $workspace/$group_name.snpAr.vcf \
-    -recalFile $workspace/$group_name.indel.recal \
-    -tranchesFile $workspace/$group_name.indel.tranches \
-    -o $workspace/$group_name.snpAr.indelAr.vcf
-
-$java -Xmx4g -jar $gatk \
-    -nt $num_threads \
-    -R $genome_fasta \
-    -T SelectVariants \
-    --excludeNonVariants \
-    --excludeFiltered \
-    --variant $workspace/$group_name.snpAr.indelAr.vcf \
-    --out $workspace/$group_name.vqsr.vcf
+    --disable_auto_index_creation_and_locking_when_reading_rods" $JOB_NAME $status_file
 
 ##END_VARIANTFILTERING##
 
