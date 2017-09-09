@@ -12,9 +12,7 @@ kallisto_trim:
 kallisto_align:
    - 4      # number of threads
 kallisto_count: []
-kallisto_merge:
-   - 1      # number of threads
-   - "kallisto_deseq_workflow"
-
+kallisto_merge: []
+kallisto_differential_calculate: []
 
 # different for paired/single end

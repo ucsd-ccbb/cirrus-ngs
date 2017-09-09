@@ -198,13 +198,20 @@ kallisto_align:
     uses_chromosomes: False
 kallisto_count:
     script_path: "RNASeq/kallisto/k_count"
-    download_suffix: ~ 
+    download_suffix: ".abundance.tsv"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 kallisto_merge:
     script_path: "RNASeq/merge_counts"
-    download_suffix: ~ 
+    download_suffix: "_counts.txt"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+kallisto_differential_calculate:      ## TODO  TODO
+    script_path: "RNASeq/kallisto/diff_cal"
+    download_suffix: ~
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False

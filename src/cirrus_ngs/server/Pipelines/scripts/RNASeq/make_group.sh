@@ -33,13 +33,9 @@ check_step_already_done $JOB_NAME $status_file
 # Make a new group file
 touch $workspace/group.txt
 
-# Get the actual project name
-project_name=${project_name//\/*/}
-echo $project_name
-
 # Call the group file maker
 python /shared/workspace/Pipelines/util/GroupFileMaker.py $workspace/group.txt \
-/shared/workspace/Pipelines/yaml_examples/RNASeq/$project_name.yaml $output_address
+/shared/workspace/Pipelines/yaml_files/RNASeq/$workflow/$project_name.yaml $output_address
 
 # View the group file
 head $workspace/group.txt
