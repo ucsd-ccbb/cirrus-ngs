@@ -4,7 +4,6 @@ from cfnCluster import ConnectionManager
 from util import QstatParser
 
 workspace = "/shared/workspace/Pipelines/"
-logs_dir = "/shared/workspace/logs/{}/{}/{}"
 
 
 # executing a specified pipeline with the specific yaml file
@@ -12,8 +11,7 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
         sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
     yaml_file = project_name + ".yaml"
 
-    global logs_dir
-    logs_dir = logs_dir.format(pipeline, workflow, project_name)
+    logs_dir = "/shared/workspace/logs/{}/{}/{}".format(pipeline, workflow, project_name)
 
     print("making the yaml file...")
     YamlFileMaker.make_yaml_file(yaml_file, pipeline, project_name, workflow, analysis_steps, s3_input_files_address,

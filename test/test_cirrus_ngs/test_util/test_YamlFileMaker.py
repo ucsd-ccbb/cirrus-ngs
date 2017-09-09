@@ -13,6 +13,8 @@ class Tests(unittest.TestCase):
         yaml_file.close()
 
         project_name = "test_project"
+        pipeline = "DNASeq"
+        workflow = "work"
         analysis_steps = ["fastqc", "trim", "bwa"]
         s3_input_files_address = "s3://fake/s3/path"
         sample_list = [["sample1.fq"], ["sample2.fq"]]
@@ -22,13 +24,15 @@ class Tests(unittest.TestCase):
         genome = "hg19"
         style = "histone"
 
-        yfm.make_yaml_file(yaml_file.name, project_name, analysis_steps,
+        yfm.make_yaml_file(yaml_file.name, pipeline, project_name, workflow, analysis_steps,
                 s3_input_files_address, sample_list, group_list,
                 s3_output_files_address, genome, style, pair_list)
 
         date = time.strftime("%Y/%m/%d")
 
         correct_output = """project: test_project
+pipeline: DNASeq
+workflow: work
 analysis:
   - fastqc
   - trim
@@ -60,6 +64,8 @@ sample:
         yaml_file.close()
 
         project_name = "test_project"
+        pipeline = "DNASeq"
+        workflow = "work"
         analysis_steps = ["trim", "bwa"]
         s3_input_files_address = "s3://fake/s3/path"
         sample_list = [["sample1.fq"], ["sample1b.fq"], ["sample2.fq"], ["sample2b.fq"]]
@@ -69,13 +75,15 @@ sample:
         genome = "hg19"
         style = "histone"
 
-        yfm.make_yaml_file(yaml_file.name, project_name, analysis_steps,
+        yfm.make_yaml_file(yaml_file.name, pipeline, project_name, workflow,analysis_steps,
                 s3_input_files_address, sample_list, group_list,
                 s3_output_files_address, genome, style, pair_list)
 
         date = time.strftime("%Y/%m/%d")
 
         correct_output = """project: test_project
+pipeline: DNASeq
+workflow: work
 analysis:
   - trim
   - bwa
@@ -112,6 +120,8 @@ sample:
         yaml_file.close()
 
         project_name = "test_project"
+        pipeline = "DNASeq"
+        workflow = "work"
         analysis_steps = ["bwa"]
         s3_input_files_address = "s3://fake/s3/path"
         sample_list = [["sample1.fq", "reverse1.fq"], ["sample2.fq", "reverse2.fq"]]
@@ -121,13 +131,15 @@ sample:
         genome = "hg19"
         style = "histone"
 
-        yfm.make_yaml_file(yaml_file.name, project_name, analysis_steps,
+        yfm.make_yaml_file(yaml_file.name, pipeline, project_name, workflow, analysis_steps,
                 s3_input_files_address, sample_list, group_list,
                 s3_output_files_address, genome, style, pair_list)
 
         date = time.strftime("%Y/%m/%d")
 
         correct_output = """project: test_project
+pipeline: DNASeq
+workflow: work
 analysis:
   - bwa
 date: """ + date +"""
@@ -156,6 +168,8 @@ sample:
         yaml_file.close()
 
         project_name = "test_project"
+        pipeline = "DNASeq"
+        workflow = "work"
         analysis_steps = ["bwa"]
         s3_input_files_address = "s3://fake/s3/path"
         sample_list = [["sample1.fq", "reverse1.fq"], ["sample2.fq", "reverse2.fq"]]
@@ -165,13 +179,15 @@ sample:
         genome = "hg19"
         style = "histone"
 
-        yfm.make_yaml_file(yaml_file.name, project_name, analysis_steps,
+        yfm.make_yaml_file(yaml_file.name, pipeline, project_name, workflow, analysis_steps,
                 s3_input_files_address, sample_list, group_list,
                 s3_output_files_address, genome, style, pair_list)
 
         date = time.strftime("%Y/%m/%d")
 
         correct_output = """project: test_project
+pipeline: DNASeq
+workflow: work
 analysis:
   - bwa
 date: """ + date +"""
