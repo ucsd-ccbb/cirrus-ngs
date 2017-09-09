@@ -122,29 +122,29 @@ class Tests(unittest.TestCase):
                         "can_be_zipped": False,
                         "uses_chromosomes": True}]
 
-        base_correct_result = "test_proj {} /scratch {} {} {} {} /path/to/logs {}"
+        base_correct_result = "test_proj workflow {} /scratch {} {} {} {} /path/to/logs {}"
         curr_correct_result = base_correct_result
 
 
-        result1 = [curr_correct_result.format(".fq", "sample1_forward", "sample1_backward", "s3://path/to/input", "s3://path/to/output/test_proj/sample1_forward", "False").split() ]
+        result1 = [curr_correct_result.format(".fq", "sample1_forward", "sample1_backward", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/sample1_forward", "False").split() ]
         curr_correct_result = base_correct_result
-        result1.append(curr_correct_result.format(".fq", "sample2", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/sample2", "True").split() )
-        curr_correct_result = base_correct_result
-
-        result2 = [curr_correct_result.format(".ext.fq.ext2", "sample1_forward", "sample1_backward", "s3://path/to/input", "s3://path/to/output/test_proj/sample1_forward", "False").split() ] 
-        curr_correct_result = base_correct_result
-        result2.append(curr_correct_result.format(".ext.fq.ext2", "sample2", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/sample2", "False").split() )
+        result1.append(curr_correct_result.format(".fq", "sample2", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/sample2", "True").split() )
         curr_correct_result = base_correct_result
 
-        result3 = [curr_correct_result.format(".ext{}.ext2", "sample1_forward", "sample1_backward", "s3://path/to/output/test_proj/sample1_forward",  "s3://path/to/output/test_proj/sample1_forward", "False").split() ] 
+        result2 = [curr_correct_result.format(".ext.fq.ext2", "sample1_forward", "sample1_backward", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/sample1_forward", "False").split() ] 
         curr_correct_result = base_correct_result
-        result3.append(curr_correct_result.format(".ext{}.ext2", "sample2", "NULL", "s3://path/to/output/test_proj/sample2",  "s3://path/to/output/test_proj/sample2", "False").split() )
+        result2.append(curr_correct_result.format(".ext.fq.ext2", "sample2", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/sample2", "False").split() )
+        curr_correct_result = base_correct_result
+
+        result3 = [curr_correct_result.format(".ext{}.ext2", "sample1_forward", "sample1_backward", "s3://path/to/output/test_proj/workflow/sample1_forward",  "s3://path/to/output/test_proj/workflow/sample1_forward", "False").split() ] 
+        curr_correct_result = base_correct_result
+        result3.append(curr_correct_result.format(".ext{}.ext2", "sample2", "NULL", "s3://path/to/output/test_proj/workflow/sample2",  "s3://path/to/output/test_proj/workflow/sample2", "False").split() )
 
 
         correct_results = [result1, result2, result3]
         for index, config in enumerate(config_dicts):
             result = []
-            for output in Pipeline._sample_argument_generator("test_proj",
+            for output in Pipeline._sample_argument_generator("test_proj", "workflow",
                     sample_list, "s3://path/to/input", "s3://path/to/output",
                     config, "/path/to/logs"):
                 result.append(output)
@@ -171,28 +171,28 @@ class Tests(unittest.TestCase):
                         "can_be_zipped": False,
                         "uses_chromosomes": True}]
 
-        base_correct_result = "test_proj {} /scratch {} {} {} {} /path/to/logs {}"
+        base_correct_result = "test_proj workflow {} /scratch {} {} {} {} /path/to/logs {}"
         curr_correct_result = base_correct_result
 
 
-        result1 = [curr_correct_result.format(".fq", "groupA", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/groupA", "False").split() + ["sample1_R1 sample2"]]
+        result1 = [curr_correct_result.format(".fq", "groupA", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/groupA", "False").split() + ["sample1_R1 sample2"]]
         curr_correct_result = base_correct_result
-        result1.append(curr_correct_result.format(".fastq", "groupB", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/groupB", "True").split() + ["sample3_R1"] )
-        curr_correct_result = base_correct_result
-
-        result2 = [curr_correct_result.format(".ext.fq.ext2", "groupA", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/groupA", "False").split() + ["sample1_R1 sample2"]] 
-        curr_correct_result = base_correct_result
-        result2.append(curr_correct_result.format(".ext.fastq.ext2", "groupB", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/groupB", "False").split() + ["sample3_R1"])
+        result1.append(curr_correct_result.format(".fastq", "groupB", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/groupB", "True").split() + ["sample3_R1"] )
         curr_correct_result = base_correct_result
 
-        result3 = [curr_correct_result.format(".ext{}.ext2", "groupA", "NULL", "s3://path/to/output",  "s3://path/to/output/test_proj/groupA", "False").split() + ["sample1_R1 sample2"] ]
+        result2 = [curr_correct_result.format(".ext.fq.ext2", "groupA", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/groupA", "False").split() + ["sample1_R1 sample2"]] 
         curr_correct_result = base_correct_result
-        result3.append(curr_correct_result.format(".ext{}.ext2", "groupB", "NULL", "s3://path/to/output",  "s3://path/to/output/test_proj/groupB", "False").split() + ["sample3_R1"])
+        result2.append(curr_correct_result.format(".ext.fastq.ext2", "groupB", "NULL", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/groupB", "False").split() + ["sample3_R1"])
+        curr_correct_result = base_correct_result
+
+        result3 = [curr_correct_result.format(".ext{}.ext2", "groupA", "NULL", "s3://path/to/output/test_proj/workflow",  "s3://path/to/output/test_proj/workflow/groupA", "False").split() + ["sample1_R1 sample2"] ]
+        curr_correct_result = base_correct_result
+        result3.append(curr_correct_result.format(".ext{}.ext2", "groupB", "NULL", "s3://path/to/output/test_proj/workflow",  "s3://path/to/output/test_proj/workflow/groupB", "False").split() + ["sample3_R1"])
 
         correct_results = [result1, result2, result3]
         for index, config in enumerate(config_dicts):
             result = []
-            for output in Pipeline._by_group_argument_generator("test_proj",
+            for output in Pipeline._by_group_argument_generator("test_proj", "workflow",
                     group_list, "s3://path/to/input", "s3://path/to/output",
                     config, "/path/to/logs"):
                 result.append(output)
@@ -220,27 +220,27 @@ class Tests(unittest.TestCase):
                         "can_be_zipped": False,
                         "uses_chromosomes": True}]
 
-        base_correct_result = "test_proj {} /scratch {} {} {} {} /path/to/logs {}"
+        base_correct_result = "test_proj workflow {} /scratch {} {} {} {} /path/to/logs {}"
         curr_correct_result = base_correct_result
 
-        result1 = [curr_correct_result.format(".fq", "sample1_R1", "sample2", "s3://path/to/input", "s3://path/to/output/test_proj/sample1_R1", "False").split() ]
+        result1 = [curr_correct_result.format(".fq", "sample1_R1", "sample2", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/sample1_R1", "False").split() ]
         curr_correct_result = base_correct_result
-        result1.append(curr_correct_result.format(".fastq", "sample3_R1", "sample4", "s3://path/to/input", "s3://path/to/output/test_proj/sample3_R1", "True").split() )
-        curr_correct_result = base_correct_result
-
-        result2 = [curr_correct_result.format(".ext.fq.ext2", "sample1_R1", "sample2", "s3://path/to/input", "s3://path/to/output/test_proj/sample1_R1", "False").split() ] 
-        curr_correct_result = base_correct_result
-        result2.append(curr_correct_result.format(".ext.fastq.ext2", "sample3_R1", "sample4", "s3://path/to/input", "s3://path/to/output/test_proj/sample3_R1", "False").split() )
+        result1.append(curr_correct_result.format(".fastq", "sample3_R1", "sample4", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/sample3_R1", "True").split() )
         curr_correct_result = base_correct_result
 
-        result3 = [curr_correct_result.format(".ext{}.ext2", "sample1_R1", "sample2", "s3://path/to/output",  "s3://path/to/output/test_proj/sample1_R1", "False").split() ] 
+        result2 = [curr_correct_result.format(".ext.fq.ext2", "sample1_R1", "sample2", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/sample1_R1", "False").split() ] 
         curr_correct_result = base_correct_result
-        result3.append(curr_correct_result.format(".ext{}.ext2", "sample3_R1", "sample4", "s3://path/to/output",  "s3://path/to/output/test_proj/sample3_R1", "False").split() )
+        result2.append(curr_correct_result.format(".ext.fastq.ext2", "sample3_R1", "sample4", "s3://path/to/input", "s3://path/to/output/test_proj/workflow/sample3_R1", "False").split() )
+        curr_correct_result = base_correct_result
+
+        result3 = [curr_correct_result.format(".ext{}.ext2", "sample1_R1", "sample2", "s3://path/to/output/test_proj/workflow",  "s3://path/to/output/test_proj/workflow/sample1_R1", "False").split() ] 
+        curr_correct_result = base_correct_result
+        result3.append(curr_correct_result.format(".ext{}.ext2", "sample3_R1", "sample4", "s3://path/to/output/test_proj/workflow",  "s3://path/to/output/test_proj/workflow/sample3_R1", "False").split() )
 
         correct_results = [result1, result2, result3]
         for index, config in enumerate(config_dicts):
             result = []
-            for output in Pipeline._by_pair_argument_generator("test_proj",
+            for output in Pipeline._by_pair_argument_generator("test_proj", "workflow",
                     group_list, pair_list, "s3://path/to/input", "s3://path/to/output",
                     config, "/path/to/logs"):
                 result.append(output)
