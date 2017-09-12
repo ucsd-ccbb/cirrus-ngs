@@ -37,7 +37,7 @@ sample1<TAB>group
 
 ### Three column format
 The three column format has the same first two columns as the two column format.  
-The third column is an identifier that is either from Normal, Tumor, Chip, or Input (_case sensitive_)  
+The third column is an identifier that is either Normal, Tumor, Chip, or Input (_case sensitive_)  
    * The Normal/Tumor identifiers are used for mutect in the WGS pipeline  
    * The Chip/Input indentifiers are used throughout the ChipSeq pipeline (Input is used to normalize)
   
