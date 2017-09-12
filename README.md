@@ -214,7 +214,7 @@ By default the tool will be run on all the samples one at a time in the project.
 
 * all_samples:
   * If set to true the tool will be run once on all samples within the project. These samples will be passed into the tool's shell script as a space-delimited list of the sample forward-read file names. 
-  * The input and output addresses will not contain the sample name as the others do. Intead of $path/proj_name/workflow/sample the output will be to $path/proj_name/workflow
+  * The input and output addresses will not contain the sample name as the others do. Intead of `$path/proj_name/workflow/sample` the output will be to `$path/proj_name/workflow`
   * shell script arguments:
   ```bash
   project_name=$1
@@ -233,8 +233,8 @@ By default the tool will be run on all the samples one at a time in the project.
   
 * by_pair:
   * If set to true the tool will be run on pairs of samples. Sample pairs are determined by the user's design file. Pair-based analysis requires the third field in the design file. Samples that constitute a pair must be the only two samples in their group. More details in design file section.
-  * The output address parameter will be set to $path/proj_name/workflow/normal_sample_name, where the normal sample is whichever was placed first in the pair in the design file. 
-  * The input address parameter is partially determined by input_is_output; if input_is_output is true then input address is set to the $user_output_address/proj_name/workflow. This allows for more control in downloading files from different s3 buckets. If input_is_output is false then the input address will be the user's specified input address.
+  * The output address parameter will be set to `$path/proj_name/workflow/normal_sample_name`, where the normal sample is whichever was placed first in the pair in the design file. 
+  * The input address parameter is partially determined by input_is_output; if input_is_output is true then input address is set to the `$user_output_address/proj_name/workflow`. This allows for more control in downloading files from different s3 buckets. If input_is_output is false then the input address will be the user's specified input address.
   * If by_pair is set to true for some tool but the design file doesn't have a third field then said tool will be run on a by sample basis instead.  
   * shell script arguments:
   ```bash
@@ -252,9 +252,9 @@ By default the tool will be run on all the samples one at a time in the project.
   ```
   
 * by_group:
-  * If set to true the tool will be run on each group of samples as specified by the design file. Group based analysis will create a new directory $path/proj_name/group_name to store analysis for that group. 
+  * If set to true the tool will be run on each group of samples as specified by the design file. Group based analysis will create a new directory `$path/proj_name/group_name` to store analysis for that group. 
   * When run by_group the shell script will take an extra argument containing a space-delimited list of samples in that group.
-  * The output address and input address parameters will be set in the same manner as the by_pair output and input addresses. However, instead of $path/proj_name/workflow/normal_sample_name the output address will be set to $path/proj_name/workflow/group_name 
+  * The output address and input address parameters will be set in the same manner as the by_pair output and input addresses. However, instead of `$path/proj_name/workflow/normal_sample_name` the output address will be set to `$path/proj_name/workflow/group_name` 
   * shell script arguments:
   ```bash
   project_name=$1
