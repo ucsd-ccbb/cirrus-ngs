@@ -87,14 +87,15 @@ All tools are run by Pipeline.py on the cluster. Adding additional tools require
 #!/bin/bash
 
 project_name=$1
-file_suffix=$2  #extension of input file, does not include .gz if present in input
-root_dir=$3
-fastq_end1=$4
-fastq_end2=$5
-input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
-output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
-log_dir=$8
-is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+workflow=$2
+file_suffix=$3  #extension of input file, does not include .gz if present in input
+root_dir=$4
+fastq_end1=$5
+fastq_end2=$6
+input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
+output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
+log_dir=$9
+is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
 EXTRA ARGUMENTS HERE
 
 #logging
@@ -108,7 +109,7 @@ status_file=$log_dir/'status.log'
 touch $status_file
 
 #prepare output directories
-workspace=$root_dir/$project_name/$fastq_end1
+workspace=$root_dir/$project_name/$workflow/$fastq_end1
 mkdir -p $workspace
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -152,7 +153,7 @@ check_exit_status "TOOLCALLHERE" $JOB_NAME $status_file
 aws s3 cp $workspace $output_address --exclude "*" --include "GLOBTOINCLUDE" --recursive
 ##END_UPLOAD##
 ```
-Shell scripts used to call tools follow a specific format. The first 9 arguments exist in every shell script. Additional arguments can be specified through the configuration files. 
+Shell scripts used to call tools follow a specific format. The first 10 arguments exist in every shell script. Additional arguments can be specified through the configuration files. 
 
 ## Configuration Files
 There are two important configuration yaml files for each tool. 
