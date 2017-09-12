@@ -195,16 +195,17 @@ Basic notes about the required entries for each tool:
     * boolean value describing if this step should be run on each chromosome
     * the last bash argument to the script will be the chromosome's number
     * shell script arguments:
-    ```yaml
+    ```bash
     project_name=$1
-    file_suffix=$2  #extension of input file, does not include .gz if present in input
-    root_dir=$3
-    fastq_end1=$4
-    fastq_end2=$5
-    input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
-    output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
-    log_dir=$8
-    is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+    workflow=$2
+    file_suffix=$3  #extension of input file, does not include .gz if present in input
+    root_dir=$4
+    fastq_end1=$5
+    fastq_end2=$6
+    input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
+    output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
+    log_dir=$9
+    is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
     EXTRA_BASH_ARGUMENTS
     chromosome=${last_parameter}
     ```
@@ -215,17 +216,18 @@ By default the tool will be run on all the samples one at a time in the project.
   * If set to true the tool will be run once on all samples within the project. These samples will be passed into the tool's shell script as a space-delimited list of the sample forward-read file names. 
   * The input and output addresses will not contain the sample name as the others do. Intead of $path/proj_name/sample the output will be to $path/proj_name
   * shell script arguments:
-  ```yaml
+  ```bash
   project_name=$1
-  file_suffix=$2  #extension of input file, does not include .gz if present in input
-  root_dir=$3
-  fastq_end1=$4     #always "NULL" for all_samples iteration
-  fastq_end2=$5     #always "NULL" for all_samples iteration
-  input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
-  output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
-  log_dir=$8
-  is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
-  all_samples=${10}
+  workflow=$2
+  file_suffix=$3  #extension of input file, does not include .gz if present in input
+  root_dir=$4
+  fastq_end1=$5
+  fastq_end2=$6
+  input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
+  output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
+  log_dir=$9
+  is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
+  all_samples=${11}
   EXTRA_BASH_ARGUMENTS
   ```
   
@@ -235,16 +237,17 @@ By default the tool will be run on all the samples one at a time in the project.
   * The input address parameter is partially determined by input_is_output; if input_is_output is true then input address is set to the user-given path to the output address without any additions. This allows for more control in downloading files from different s3 buckets. If input_is_output is false then the input address will be the user's specified input address.
   * If by_pair is set to true for some tool but the design file doesn't have a third field then said tool will be run on a by sample basis instead.  
   * shell script arguments:
-  ```yaml
+  ```bash
   project_name=$1
-  file_suffix=$2  #extension of input file, does not include .gz if present in input
-  root_dir=$3
-  first_in_pair=$4    #Normal or Chip sample
-  second_in_pair=$5   #Tumor or Input sample
-  input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
-  output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
-  log_dir=$8
-  is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
+  workflow=$2
+  file_suffix=$3  #extension of input file, does not include .gz if present in input
+  root_dir=$4
+  first_in_pair=$5
+  second_in_pair=$6
+  input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
+  output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
+  log_dir=$9
+  is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
   EXTRA_BASH_ARGUMENTS
   ```
   
@@ -253,17 +256,18 @@ By default the tool will be run on all the samples one at a time in the project.
   * When run by_group the shell script will take an extra argument containing a space-delimited list of samples in that group.
   * The output address and input address parameters will be set in the same manner as the by_pair output and input addresses. However, instead of $path/proj_name/normal_sample_name the output address will be set to $path/proj_name/group_name 
   * shell script arguments:
-  ```yaml
+  ```bash
   project_name=$1
-  file_suffix=$2  #extension of input file, does not include .gz if present in input
-  root_dir=$3
-  group_name=$4
-  fastq_end2=$5   #this is always "NULL" for by_group iteration
-  input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
-  output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
-  log_dir=$8
-  is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
-  group_samples=${10}
+  workflow=$2
+  file_suffix=$3  #extension of input file, does not include .gz if present in input
+  root_dir=$4
+  group_name=$5
+  fastq_end2=$6     #this is always "NULL" for by_group iteration
+  input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
+  output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
+  log_dir=$9
+  is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
+  group_samples=${11}
   EXTRA_BASH_ARGUMENTS
   ```
 
