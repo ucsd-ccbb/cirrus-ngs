@@ -42,13 +42,13 @@ postalignment:
     can_be_zipped: False
     uses_chromosomes: True 
 haplotype:
-    script_path: "DNASeq/haplo"
+    script_path: "DNASeq/bwa_gatk/haplo"
     download_suffix: ".final.{}.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
 mutect:
-    script_path: "DNASeq/mutect"
+    script_path: "DNASeq/bwa_mutect/mutect"
     download_suffix: ".final.{}.bam"
     input_is_output: True
     can_be_zipped: False
@@ -67,22 +67,22 @@ bam_merge:
     can_be_zipped: False
     uses_chromosomes: False
 pair_vcf_merge:
-    script_path: "DNASeq/pair_merge"
+    script_path: "DNASeq/bwa_mutect/pair_merge"
     download_suffix: ".vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_pair: True
 combine_vcf:
-    script_path: "DNASeq/group_vcf"
-    download_suffix: ".merged.vcf"
+    script_path: "DNASeq/bwa_gatk/group_vcf"
+    download_suffix: ".merged.g.vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     by_group: True
 filter:
-    script_path: "DNASeq/filter"
-    download_suffix: ".g.vcf.gz"
+    script_path: "DNASeq/bwa_gatk/filter"
+    download_suffix: ".vcf"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
@@ -128,7 +128,7 @@ make_UCSC_file:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-findpeaks:
+find_peaks:
     script_path: "ChiPSeq/homer/findpeaks"
     download_suffix: ~
     input_is_output: True

@@ -94,6 +94,6 @@ fi
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.final.bam" \
-    --include "$fastq_end1.merged.vcf" \
+    --include "$fastq_end1.merged.g.vcf" \
     --recursive
 ##END_UPLOAD##

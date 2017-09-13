@@ -71,9 +71,9 @@ else
         $samtools view -Sb - > $workspace/$fastq_end1.bam" $JOB_NAME $status_file
 fi
 
-check_exit_status "$samtools stats $workspace/$fastq_end1.bam > $workspace/$fastq_end1.stats.txt" $JOB_NAME $status_file
+check_exit_status "$samtools stats $workspace/$fastq_end1.bam > $workspace/${fastq_end1}.txt" $JOB_NAME $status_file
 ##END_ALIGN##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.bam" --include "$fastq_end1.stats.txt" --recursive
+aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.bam" --include "${fastq_end1}.txt" --recursive
 ##END_UPLOAD##

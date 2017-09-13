@@ -34,7 +34,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 check_step_already_done $JOB_NAME $status_file
 
 ##DOWNLOAD##
-if [ ! -f $workspace/$group_name$file_suffix ] || [ ! -f $workspace/$group_name$file_suffix.tbi ]
+if [ ! -f $workspace/$group_name$file_suffix ]
 then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
@@ -47,7 +47,6 @@ then
 
     #download all separated vcf and bam files
     aws s3 cp $input_address/$group_name/$group_name$file_suffix $workspace/
-    aws s3 cp $input_address/$group_name/$group_name$file_suffix.tbi $workspace/
 fi
 ##END_DOWNLOAD##
 
@@ -62,7 +61,7 @@ check_exit_status "$java -Xmx8g -jar $gatk \
     -resource:omni,known=false,training=true,truth=true,prior=12.0 $omni \
     -resource:1000G,known=false,training=true,truth=false,prior=10.0 $G1000snps \
     -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 $dbsnp \
-    -an QD -an MQRankSum -an ReadPosRankSum -an FS -an DP \
+    -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR -an DP \
     -mode SNP \
     -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 \
     -input $workspace/$group_name.g.vcf.gz \
@@ -91,3 +90,7 @@ check_exit_status "$java -Xmx8g -jar $gatk \
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "`ls $workspace`"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+##UPLOAD##
+aws s3 cp $workspace $output_address --exclude "*" --include "$group_name.snp.plots.R.*" --include "$group_name.indel.plots.R.*" --recursive
+##END_UPLOAD##

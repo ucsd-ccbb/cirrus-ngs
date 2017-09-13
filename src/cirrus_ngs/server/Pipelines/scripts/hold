@@ -29,3 +29,7 @@ check_exit_status "$java -Xmx4g -jar $gatk \
     --variant $workspace/$group_name.snpAr.indelAr.vcf \
     --out $workspace/$group_name.vqsr.vcf" $JOB_NAME $status_file
 
+
+
+    check_exit_status "$vcf_concat $vcf_file_list > $workspace/$fastq_end1.raw.vcf" $JOB_NAME $status_file
+    check_exit_status "$vcf_sort $workspace/temp $workspace/$fastq_end1.raw.vcf > $workspace/$fastq_end1.merged.vcf" $JOB_NAME $status_file

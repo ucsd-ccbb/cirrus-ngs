@@ -2,6 +2,7 @@ steps:
     - "fastqc"
     - "trim"
     - "bwa"
+    - "multiqc"
     - "sort"
     - "dedup"
     - "split"
@@ -17,6 +18,7 @@ trim:
 bwa:
     - 4     #number of threads
     - "ILLUMINA"    #platform technology
+multiqc: []
 sort:
     - 4     #number of threads
 dedup:
