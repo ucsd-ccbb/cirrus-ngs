@@ -15,7 +15,9 @@ All dependencies can be installed with pip
 * SmallRNASeqPipeline
 
 ## General Overview
-First user creates a design file (format described [below](#design)). The jupyter notebook for the user's chosen pipeline requires such a design file and multiple parameters specified within the first cell. The notebook creates a yaml file summarizing all of the user input and transfers that file to the cluster. Cluster-native code then uses that yaml file, along with multiple configuration files (described [below](#config)), to sequentially execute the analysis steps specified by the user in a parallelized fashion. Upon completion of each step the output will be uploaded to the user's s3 output bucket and can be accessed at any point.  
+First user creates a design file (format described [below](#design)). The jupyter notebook for the user's chosen pipeline requires such a design file and multiple parameters specified within the first cell. The notebook creates a yaml file summarizing all of the user input and transfers that file to the cluster. Cluster-native code then uses that yaml file, along with multiple configuration files (described [below](#config)), to sequentially execute the analysis steps specified by the user in a parallelized fashion. Upon completion of each step the output will be uploaded to the user's s3 output bucket and can be accessed at any point.    
+
+#### A rough diagram:
 ```
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%||||||||@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Local                                                         transfer                                           Remote
@@ -30,18 +32,25 @@ DesignFile + Parameters -> Notebook -> PipelineManager -> yaml ------> Pipeline 
                                                                                           @          USER S3          @
                                                                                           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ```
+
+#### Output S3 Address Organization 
+One parameter the user supplies is the s3_output_files_address, which is used as a base directory for all project output.  
+Output files can be found at `$s3_output_files_address/$project_name/$workflow/$sample_name` where $sample_name is is the name of the forward read file. All output for a sample will be under the directory with the name of its forward read file.   
+__Note__: After alignment all output files associated will a sample will take on the name of the forward read file.
+    Example: If Sample is made up of Sample_R1.fq and Sample_R2.fq alignment will output Sample_R1.(s|b)am  
+    
 ## The Design File <a name="design"></a>
 This txt file specifies what samples will be used in this project.
-It supports both a two column and three column tab-separated format
+It supports both a two column and three column tab-separated format. <TAB> is a tab character.
 
 ### Two column format
 In the two column format the first column is the filename of the sample  
    * If the sample is paired end the first column should be:  
    * `name_of_forward_end_file,name_of_reverse_end_file`
-   * Note that the two files are only separated by a comma, no spaces  
+   * Note that the two files are only separated by a comma, __no spaces__  
    
 The second column is the name of the group associated with that sample  
-Group names are used for variant calling. Samples with the same group will have their vcf files merged and the group-based vcf files will be compared to one another.  
+Group names are used for variant calling. Samples with the same group will have their vcf files merged for downstream analysis.
 
 #### Examples
 ```
@@ -55,10 +64,10 @@ sample1<TAB>group
 The three column format has the same first two columns as the two column format.  
 The third column is an identifier that is either Normal, Tumor, Chip, or Input (_case sensitive_)  
    * The Normal/Tumor identifiers are used for mutect in the WGS pipeline  
-   * The Chip/Input indentifiers are used throughout the ChipSeq pipeline (Input is used to normalize)
+   * The Chip/Input indentifiers are used throughout the ChiPSeq pipeline (Input is used to normalize)
   
-If two files form a Normal/Tumor or Chip/Input pair they must have the same group and directly follow one another  
-Also, each group in the three column format must have exactly one of each identifier (one Normal && one Tumor) || (one Chip && one Input)  
+If two files form a Normal/Tumor or Chip/Input pair they must have the same group.
+Also, each group in the three column format must have exactly one of each identifier (one Normal && one Tumor) || (one Chip && one Input). Do not mix Chip/Input and Normal/Tumor pairs in the same design file.
 
 #### Examples:
 
@@ -84,12 +93,7 @@ sample2<TAB>group1<TAB>Input
 ```
 sample1<TAB>group1<TAB>Tumor
 sample2<TAB>group1<TAB>Tumor
-```
-```
-sample1<TAB>group1<TAB>Tumor
-sample2<TAB>group1<TAB>Normal
-```
-^ wrong order of samples in last one  
+``` 
 
 
 ## Adding additional tools
