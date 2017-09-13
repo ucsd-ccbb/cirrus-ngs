@@ -11,7 +11,6 @@ output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$9
 is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
 all_samples=${11}    # a space separated string containing all the sample names
-num_threads=${12}
 
 #logging
 mkdir -p $log_dir
@@ -41,7 +40,6 @@ for file in $all_samples; do
 done
 
 # Call the merge count file
-echo $all_samples
 check_exit_status "python /shared/workspace/Pipelines/util/MergeCountFile.py $workflow $workspace $all_samples" $JOB_NAME $status_file
 
 # Upload the output file

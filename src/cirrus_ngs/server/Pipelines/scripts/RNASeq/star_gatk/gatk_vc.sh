@@ -1,26 +1,16 @@
 #!/bin/bash
 
-# rootdir=/shared/workspace/software
-# picard=$rootdir/picard-1.96        # TODO: update
-# gatk=$rootdir/gatk/GenomeAnalysisTK-3.8-0/GenomeAnalysisTK.jar
-# sambamba=$rootdir/sambamba/0.4.7/bin/sambamba
-# bgzip=$rootdir/tabix-0.2.6/bgzip
-# tabix=$rootdir/tabix-0.2.6/tabix
-# genome_fasta=$rootdir/sequences/Hsapiens/ucsc.hg19.fasta
-# mills=$rootdir/variation/Mills_and_1000G_gold_standard.indels.hg19.sites.vcf
-# G1000=$rootdir/variation/1000G_phase1.snps.high_confidence.hg19.sites.vcf
-# dbsnp=$rootdir/variation/dbsnp_138.hg19.vcf
-
 project_name=$1
-file_suffix=$2  #extension of input file, does not include .gz if present in input
-root_dir=$3
-fastq_end1=$4
-fastq_end2=$5
-input_address=$6    #this is an s3 address e.g. s3://path/to/input/directory
-output_address=$7   #this is an s3 address e.g. s3://path/to/output/directory
-log_dir=$8
-is_zipped=$9    #either "True" or "False", indicates whether input is gzipped
-num_threads=${10}       #number of threads
+workflow=$2
+file_suffix=$3  #extension of input file, does not include .gz if present in input
+root_dir=$4
+fastq_end1=$5
+fastq_end2=$6
+input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
+output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
+log_dir=$9
+is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
+num_threads=${11}       #number of threads
 
 #logging
 log_dir=$log_dir/$fastq_end1
@@ -33,7 +23,7 @@ status_file=$log_dir/'status.log'
 touch $status_file
 
 #prepare output directories
-workspace=$root_dir/$project_name
+workspace=$root_dir/$project_name/$workflow
 mkdir -p $workspace
 
 inDir=$workspace/$fastq_end1
@@ -130,8 +120,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-stand_call_conf 20.0 \
 	-o $outDir/${fastq_end1}_raw.vcf" $JOB_NAME $status_file
 
-# TODO: VARIANT FILTERING
-check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-T VariantFiltration \
 	-R $genome_fasta \
 	-V $outDir/${fastq_end1}_raw.vcf \
@@ -141,11 +130,11 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-filter "FS > 30.0" \
 	-filterName QD \
 	-filter "QD < 2.0" \
-	-o $outDir/${fastq_end1}_filt.vcf" $JOB_NAME $status_file
+	-o $outDir/${fastq_end1}_filt.vcf
 
 # zip and index
-# check_exit_status "$bgzip $outDir/${fastq_end1}_filt.vcf -c > $outDir/${fastq_end1}_filt.vcf.gz" $JOB_NAME $status_file
-# check_exit_status "$tabix -p vcf $outDir/${fastq_end1}_filt.vcf.gz" $JOB_NAME $status_file
+check_exit_status "$bgzip $outDir/${fastq_end1}_filt.vcf -c > $outDir/${fastq_end1}_filt.vcf.gz" $JOB_NAME $status_file
+check_exit_status "$tabix -p vcf $outDir/${fastq_end1}_filt.vcf.gz" $JOB_NAME $status_file
 
 
 # Upload
