@@ -3,6 +3,7 @@ import sys
 import os
 sys.path.append("../src/cirrus_ngs/server/Pipelines/")
 import Pipeline
+import tempfile 
 
 class Tests(unittest.TestCase):
     # Next 4 tests test the different combinations of fastq/fq and zipped/unzipped extensions
@@ -246,14 +247,6 @@ class Tests(unittest.TestCase):
                 result.append(output)
 
             self.assertEqual(result, correct_results[index])
-
-
-        
-        
-
-
-
-
 
 if __name__ == "__main__":
     unittest.main()

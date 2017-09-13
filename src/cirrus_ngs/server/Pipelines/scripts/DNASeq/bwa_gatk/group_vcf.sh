@@ -76,19 +76,20 @@ check_exit_status "$java -Xmx2g -Djava.io.tmpdir=$workspace/temp \
     -T CombineGVCFs \
     -R $genome_fasta \
     $variant_list \
-    -o $workspace/$group_name.merged.vcf" $JOB_NAME $status_file
+    -o $workspace/$group_name.merged.g.vcf" $JOB_NAME $status_file
 
 check_exit_status "$java -Xms454m -Xmx3181m -Djava.io.tmpdir=$workspace/temp \
     -jar $gatk \
     -T GenotypeGVCFs \
+    -A QualByDepth -A RMSMappingQuality -A MappingQualityRankSumTest -A ReadPosRankSumTest -A FisherStrand -A StrandOddsRatio -A DepthPerSampleHC -A InbreedingCoeff \
     -R $genome_fasta \
     -nt $num_threads \
-    --variant $workspace/$group_name.merged.vcf \
-    -o $workspace/$group_name.g.vcf.gz \
+    --variant $workspace/$group_name.merged.g.vcf \
+    -o $workspace/$group_name.vcf \
     --dbsnp $dbsnp" $JOB_NAME $status_file
 
 #END_COMBINEVCF##
 
 ##UPLOAD##
-aws s3 cp $workspace/ $output_address --exclude "*" --include "$group_name.g.vcf*" --recursive
+aws s3 cp $workspace/ $output_address --exclude "*" --include "$group_name.vcf" --recursive
 ##END_UPLOAD

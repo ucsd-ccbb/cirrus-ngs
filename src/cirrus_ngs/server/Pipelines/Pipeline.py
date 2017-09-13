@@ -34,6 +34,8 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     elif os.environ["style"] == "factor":
         os.environ["style_ext"] = ".peaks.txt"
 
+    os.environ["genome_fasta"] = os.environ[documents.get("genome") + "_fasta"]
+    os.environ["genome_fai"] = os.environ[documents.get("genome") + "_fai"]
 
     #used for pair-based analysis
     #dictionary with key=normal_sample, value=tumor_sample
