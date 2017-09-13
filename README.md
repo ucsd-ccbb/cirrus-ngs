@@ -21,14 +21,14 @@ First user creates a design file (format described [below](#design)). The jupyte
 Local                                                         transfer                                           Remote
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%||||||||@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 DesignFile + Parameters -> Notebook -> PipelineManager -> yaml ------> Pipeline + config -> shell scripts foreach step  
-                                                                                            /\         ||
-                                                                                            ||         UL 
-                                                                                prereq files||         || step output
-                                                                                            DL         ||
-                                                                                            ||         \/
-                                                                                          @@@@@@@@@@@@@@@@@@@
-                                                                                          @     USER S3     @
-                                                                                          @@@@@@@@@@@@@@@@@@@
+                                                                                            /\                      ||
+                                                                                            ||                      || 
+                                                                                            ||DL                  UL||
+                                                                                            ||prereqs        outputs||
+                                                                                            ||                      \/
+                                                                                          @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                                                                                          @          USER S3          @
+                                                                                          @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ```
 ## The Design File <a name="design"></a>
 This txt file specifies what samples will be used in this project.
