@@ -17,12 +17,18 @@ All dependencies can be installed with pip
 ## General Overview
 First user creates a design file (format described [below](#design)). The jupyter notebook for the user's chosen pipeline requires such a design file and multiple parameters specified within the first cell. The notebook creates a yaml file summarizing all of the user input and transfers that file to the cluster. Cluster-native code then uses that yaml file, along with multiple configuration files (described [below](#config)), to sequentially execute the analysis steps specified by the user in a parallelized fashion. Upon completion of each step the output will be uploaded to the user's s3 output bucket and can be accessed at any point.  
 ```
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%||||||||%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%||||||||@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Local                                                         transfer                                           Remote
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%||||||||%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-DesignFile + Parameters -> Notebook -> PipelineManager -> yaml ------> Pipeline + config -> shell scripts -> output to s3  
-                                                                              /\                                  ||
-                                                                              ||==================================||                                                                                                                 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%||||||||@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+DesignFile + Parameters -> Notebook -> PipelineManager -> yaml ------> Pipeline + config -> shell scripts foreach step  
+                                                                                            /\         ||
+                                                                                            ||         UL 
+                                                                                prereq files||         || step output
+                                                                                            DL         ||
+                                                                                            ||         \/
+                                                                                          @@@@@@@@@@@@@@@@@@@
+                                                                                          @     USER S3     @
+                                                                                          @@@@@@@@@@@@@@@@@@@
 ```
 ## The Design File <a name="design"></a>
 This txt file specifies what samples will be used in this project.
