@@ -120,6 +120,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-stand_call_conf 20.0 \
 	-o $outDir/${fastq_end1}_raw.vcf" $JOB_NAME $status_file
 
+# VARIANT FILTRATION
 $java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-T VariantFiltration \
 	-R $genome_fasta \
@@ -130,6 +131,7 @@ $java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-filter "FS > 30.0" \
 	-filterName QD \
 	-filter "QD < 2.0" \
+	--missingValuesInExpressionsShouldEvaluateAsFailing \
 	-o $outDir/${fastq_end1}_filt.vcf
 
 # zip and index
