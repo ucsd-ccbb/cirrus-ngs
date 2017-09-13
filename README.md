@@ -36,7 +36,7 @@ DesignFile + Parameters -> Notebook -> PipelineManager -> yaml ------> Pipeline 
 #### Output S3 Address Organization 
 One parameter the user supplies is the s3_output_files_address, which is used as a base directory for all project output.  
 Output files can be found at `$s3_output_files_address/$project_name/$workflow/$sample_name` where $sample_name is is the name of the forward read file. All output for a sample will be under the directory with the name of its forward read file.   
-__Note__: After alignment all output files associated will a sample will take on the name of the forward read file.
+__Note__: After alignment all output files associated will a sample will take on the name of the forward read file.   
     Example: If Sample is made up of Sample_R1.fq and Sample_R2.fq alignment will output Sample_R1.(s|b)am  
     
 ## The Design File <a name="design"></a>
