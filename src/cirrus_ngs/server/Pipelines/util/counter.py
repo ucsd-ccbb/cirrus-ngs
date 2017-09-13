@@ -6,9 +6,10 @@ import sys
 # samfiles in ["AD2", "AD26"] format (a list of strings)
 def count(fafile, countsfilepath, mappingratesfilepath, workspace, samfiles):
     # append .sam
-    samfiles = map(lambda x: x+ ".sam", samfiles.split())
+    # samfiles = map(lambda x: x+ ".sam", samfiles.split())
 
-    numfiles = (len(samfiles))
+    # get the size of the list
+    numfiles = len(samfiles)
 
     fa = open(fafile)
 
@@ -30,11 +31,13 @@ def count(fafile, countsfilepath, mappingratesfilepath, workspace, samfiles):
     samples = []
 
     for i in range(0, numfiles):
-        samplename = samfiles[i].replace('.sam', '')
+        samplename = samfiles[i]
+        print("sample name: "+samplename)
+        #.replace('.sam', '')
         samples.append(samplename)
 
         # all samfiles downloaded to workspace
-        samfile = open(workspace + "/" + samfiles[i])
+        samfile = open(workspace + "/" + samplename + ".sam")
 
         unmapped = 0  # count number of reads not mapped to RNA
         mapped = 0  # count number of reads mapped

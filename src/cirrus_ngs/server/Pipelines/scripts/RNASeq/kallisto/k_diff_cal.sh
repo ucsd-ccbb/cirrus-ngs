@@ -1,0 +1,48 @@
+#!/bin/bash
+
+export R_LIBS="/shared/workspace/software/R-packages"
+
+project_name=$1
+workflow=$2
+file_suffix=$3  #extension of input file, does not include .gz if present in input
+root_dir=$4
+fastq_end1=$5
+fastq_end2=$6
+input_address=$7    #this is an s3 address e.g. s3://path/to/input/directory
+output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
+log_dir=$9
+is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
+
+#logging
+mkdir -p $log_dir
+log_file=$log_dir/'k_diff_cal.log'
+exec 1>>$log_file
+exec 2>>$log_file
+
+echo "output address:"$output_address
+
+status_file=$log_dir/'status.log'
+touch $status_file
+
+#prepare output directories
+workspace=$root_dir/$project_name/$workflow
+mkdir -p $workspace
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+check_step_already_done $JOB_NAME $status_file
+
+# Download group text file
+if [ ! -f $workspace/group.txt ]
+then
+
+    aws s3 cp $input_address/group.txt $workspace/
+
+fi
+##END_DOWNLOAD##
+
+# Call R script
+check_exit_status "Rscript /shared/workspace/Pipelines/scripts/RNASeq/kallisto/RNA-seq_limma.R \
+$workspace/group.txt $output_address" $JOB_NAME $status_file

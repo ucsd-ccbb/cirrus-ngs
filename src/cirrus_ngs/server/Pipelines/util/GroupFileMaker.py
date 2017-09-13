@@ -14,7 +14,6 @@ def make_group_file(group_file, yaml_file, s3_path):
     yaml_file_stream.close()
 
     sample_list = documents.get("sample")
-    print("In GFM, sample list: "+sample_list)
 
     group_table = {}
     for sample in sample_list:

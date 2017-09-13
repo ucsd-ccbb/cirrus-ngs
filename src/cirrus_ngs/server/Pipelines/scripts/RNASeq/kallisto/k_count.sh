@@ -18,8 +18,6 @@ log_file=$log_dir/'k_count.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
-echo $output_address
-
 status_file=$log_dir/'status.log'
 touch $status_file
 
@@ -32,9 +30,6 @@ date
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
-
-# sample=$1
-# output_file=$2
 
 # Download abundance text file
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -54,7 +49,7 @@ fi
 ##END_DOWNLOAD##
 
 # Call the perl file
-perl $kallisto_counts $workspace/$fastq_end1 $output_address
+check_exit_status "perl $kallisto_counts $workspace/$fastq_end1 $output_address" $JOB_NAME $status_file
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt*" --recursive
