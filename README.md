@@ -22,8 +22,7 @@ Local                                                         transfer          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%||||||||%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DesignFile + Parameters -> Notebook -> PipelineManager -> yaml ------> Pipeline + config -> shell scripts -> output to s3  
                                                                               /\                                  ||
-                                                                              ||==================================||
-                                                                                                                  
+                                                                              ||==================================||                                                                                                                 
 ```
 ## The Design File <a name="design"></a>
 This txt file specifies what samples will be used in this project.
