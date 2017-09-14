@@ -8,11 +8,23 @@ All dependencies can be installed with pip
 * scp
 * aws-cli
 
+## Terms: Pipeline vs. Workflow
+As a convention, in this project, "pipeline" is at a higher level than "workflow". 
+Pipeline corresponds to a general type of sequencing, such as WGS Pipeline, which stands for Whole Genome Sequencing Pipeline. 
+Moreover, each pipeline is allowed to have multiple "workflows". 
+For instance, RNA-Seq Pipeline contains four different workflows (star_gatk, star_htseq, star_rsem, kallisto), each with its own steps.
+Each workflow can be run independently and a user may want to run more than one workflow for a single pipeline.
+
+
 ## Supported Pipelines
-* WGSPipeline
+* WGSPipeline 
 * RNASeqPipeline
-* ChipSeqPipeline
+* ChiPSeqPipeline
 * SmallRNASeqPipeline
+
+
+
+
 
 ## General Overview
 First user creates a design file (format described [below](#design)). The jupyter notebook for the user's chosen pipeline requires such a design file and multiple parameters specified within the first cell. The notebook creates a yaml file summarizing all of the user input and transfers that file to the cluster. Cluster-native code then uses that yaml file, along with multiple configuration files (described [below](#config)), to sequentially execute the analysis steps specified by the user in a parallelized fashion. Upon completion of each step the output will be uploaded to the user's s3 output bucket and can be accessed at any point.    
