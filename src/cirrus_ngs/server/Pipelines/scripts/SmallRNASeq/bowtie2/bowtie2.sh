@@ -60,7 +60,6 @@ then
 fi
 ##END_DOWNLOAD##
 
-
 ##BOWTIE 2 ALIGNMENT##
 
 # go to the directory of the index file
