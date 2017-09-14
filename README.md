@@ -8,7 +8,7 @@ All dependencies can be installed with pip
 * scp
 * aws-cli
 
-## Terms: Pipeline vs. Workflow
+## Pipeline and Workflow - Explained
 As a convention, in this project, "pipeline" is at a higher level than "workflow". 
 Pipeline corresponds to a general type of sequencing, such as WGS Pipeline, which stands for Whole Genome Sequencing Pipeline. 
 Moreover, each pipeline is allowed to have multiple "workflows". 
