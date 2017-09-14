@@ -131,7 +131,7 @@ $java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-filter "FS > 30.0" \
 	-filterName QD \
 	-filter "QD < 2.0" \
-	--missingValuesInExpressionsShouldEvaluateAsFailing \
+	--missingValuesInExpressionsShouldEvaluateAsFailing True \
 	-o $outDir/${fastq_end1}_filt.vcf
 
 # zip and index

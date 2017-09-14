@@ -40,7 +40,7 @@ fi
 
 # Count reads #
 $samtools view $workspace/$fastq_end1$file_suffix | sort -s -k 1,1 - \
-   |  htseq-count - $STAR_ref_genes > $workspace/$fastq_end1"_counts.txt"
+   |  htseq-count - $human_gtf > $workspace/$fastq_end1"_counts.txt"
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt*" --recursive
