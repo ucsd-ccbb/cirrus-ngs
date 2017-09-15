@@ -41,7 +41,7 @@ for file in $all_samples; do
 done
 
 # Call counter.count
-check_exit_status "/shared/workspace/software/anaconda3/bin/python /shared/workspace/Pipelines/util/counter.py \
+check_exit_status "$python /shared/workspace/Pipelines/util/counter.py \
 $hairpin_human_fa $workspace/counts.out $workspace/rates.out $workspace $all_samples" $JOB_NAME $status_file
 
 # Upload the output file to s3
