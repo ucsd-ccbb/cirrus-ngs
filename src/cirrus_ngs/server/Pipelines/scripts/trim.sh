@@ -11,7 +11,7 @@ output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$9
 is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
 num_threads=${11}
-min_len=${12}
+min_len=${12}       # drop the read if it is below this minimum length
 
 #logging
 log_dir=$log_dir/$fastq_end1

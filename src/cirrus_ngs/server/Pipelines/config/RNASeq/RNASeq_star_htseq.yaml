@@ -5,6 +5,7 @@ steps:
    - "star_htseq_align"
    - "star_htseq_count"
    - "star_htseq_merge"
+   - "star_htseq_multiqc"
 star_htseq_make_group: []
 star_htseq_fastqc: []
 star_htseq_trim:
@@ -14,3 +15,4 @@ star_htseq_align:
    - 4      # number of threads
 star_htseq_count: []
 star_htseq_merge: []
+star_htseq_multiqc: []

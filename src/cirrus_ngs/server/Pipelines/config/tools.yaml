@@ -1,4 +1,6 @@
-## Configuration file for tool methods
+## Configuration file for tools in all the pipelines
+
+# Shared steps #
 fastqc:
     script_path: "fastqc"
     download_suffix: ~
@@ -11,6 +13,8 @@ trim:
     input_is_output: False
     can_be_zipped: True
     uses_chromosomes: False
+
+# WGS steps #
 bwa:
     script_path: "DNASeq/bwa"
     download_suffix: ".trim{}"
@@ -88,7 +92,7 @@ filter:
     uses_chromosomes: False
     by_group: True
 
-# SmallRNA specific #
+# SmallRNA steps #
 cut_adapt:
     script_path: "SmallRNASeq/bowtie2/cutadapt"
     download_suffix: ~
@@ -109,7 +113,7 @@ counting:
     uses_chromosomes: False
     all_samples: True
 
-# ChiPSeq #
+# ChiPSeq steps #
 bowtie:
     script_path: "ChiPSeq/homer/bowtie"
     download_suffix: ~
@@ -158,7 +162,7 @@ find_motifs_genome:
     by_pair: True
 
 
-# MultiQC #
+# MultiQC: aggregates results #
 multiqc:
     script_path: "multiqc"
     download_suffix: ""
@@ -167,10 +171,9 @@ multiqc:
     uses_chromosomes: False
     all_samples: True
 
-# RNA-seq specific #
-#
-# Kallisto workflow:
+# RNA-seq steps #
 
+# Kallisto workflow #
 kallisto_make_group:
     script_path: "RNASeq/make_group"
     download_suffix: ~
@@ -209,14 +212,22 @@ kallisto_merge:
     can_be_zipped: False
     uses_chromosomes: False
     all_samples: True
-kallisto_differential_calculate:      ## TODO  TODO
-    script_path: "RNASeq/kallisto/diff_cal"
+kallisto_differential_calculate:
+    script_path: "RNASeq/kallisto/k_diff_cal"
     download_suffix: ~
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
+    all_samples: True
+kallisto_multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
 
-# Star_gatk workflow:
+# Star_gatk workflow #
 star_gatk_make_group:
     script_path: "RNASeq/make_group"
     download_suffix: ~
@@ -248,8 +259,15 @@ star_gatk_variant_calling:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
+star_gatk_multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
 
-# Star_htseq workflow:
+# Star_htseq workflow #
 star_htseq_make_group:
     script_path: "RNASeq/make_group"
     download_suffix: ~
@@ -284,6 +302,47 @@ star_htseq_count:
 star_htseq_merge:  # same with kallisto
     script_path: "RNASeq/merge_counts"
     download_suffix: "_counts.txt"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+star_htseq_multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+
+# Star_RSEM workflow #
+star_rsem_fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_rsem_trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_rsem_calculate_expression:
+    script_path: "RNASeq/star_rsem/cal_expression"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_rsem_summary:
+    script_path: "RNASeq/star_rsem/summary"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+star_rsem_multiqc:
+    script_path: "multiqc"
+    download_suffix: ~
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False

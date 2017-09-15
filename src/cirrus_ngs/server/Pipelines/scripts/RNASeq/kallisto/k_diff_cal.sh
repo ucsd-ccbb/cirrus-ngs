@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export R_LIBS="/shared/workspace/software/R-packages"
+
 project_name=$1
 workflow=$2
 file_suffix=$3  #extension of input file, does not include .gz if present in input
@@ -12,17 +14,18 @@ log_dir=$9
 is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
 
 #logging
-log_dir=$log_dir/$fastq_end1
 mkdir -p $log_dir
-log_file=$log_dir/'ht_count.log'
+log_file=$log_dir/'k_diff_cal.log'
 exec 1>>$log_file
 exec 2>>$log_file
+
+echo "output address:"$output_address
 
 status_file=$log_dir/'status.log'
 touch $status_file
 
 #prepare output directories
-workspace=$root_dir/$project_name/$workflow/$fastq_end1
+workspace=$root_dir/$project_name/$workflow
 mkdir -p $workspace
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -31,17 +34,15 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
-##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ]
+# Download group text file
+if [ ! -f $workspace/group.txt ]
 then
-    check_exit_status "aws s3 cp $input_address/$fastq_end1$file_suffix $workspace/" $JOB_NAME $status_file
+
+    aws s3 cp $input_address/group.txt $workspace/
+
 fi
 ##END_DOWNLOAD##
 
-# Count reads #
-$samtools view $workspace/$fastq_end1$file_suffix | sort -T $workspace/ -s -k 1,1 - \
-   |  htseq-count - $genome_gtf > $workspace/$fastq_end1"_counts.txt"
-
-##UPLOAD##
-aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt*" --recursive
-##END_UPLOAD##
+# Call R script
+check_exit_status "Rscript /shared/workspace/Pipelines/scripts/RNASeq/kallisto/RNA-seq_limma.R \
+$workspace/group.txt $output_address" $JOB_NAME $status_file
