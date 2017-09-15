@@ -30,6 +30,7 @@ mkdir -p $workspace
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 date
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "workflow: "$workflow
 
 check_step_already_done $JOB_NAME $status_file
 
@@ -66,7 +67,15 @@ then
         $workspace/$fastq_end1$file_suffix \
         $workspace/$fastq_end1.trim$file_suffix \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len" $JOB_NAME $status_file
+# paired-end
 else
+    # set the minimum length as 36 for RNA-seq paired-end
+    if [ $workflow == "star_htseq" ] || [ $workflow == "star_gatk" ] || [ $workflow == "star_rsem" ] || [ $workflow == "kallisto" ]
+    then
+        let "min_len=min_len+9"
+        echo "min_length: "$min_len
+    fi
+
     check_exit_status "java -jar $trimmomatic PE -threads $num_threads -phred33 -trimlog /dev/null \
         $workspace/$fastq_end1$file_suffix \
         $workspace/$fastq_end2$file_suffix \
@@ -79,5 +88,5 @@ fi
 ##END_TRIM##
 
 ##UPLOAD##
-check_exit_status "aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.trim*" --include "$fastq_end2.trim*" --recursive" $JOB_NAME $status_file
+aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.trim*" --include "$fastq_end2.trim*" --recursive
 ##END_UPLOAD##
