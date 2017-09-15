@@ -26,6 +26,7 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     input_address = documents.get("download")
     sample_list = documents.get("sample")
 
+    # set environment variables
     os.environ["style"] = documents.get("style")
     os.environ["genome"] = documents.get("genome")
 
@@ -36,6 +37,9 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 
     os.environ["genome_fasta"] = os.environ[documents.get("genome") + "_fasta"]
     os.environ["genome_fai"] = os.environ[documents.get("genome") + "_fai"]
+
+    os.environ["genome_gtf"] = os.environ[documents.get("genome") + "_gtf"]
+    os.environ["genome_index"] = os.environ[documents.get("genome") + "_index"]
 
     #used for pair-based analysis
     #dictionary with key=normal_sample, value=tumor_sample

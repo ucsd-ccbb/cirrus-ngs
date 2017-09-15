@@ -52,12 +52,12 @@ fi
 # Star align
 if [ "$fastq_end2" == "NULL" ]
 then
-    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_genome \
+    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $human_genome \
     --twopassMode Basic --readFilesIn $workspace/$fastq_end1$file_suffix \
     --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 
 else
-    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_genome \
+    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $human_genome \
     --twopassMode Basic --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
     --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 fi
