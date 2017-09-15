@@ -1,0 +1,14 @@
+steps:
+   - "star_rsem_fastqc"
+   - "star_rsem_trim"
+   - "star_rsem_calculate_expression"
+   - "star_rsem_summary"
+   - "star_rsem_multiqc"
+star_rsem_fastqc: []
+star_rsem_trim:
+   - 5      # number of threads
+   - 27     # TODO: Paired-end?  36??
+star_rsem_calculate_expression:
+   - 12     # TODO: number of threads: 12 for human, 8 for mouse
+star_rsem_summary: []
+star_rsem_multiqc: []
