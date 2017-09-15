@@ -6,9 +6,10 @@ import re
 import sys
 import GencodeGTFParser
 
-def merge_all_sample_count(workflow, workspace, samples):
 
-    gencode_gtf_file = os.environ["STAR_ref_genes"]   # path to reference genome is in software config file
+def merge_all_sample_count(workflow, workspace, samples):
+    # get the gtf file from this environment variable
+    gencode_gtf_file = os.environ["genome_gtf"]
     output_file = workspace + "/all_gene_counts.txt"
 
     gene_table = GencodeGTFParser.parse(gencode_gtf_file)

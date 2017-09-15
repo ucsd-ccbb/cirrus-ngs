@@ -85,6 +85,37 @@ check_exit_status "$java -Xmx8g -jar $gatk \
     -rscriptFile $workspace/$group_name.indel.plots.R \
     --disable_auto_index_creation_and_locking_when_reading_rods" $JOB_NAME $status_file
 
+check_exit_status "$java -Xmx4g -jar $gatk \
+    -nt $num_threads \
+    -R $genome_fasta \
+    -T ApplyRecalibration \
+    -mode SNP \
+    --ts_filter_level 99.0 \
+    -input $workspace/$group_name$file_suffix \
+    -recalFile $workspace/$group_name.snp.recal \
+    -tranchesFile $workspace/$group_name.snp.tranches \
+    -o $workspace/$group_name.snpAr.vcf" $JOB_NAME $status_file
+
+check_exit_status "$java -Xmx4g -jar $gatk \
+    -nt $num_threads \
+    -R $genome_fasta \
+    -T ApplyRecalibration \
+    -mode indel \
+    --ts_filter_level 99.0 \
+    -input $workspace/$group_name.snpAr.vcf \
+    -recalFile $workspace/$group_name.indel.recal \
+    -tranchesFile $workspace/$group_name.indel.tranches \
+    -o $workspace/$group_name.snpAr.indelAr.vcf" $JOB_NAME $status_file
+
+check_exit_status "$java -Xmx4g -jar $gatk \
+    -nt $num_threads \
+    -R $genome_fasta \
+    -T SelectVariants \
+    --excludeNonVariants \
+    --excludeFiltered \
+    --variant $workspace/$group_name.snpAr.indelAr.vcf \
+    --out $workspace/$group_name.vqsr.vcf" $JOB_NAME $status_file
+
 ##END_VARIANTFILTERING##
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"

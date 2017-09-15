@@ -333,9 +333,17 @@ star_rsem_calculate_expression:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
+star_rsem_summary:
+    script_path: "RNASeq/star_rsem/summary"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
 star_rsem_multiqc:
     script_path: "multiqc"
     download_suffix: ~
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
+    all_samples: True
