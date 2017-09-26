@@ -72,11 +72,13 @@ cd $bowtie2_index
 if [ "$fastq_end2" == "NULL" ]
 then
     # single end
-    check_exit_status "$bowtie2/bowtie2 -x $basename -U $workspace/$fastq_end1$file_suffix \
+    check_exit_status "$bowtie2/bowtie2 --local -p 8 -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
+     -x $basename -U $workspace/$fastq_end1$file_suffix \
     -S $workspace/$fastq_end1.sam" $JOB_NAME $status_file
 else
     # paired end: using the same output file name ($fastq_end1.sam)
-    check_exit_status "$bowtie2/bowtie2 -x $basename -1 $workspace/$fastq_end1$file_suffix \
+    check_exit_status "$bowtie2/bowtie2 --local -p 8 -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
+    -x $basename -1 $workspace/$fastq_end1$file_suffix \
     -2 $workspace/$fastq_end2/$file_suffix -S $workspace/$fastq_end1.sam" $JOB_NAME $status_file
 fi
 
@@ -87,6 +89,7 @@ check_exit_status "$samtools stats $workspace/$fastq_end1.sam > $workspace/$fast
 echo "Finished samtools stats"
 
 ##UPLOAD##
+# upload the sam files
 aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --recursive
 
 # upload the txt files from samtool stats
