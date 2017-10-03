@@ -15,6 +15,7 @@ def read_data_file(input_file):
             if line_num == 2:
                 expression_list.update({"alignment_Hits":line.rstrip()})
             if line_num > 2:
+                # split the string based on tab
                 fields = re.split(r'\t+', line)
                 expression_list.update({fields[0]:fields[1].rstrip()})
 
@@ -33,6 +34,7 @@ if __name__ == "__main__":
                 sample_list.update({filename:expression_list})
 
     filewriter.write("item")
+    # sample is filename.cnt
     for sample in sample_list:
         filewriter.write("\t" + sample + "_counts")
     filewriter.write("\n")
