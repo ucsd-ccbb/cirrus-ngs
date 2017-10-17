@@ -69,28 +69,40 @@ check_exit_status "$sambamba index  $workspace/$fastq_end1.$chromosome.dedup.bam
 check_exit_status "$bedtools genomecov -split -ibam $workspace/$fastq_end1.$chromosome.dedup.bam \
     -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.$chromosome.dedup.bed" $JOB_NAME"_$chromosome" $status_file
 
+#sets proper reference files depending on availablity
+if [ -z $mills ] || [ -z $indels_1000G ] || [ -z $hapmap ]
+then
+    rtc_known="--known $indels --known $dbsnp"
+    ir_known="-known $indels -known $dbsnp"
+    br_known="--knownSites $indels --knownSites $dbsnp"
+else
+    rtc_known="--known $indels_1000G --known $mills"
+    ir_known="-known $indels_1000G -known $mills"
+    br_known="--knownSites $dbsnp --knownSites $hapmap"
+fi
+
 #gatk - realigner target creator
 check_exit_status "$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx4g \
     $gatk -T RealignerTargetCreator -R $genome_fasta \
     -I $workspace/$fastq_end1.$chromosome.dedup.bam \
-    --known $G1000 --known $mills \
-    -o $workspace/$fastq_end1.$chromosome.interval_list -L chr$chromosome \
+    $rtc_known \
+    -o $workspace/$fastq_end1.$chromosome.interval_list -L $chromosome \
     --allow_potentially_misencoded_quality_scores" $JOB_NAME"_$chromosome" $status_file
 
 #gatk - indel realigner
 check_exit_status "$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx4g \
     $gatk -T IndelRealigner -R $genome_fasta \
     -I $workspace/$fastq_end1.$chromosome.dedup.bam \
-    -known $G1000 -known $mills \
+    $ir_known \
     --targetIntervals $workspace/$fastq_end1.$chromosome.interval_list \
-    -o $workspace/$fastq_end1.realign.$chromosome.bam -L chr$chromosome \
+    -o $workspace/$fastq_end1.realign.$chromosome.bam -L $chromosome \
     --allow_potentially_misencoded_quality_scores" $JOB_NAME"_$chromosome" $status_file
 
 #gatk - base recalibrator
 check_exit_status "$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
     $gatk -T BaseRecalibrator -R $genome_fasta \
     -I $workspace/$fastq_end1.$chromosome.dedup.bam \
-    --knownSites $dbsnp --knownSites $hapmap \
+    $br_known \
     -o $workspace/$fastq_end1.$chromosome.grp \
     -dcov 2 -L $workspace/$fastq_end1.$chromosome.dedup.bed \
     --allow_potentially_misencoded_quality_scores" $JOB_NAME"_$chromosome" $status_file
@@ -101,7 +113,7 @@ check_exit_status "$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
     -I $workspace/$fastq_end1.realign.$chromosome.bam \
     --BQSR $workspace/$fastq_end1.$chromosome.grp \
     -o $workspace/$fastq_end1.final.$chromosome.bam \
-    -rf BadCigar -L chr$chromosome \
+    -rf BadCigar -L $chromosome \
     --allow_potentially_misencoded_quality_scores" $JOB_NAME"_$chromosome" $status_file
 
 check_exit_status "$sambamba index  $workspace/$fastq_end1.final.$chromosome.bam \

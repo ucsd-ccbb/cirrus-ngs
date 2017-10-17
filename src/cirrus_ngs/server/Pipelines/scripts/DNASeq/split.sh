@@ -54,7 +54,7 @@ fi
 
 
 ##SPLIT##
-check_exit_status "$samtools view -b $workspace/$fastq_end1$file_suffix chr$chromosome > \
+check_exit_status "$samtools view -b $workspace/$fastq_end1$file_suffix $chromosome > \
     $workspace/$fastq_end1.$chromosome.bam" $JOB_NAME"_$chromosome" $status_file
 
 check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.$chromosome.bam \

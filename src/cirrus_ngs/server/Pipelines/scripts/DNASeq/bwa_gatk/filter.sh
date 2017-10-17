@@ -53,7 +53,6 @@ fi
 
 ##VARIANTFILTERING##
 check_exit_status "$java -Xmx8g -jar $gatk \
-    -nt $num_threads \
     -R $genome_fasta \
     -T VariantRecalibrator \
     --maxGaussians 4 \
@@ -61,10 +60,10 @@ check_exit_status "$java -Xmx8g -jar $gatk \
     -resource:omni,known=false,training=true,truth=true,prior=12.0 $omni \
     -resource:1000G,known=false,training=true,truth=false,prior=10.0 $G1000snps \
     -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 $dbsnp \
-    -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR -an DP \
+    -an QD -an MQ -an FS -an SOR -an DP \
     -mode SNP \
     -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 \
-    -input $workspace/$group_name.g.vcf.gz \
+    -input $workspace/$group_name.vcf \
     -recalFile $workspace/$group_name.snp.recal \
     -tranchesFile $workspace/$group_name.snp.tranches \
     -rscriptFile $workspace/$group_name.snp.plots.R \
@@ -84,37 +83,6 @@ check_exit_status "$java -Xmx8g -jar $gatk \
     -tranchesFile $workspace/$group_name.indel.tranches \
     -rscriptFile $workspace/$group_name.indel.plots.R \
     --disable_auto_index_creation_and_locking_when_reading_rods" $JOB_NAME $status_file
-
-check_exit_status "$java -Xmx4g -jar $gatk \
-    -nt $num_threads \
-    -R $genome_fasta \
-    -T ApplyRecalibration \
-    -mode SNP \
-    --ts_filter_level 99.0 \
-    -input $workspace/$group_name$file_suffix \
-    -recalFile $workspace/$group_name.snp.recal \
-    -tranchesFile $workspace/$group_name.snp.tranches \
-    -o $workspace/$group_name.snpAr.vcf" $JOB_NAME $status_file
-
-check_exit_status "$java -Xmx4g -jar $gatk \
-    -nt $num_threads \
-    -R $genome_fasta \
-    -T ApplyRecalibration \
-    -mode indel \
-    --ts_filter_level 99.0 \
-    -input $workspace/$group_name.snpAr.vcf \
-    -recalFile $workspace/$group_name.indel.recal \
-    -tranchesFile $workspace/$group_name.indel.tranches \
-    -o $workspace/$group_name.snpAr.indelAr.vcf" $JOB_NAME $status_file
-
-check_exit_status "$java -Xmx4g -jar $gatk \
-    -nt $num_threads \
-    -R $genome_fasta \
-    -T SelectVariants \
-    --excludeNonVariants \
-    --excludeFiltered \
-    --variant $workspace/$group_name.snpAr.indelAr.vcf \
-    --out $workspace/$group_name.vqsr.vcf" $JOB_NAME $status_file
 
 ##END_VARIANTFILTERING##
 

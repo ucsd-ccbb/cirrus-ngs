@@ -68,7 +68,7 @@ check_exit_status "$java -Djava.io.tmpdir=$workspace/temp -Xmx4g -jar $gatk \
     -I:tumor $workspace/$tumor_sample$file_suffix \
     --dbsnp $dbsnp \
     --cosmic $cosmic \
-    -L chr$chromosome \
+    -L $chromosome \
     -o $workspace/$normal_sample'_vs_'$tumor_sample.$chromosome.vcf" $JOB_NAME"_$chromosome" $status_file
 ##END_MUTECT##
 
