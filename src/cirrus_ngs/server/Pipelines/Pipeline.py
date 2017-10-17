@@ -49,7 +49,7 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     os.environ["indels"] = os.environ.get(genome + "_indels", "")
 
     os.environ["genome_gtf"] = os.environ[documents.get("genome") + "_gtf"]
-    os.environ["genome_index"] = os.environ[documents.get("genome") + "_index"]
+    os.environ["STAR_index"] = os.environ[documents.get("genome") + "_STAR_index"]
 
     #used for pair-based analysis
     #dictionary with key=normal_sample, value=tumor_sample
