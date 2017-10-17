@@ -55,13 +55,14 @@ then
     check_exit_status "$STAR --runThreadN $num_threads --genomeDir $human_genome \
     --readFilesIn $workspace/$fastq_end1$file_suffix \
     --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
-
 else
+    # paired-end
     check_exit_status "$STAR --runThreadN $num_threads --genomeDir $human_genome \
     --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
     --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 fi
 
+# same for both single and paired-end
 if [ ! -f $workspace/$fastq_end1."Aligned.out.bam" ]; then
    check_exit_status "$samtools view -Sb $workspace/$fastq_end1."Aligned.out.sam" \
    > $workspace/$fastq_end1."Aligned.out.bam"" $JOB_NAME $status_file
@@ -77,6 +78,18 @@ if [ ! -f $workspace/$fastq_end1."Aligned.out.sorted.bam.bai" ]; then
 fi
 # End star align
 
-# Upload
+# TODO: perform samtools stats, for multiqc purposes
+check_exit_status "$samtools stats $workspace/$fastq_end1.Aligned.out.sorted.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
+if [ -f $workspace/$fastq_end1.txt ]
+then
+    echo "Finished samtools stats"
+else
+    echo "Failed samtools stats"
+fi
+
+##UPLOAD##
+# upload the output files
 check_exit_status "aws s3 cp $workspace $output_address/ --exclude "*" --include "*.Aligned*" --exclude "*.sam*" --recursive" $JOB_NAME $status_file
+# upload the txt files from samtool stats
+check_exit_status "aws s3 cp $workspace $output_address --exclude "*" --include "*.txt*" --recursive" $JOB_NAME $status_file
 ##END_UPLOAD##

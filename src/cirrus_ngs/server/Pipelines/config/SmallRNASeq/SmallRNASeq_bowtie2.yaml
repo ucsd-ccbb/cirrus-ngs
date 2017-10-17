@@ -8,7 +8,7 @@ steps:
 fastqc: []
 trim:
    - 1  # number of threads
-   - 27  # drop the read if it is below this minimum length
+   - 15  # drop the read if it is below this minimum length
 cut_adapt:
    - 1  # number of threads
    - 2  # drop the read if it is below this minimum length: to avoid warnings
