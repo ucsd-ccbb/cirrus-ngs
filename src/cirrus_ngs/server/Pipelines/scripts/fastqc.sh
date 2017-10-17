@@ -74,5 +74,5 @@ fi
 ##UPLOAD##
 include_end1=$fastq_end1"_fastqc*"
 include_end2=$fastq_end2"_fastqc*"
-check_exit_status "aws s3 cp $workspace $output_address --exclude "*" --include "$include_end1" --include "$include_end2" --recursive" $JOB_NAME $status_file
+aws s3 cp $workspace $output_address --exclude "*" --include "$include_end1" --include "$include_end2" --recursive
 ##END_UPLOAD##

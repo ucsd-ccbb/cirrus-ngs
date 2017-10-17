@@ -9,11 +9,11 @@ All dependencies can be installed with pip
 * aws-cli
 
 ## Pipeline and Workflow - Explained
-As a convention, in this project, "pipeline" is at a higher level than "workflow". 
+As a convention, we say "pipeline" is at a higher level than "workflow". 
 Pipeline corresponds to a general type of sequencing, such as WGS Pipeline, which stands for Whole Genome Sequencing Pipeline. 
-Moreover, each pipeline is allowed to have multiple "workflows". 
+Meanwhile, each pipeline is allowed to have multiple "workflows". 
 For instance, RNA-Seq Pipeline contains four different workflows (star_gatk, star_htseq, star_rsem, kallisto), each with its own steps.
-Each workflow can be run independently and a user may want to run more than one workflow for a single pipeline.
+Each workflow can be run independently and a user can run more than one workflow for a single pipeline.
 
 
 ## Supported Pipelines
@@ -37,8 +37,8 @@ Local                                                         transfer          
 DesignFile + Parameters -> Notebook -> PipelineManager -> yaml ------> Pipeline + config -> shell scripts foreach step  
                                                                                             /\                      ||
                                                                                             ||                      || 
-                                                                                            ||DL                  UL||
-                                                                                            ||prereqs        outputs||
+                                                                                            ||Download        Upload||
+                                                                                            ||precursors     outputs||
                                                                                             ||                      \/
                                                                                           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                                                                                           @          USER S3          @
@@ -47,9 +47,9 @@ DesignFile + Parameters -> Notebook -> PipelineManager -> yaml ------> Pipeline 
 
 #### Output S3 Address Organization 
 One parameter the user supplies is the s3_output_files_address, which is used as a base directory for all project output.  
-Output files can be found at `$s3_output_files_address/$project_name/$workflow/$sample_name` where $sample_name is is the name of the forward read file. Other variables are specified by the user in the notebook. All output for a sample will be under the directory with the name of its forward read file.   
+Output files can be found at `$s3_output_files_address/$project_name/$workflow/$sample_name` where $sample_name is the name of the forward read file. Other variables are specified by the user in the notebook. All output for a sample will be under the directory with the name of its forward read file.   
 __Note__: After alignment all output files associated will a sample will take on the name of the forward read file.   
-&nbsp;&nbsp;Example: If Sample is made up of Sample_R1.fq and Sample_R2.fq alignment will output Sample_R1.(s|b)am  
+&nbsp;&nbsp;Example: If Sample is made up of Sample_R1.fq and Sample_R2.fq alignment will output Sample_R1.sam or Sample_R1.bam
     
 ## The Design File <a name="design"></a>
 This txt file specifies what samples will be used in this project.
