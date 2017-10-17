@@ -1,0 +1,2 @@
+##mouse design file
+SRR2473232_1.fastq.gz,SRR2473232_2.fastq.gz	groupA

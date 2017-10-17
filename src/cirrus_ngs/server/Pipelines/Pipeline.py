@@ -8,7 +8,7 @@ import yaml
 
 ROOT_DIR = "/scratch"
 SCRIPTS = "/shared/workspace/Pipelines/scripts/"
-CHROMOSOME_LIST = list(map(str, range(1,23))) + ["X", "Y", "M"]
+#CHROMOSOME_LIST = list(map(str, range(1,23))) + ["X", "Y", "M"]
 
 ##run the actual pipeline
 def run_analysis(yaml_file, log_dir, pipeline_config_file):
@@ -28,15 +28,25 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 
     # set environment variables
     os.environ["style"] = documents.get("style")
-    os.environ["genome"] = documents.get("genome")
+    genome = documents.get("genome")
+    os.environ["genome"] = genome
 
     if os.environ["style"] == "histone":
         os.environ["style_ext"] = ".regions.txt"
     elif os.environ["style"] == "factor":
         os.environ["style_ext"] = ".peaks.txt"
 
-    os.environ["genome_fasta"] = os.environ[documents.get("genome") + "_fasta"]
-    os.environ["genome_fai"] = os.environ[documents.get("genome") + "_fai"]
+    os.environ["genome_fasta"] = os.environ[genome + "_fasta"]
+    os.environ["genome_fai"] = os.environ[genome + "_fai"]
+    os.environ["dbsnp"] = os.environ[genome + "_dbsnp"]
+    os.environ["bwa_index"] = os.environ[genome + "_bwa_index"]
+    os.environ["bowtie_index"] = os.environ.get(genome + "_bowtie_index", "")
+    os.environ["mills"] = os.environ.get(genome + "_mills", "")
+    os.environ["hapmap"] = os.environ.get(genome + "_hapmap", "")
+    os.environ["omni"] = os.environ.get(genome + "_omni", "")
+    os.environ["snps_1000G"] = os.environ.get(genome + "_snps_1000G", "")
+    os.environ["indels_1000G"] = os.environ.get(genome + "_indels_1000G" , "")
+    os.environ["indels"] = os.environ.get(genome + "_indels", "")
 
     os.environ["genome_gtf"] = os.environ[documents.get("genome") + "_gtf"]
     os.environ["genome_index"] = os.environ[documents.get("genome") + "_index"]
@@ -95,6 +105,9 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         num_threads = extra_bash_args[0]
     else:
         num_threads = 1
+
+    #chromosome lists are determined by the genome name from the software.conf configuration file
+    CHROMOSOME_LIST = os.environ[os.environ["genome"] +"_chromosome_list"].split()
 
     #contains all qsub flags and the name of the shell script for this step
     subprocess_call_list = ["qsub", "-V", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
