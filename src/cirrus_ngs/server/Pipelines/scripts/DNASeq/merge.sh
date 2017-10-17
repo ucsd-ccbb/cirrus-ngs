@@ -11,8 +11,7 @@ output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$9
 is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
 num_threads=${11}
-chromosome_list=${12}
-do_vcf_merging=${13} #either "True" or "False"
+do_vcf_merging=${12} #either "True" or "False"
 
 #logging
 log_dir=$log_dir/$fastq_end1
@@ -88,7 +87,7 @@ check_exit_status "$sambamba merge -t $num_threads $workspace/$fastq_end1.final.
 if [ "$do_vcf_merging" == "True" ]
 then
     check_exit_status "$vcf_concat $vcf_file_list > $workspace/$fastq_end1.raw.vcf" $JOB_NAME $status_file
-    check_exit_status "$vcf_sort $workspace/temp $workspace/$fastq_end1.raw.vcf > $workspace/$fastq_end1.merged.g.vcf" $JOB_NAME $status_file
+    check_exit_status "python $vcf_sort $workspace/$fastq_end1.raw.vcf '$chromosome_list' -o $workspace/$fastq_end1.merged.g.vcf" $JOB_NAME $status_file
 fi
 ##END_MERGE##
 

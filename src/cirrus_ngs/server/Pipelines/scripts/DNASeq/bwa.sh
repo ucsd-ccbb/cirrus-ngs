@@ -63,11 +63,11 @@ fi
 if [ "fastq_end2" == "NULL" ]
 then
     check_exit_status "$bwa mem -M -t $num_threads -R '@RG\tID:1\tPL:ILLUMINA\tPU:tempID\tSM:$fastq_end1' -v 1 \
-        $bwa_genome $workspace/$fastq_end1$file_suffix | $samblaster | \
+        $bwa_index $workspace/$fastq_end1$file_suffix | $samblaster | \
         $samtools view -Sb - > $workspace/$fastq_end1.bam" $JOB_NAME $status_file
 else
     check_exit_status "$bwa mem -M -t $num_threads -R '@RG\tID:1\tPL:ILLUMINA\tPU:tempID\tSM:$fastq_end1' -v 1 \
-        $bwa_genome $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix | $samblaster | \
+        $bwa_index $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix | $samblaster | \
         $samtools view -Sb - > $workspace/$fastq_end1.bam" $JOB_NAME $status_file
 fi
 
