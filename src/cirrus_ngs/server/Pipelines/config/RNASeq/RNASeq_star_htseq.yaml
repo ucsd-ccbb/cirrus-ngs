@@ -10,7 +10,7 @@ star_htseq_make_group: []
 star_htseq_fastqc: []
 star_htseq_trim:
    - 5      # number of threads
-   - 27     # 36 for paired end, handled in shell script
+   - 27     # min length to keep
 star_htseq_align:
    - 4      # number of threads
 star_htseq_count: []

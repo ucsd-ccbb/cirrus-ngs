@@ -31,9 +31,6 @@ trim=.trim
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 date
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo $rsem
-echo $star_path
-echo $genome_index
 
 check_step_already_done $JOB_NAME $status_file
 
@@ -61,16 +58,16 @@ fi
 if [ "$fastq_end2" == "NULL" ]
 then
     $rsem --star --star-path $star_path -p $num_threads $workspace/$fastq_end1$trim$file_suffix \
-    $genome_index $workspace/$fastq_end1
+    $STAR_index $workspace/$fastq_end1
 
 else
     # paired end
     $rsem --star --star-path $star_path -p $num_threads --paired-end $workspace/$fastq_end1$trim$file_suffix \
-    $workspace/$fastq_end2$trim$file_suffix $genome_index $workspace/$fastq_end1
+    $workspace/$fastq_end2$trim$file_suffix $STAR_index $workspace/$fastq_end1
 fi
 
-# TODO: perform samtools stats, for multiqc purposes
-check_exit_status "$samtools stats $workspace/$fastq_end1.transcript.sorted.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
+# TODO: to be tested -- perform samtools stats, for multiqc purposes
+check_exit_status "$samtools stats $workspace/$fastq_end1.transcript.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
 if [ -f $workspace/$fastq_end1.txt ]
 then
     echo "Finished samtools stats"

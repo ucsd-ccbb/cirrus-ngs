@@ -7,8 +7,8 @@ steps:
 star_rsem_fastqc: []
 star_rsem_trim:
    - 5      # number of threads
-   - 27     # min length
+   - 27     # min length to keep
 star_rsem_calculate_expression:
-   - 4
+   - 5
 star_rsem_summary: []
 star_rsem_multiqc: []

@@ -9,7 +9,7 @@ star_gatk_make_group: []
 star_gatk_fastqc: []
 star_gatk_trim:
    - 5      # number of threads
-   - 27     # 36 for paired end, handled in shell script
+   - 27     # min length to keep
 star_gatk_align:
    - 4
 star_gatk_variant_calling:
