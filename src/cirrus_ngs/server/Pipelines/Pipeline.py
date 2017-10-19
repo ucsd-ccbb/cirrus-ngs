@@ -47,9 +47,10 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     os.environ["snps_1000G"] = os.environ.get(genome + "_snps_1000G", "")
     os.environ["indels_1000G"] = os.environ.get(genome + "_indels_1000G" , "")
     os.environ["indels"] = os.environ.get(genome + "_indels", "")
+    os.environ["cosmic"] = os.environ.get(genome + "_cosmic", "")
 
-    os.environ["genome_gtf"] = os.environ[documents.get("genome") + "_gtf"]
-    os.environ["genome_index"] = os.environ[documents.get("genome") + "_index"]
+    os.environ["genome_gtf"] = os.environ[genome + "_gtf"]
+    os.environ["genome_index"] = os.environ[genome + "_index"]
 
     #used for pair-based analysis
     #dictionary with key=normal_sample, value=tumor_sample
@@ -119,7 +120,8 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
 
     #runs tool on every sample in project
     if tool_config_dict.get("all_samples", False):
-        all_sample_arguments = _by_all_samples_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
+        all_sample_arguments = _by_all_samples_argument_generator(project_name, 
+                workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = all_sample_arguments[2]
             for chromosome in CHROMOSOME_LIST:
@@ -130,7 +132,8 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         return
 
     if tool_config_dict.get("by_pair", False) and os.environ["pairs_exist"] == "True":
-        for pair_arguments in _by_pair_argument_generator(project_name, workflow, group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
+        for pair_arguments in _by_pair_argument_generator(project_name, workflow, 
+                group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = pair_arguments[2]
                 for chromosome in CHROMOSOME_LIST:
