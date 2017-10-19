@@ -14,6 +14,15 @@ trim:
     can_be_zipped: True
     uses_chromosomes: False
 
+# MultiQC: aggregates results #
+multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+
 # WGS steps #
 bwa:
     script_path: "DNASeq/bwa"
@@ -105,9 +114,9 @@ bowtie2:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-counting:
-    script_path: "SmallRNASeq/bowtie2/count"
-    download_suffix: ".sam"
+miRNA_merge:  # merge counts
+    script_path: "merge_counts"
+    download_suffix: "_counts.txt"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
@@ -162,15 +171,6 @@ find_motifs_genome:
     by_pair: True
 
 
-# MultiQC: aggregates results #
-multiqc:
-    script_path: "multiqc"
-    download_suffix: ""
-    input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
-    all_samples: True
-
 # RNA-seq steps #
 
 # Kallisto workflow #
@@ -206,7 +206,7 @@ kallisto_count:
     can_be_zipped: False
     uses_chromosomes: False
 kallisto_merge:
-    script_path: "RNASeq/merge_counts"
+    script_path: "merge_counts"
     download_suffix: "_counts.txt"
     input_is_output: True
     can_be_zipped: False
@@ -300,7 +300,7 @@ star_htseq_count:
     can_be_zipped: False
     uses_chromosomes: False
 star_htseq_merge:  # same with kallisto
-    script_path: "RNASeq/merge_counts"
+    script_path: "merge_counts"
     download_suffix: "_counts.txt"
     input_is_output: True
     can_be_zipped: False

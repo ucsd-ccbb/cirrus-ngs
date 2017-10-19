@@ -28,8 +28,6 @@ basename=hairpin_human
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 date
-echo $file_suffix
-echo $is_zipped
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
@@ -88,11 +86,16 @@ fi
 check_exit_status "$samtools stats $workspace/$fastq_end1.sam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
 echo "Finished samtools stats"
 
-##UPLOAD##
-# upload the sam files
-aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --recursive
+# Count reads: produce _count.txt files
 
-# upload the txt files from samtool stats
-aws s3 cp $workspace $output_address --exclude "*" --include "*.txt*" --recursive
+$samtools view $workspace/$fastq_end1.sam | sort -T $workspace/ -s -k 1,1 - \
+   |  htseq-count - $genome_gtf > $workspace/$fastq_end1"_counts.txt"
+
+##UPLOAD##
+# upload the sam files, txt files from samtool stats, and count text file
+aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --include "*.txt*" --recursive
+
 ##END_UPLOAD##
+
+
 

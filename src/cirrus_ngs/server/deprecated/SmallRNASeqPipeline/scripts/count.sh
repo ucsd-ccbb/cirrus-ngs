@@ -32,7 +32,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
-# Download files from s3
+# Download samfiles from s3
 for file in $all_samples; do
     if [ ! -f $workspace/$file$sam ]
     then
