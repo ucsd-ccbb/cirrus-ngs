@@ -16,8 +16,8 @@ def count(fafile, countsfilepath, mappingratesfilepath, workspace, samfiles):
         # read only name
         if '>' in line:
             RNAinfo = line.split(' ')
-            RNA = RNAinfo[0].replace(">", '')
-            miRNAmap[RNA] = [0]*(numfiles)
+            RNA = RNAinfo[0].replace(">", '')  ## TODO: change RNA to miRNA
+            miRNAmap[RNA] = [0]*(numfiles)  # intialize the list as 0 in the miRNAmap dictionary
             miRNAmap[RNA].insert(0, RNA)  # store RNA name at beginning of list
 
     # init map to count mapping rate for each sample

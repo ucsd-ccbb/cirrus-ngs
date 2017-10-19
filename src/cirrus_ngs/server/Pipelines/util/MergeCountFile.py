@@ -22,6 +22,7 @@ def merge_all_sample_count(workflow, workspace, samples):
         with open(workspace + "/" + count_file, 'r+') as f:
             lines = f.readlines()
             for line in lines:
+                # for kallisto workflow in RNA-seq pipeline
                 if workflow == "kallisto":
                     fields = re.split(r'\t+', line)
                     if fields[0].startswith("gene") or len(fields[0]) == 0:
@@ -34,11 +35,16 @@ def merge_all_sample_count(workflow, workspace, samples):
                         sample_count.extend([fields[3][:-1]])
                     line_index = line_index + 1
 
-                elif workflow == "star_htseq":
+                # for star_htseq workflow in RNA-seq pipeline,
+                # and bowtie2 workflow in miRNA-seq pipeline
+                elif workflow == "star_htseq" or "bowtie2":
+                    # fields is a list
                     fields = re.split(r'\t+', line)
                     if sample_index == 0:
 
                         if fields[0] in gene_table:
+                            # insert a list into the list "all_gene_counts" at line_index
+                            # TODO: what is fields[1]??
                             all_gene_counts.insert(line_index, [gene_table.get(fields[0]), fields[1][:-1]])
                         else:
                             all_gene_counts.insert(line_index, [fields[0], fields[1][:-1]])
@@ -49,13 +55,15 @@ def merge_all_sample_count(workflow, workspace, samples):
 
     filewriter = open(output_file, "a")
 
+    # define header of the output file
+    header = ""
     if workflow == "kallisto":
         header = "gene\tsymbol\tdescription\t"
-    elif workflow == "star_htseq":
+    elif workflow == "star_htseq" or "bowtie2":
         header = "gene\t"
 
     for sample_file in samples:
-        header = header + sample_file + "\t"
+        header += sample_file + "\t"
     filewriter.write(header[:-1] + "\n")
 
     for items in all_gene_counts:

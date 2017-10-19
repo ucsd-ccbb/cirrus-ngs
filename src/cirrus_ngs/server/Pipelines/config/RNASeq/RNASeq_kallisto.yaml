@@ -11,7 +11,7 @@ kallisto_make_group: []
 kallisto_fastqc: []
 kallisto_trim:
    - 5      # number of threads
-   - 27     # 36 for paired end, handled in shell script
+   - 27     # min length to keep
 kallisto_align:
    - 4      # number of threads
 kallisto_count: []
