@@ -108,13 +108,13 @@ cut_adapt:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-bowtie2:  
+bowtie2_count:
     script_path: "SmallRNASeq/bowtie2/bowtie2"
     download_suffix: ".cut{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-miRNA_merge:  # merge counts
+merge_counts:  # merge the count files
     script_path: "merge_counts"
     download_suffix: "_counts.txt"
     input_is_output: True
