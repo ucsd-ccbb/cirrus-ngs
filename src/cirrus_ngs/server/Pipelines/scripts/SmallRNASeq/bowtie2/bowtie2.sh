@@ -86,15 +86,13 @@ fi
 check_exit_status "$samtools stats $workspace/$fastq_end1.sam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
 echo "Finished samtools stats"
 
-# Count reads: produce _count.txt files
-
-$samtools view $workspace/$fastq_end1.sam | sort -T $workspace/ -s -k 1,1 - \
-   |  htseq-count - $genome_gtf > $workspace/$fastq_end1"_counts.txt"
+# TODO: Count reads for individual samfile: produce .out file
+check_exit_status "$python /shared/workspace/Pipelines/util/count_reads.py \
+$workspace $workspace/$fastq_end1.sam" $JOB_NAME $status_file
 
 ##UPLOAD##
 # upload the sam files, txt files from samtool stats, and count text file
-aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --include "*.txt*" --recursive
-
+aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --include "*.txt*" --include "*.out*" --recursive
 ##END_UPLOAD##
 
 

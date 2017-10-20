@@ -2,8 +2,8 @@ steps:
    - "fastqc"
    - "trim"
    - "cut_adapt"
-   - "bowtie2"
-   - "miRNA_merge"
+   - "bowtie2_count"
+   - "merge_counts"
    - "multiqc"
 fastqc: []
 trim:
@@ -12,7 +12,7 @@ trim:
 cut_adapt:
    - 1  # number of threads
    - 2  # drop the read if it is below this minimum length: to avoid warnings
-bowtie2: []  # also does counting for individual samfiles
-miRNA_merge: []  # merge counts
+bowtie2_count: []  # alignment + counting for individual samfiles
+merge_counts: []
 multiqc: []
 

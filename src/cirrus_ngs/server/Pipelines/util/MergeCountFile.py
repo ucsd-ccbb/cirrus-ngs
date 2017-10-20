@@ -35,16 +35,14 @@ def merge_all_sample_count(workflow, workspace, samples):
                         sample_count.extend([fields[3][:-1]])
                     line_index = line_index + 1
 
-                # for star_htseq workflow in RNA-seq pipeline,
-                # and bowtie2 workflow in miRNA-seq pipeline
-                elif workflow == "star_htseq" or "bowtie2":
+                # for star_htseq workflow in RNA-seq pipeline
+                elif workflow == "star_htseq":
                     # fields is a list
                     fields = re.split(r'\t+', line)
                     if sample_index == 0:
 
                         if fields[0] in gene_table:
                             # insert a list into the list "all_gene_counts" at line_index
-                            # TODO: what is fields[1]??
                             all_gene_counts.insert(line_index, [gene_table.get(fields[0]), fields[1][:-1]])
                         else:
                             all_gene_counts.insert(line_index, [fields[0], fields[1][:-1]])
@@ -59,7 +57,7 @@ def merge_all_sample_count(workflow, workspace, samples):
     header = ""
     if workflow == "kallisto":
         header = "gene\tsymbol\tdescription\t"
-    elif workflow == "star_htseq" or "bowtie2":
+    elif workflow == "star_htseq":
         header = "gene\t"
 
     for sample_file in samples:
