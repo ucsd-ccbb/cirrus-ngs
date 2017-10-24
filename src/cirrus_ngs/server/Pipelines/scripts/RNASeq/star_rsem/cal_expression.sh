@@ -66,7 +66,7 @@ else
     $workspace/$fastq_end2$trim$file_suffix $STAR_index $workspace/$fastq_end1
 fi
 
-# TODO: to be tested -- perform samtools stats, for multiqc purposes
+# perform samtools stats, for multiqc purposes
 check_exit_status "$samtools stats $workspace/$fastq_end1.transcript.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
 if [ -f $workspace/$fastq_end1.txt ]
 then
