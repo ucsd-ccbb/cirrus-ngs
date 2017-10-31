@@ -53,23 +53,26 @@ __Note__: After alignment all output files associated will a sample will take on
     
 ## The Design File <a name="design"></a>
 This txt file specifies what samples will be used in this project.
-It supports both a two column and three column tab-separated format. <TAB> is a tab character.
+It supports both a two column and three column tab-separated format. 
 
 ### Two column format
-In the two column format the first column is the filename of the sample  
-   * If the sample is paired end the first column should be:  
-   * `name_of_forward_end_file,name_of_reverse_end_file`
+In the two column format, the __first column__ is the filename of the sample (with extensions: e.g. fastq.gz). 
+   * If the sample is paired end, the first column should be:  
+   * `forward_end_file,reverse_end_file`
    * Note that the two files are only separated by a comma, __no spaces__  
    
-The second column is the name of the group associated with that sample  
+The __second column__ is the name of the group associated with that sample.  
 Group names are used for variant calling. Samples with the same group will have their vcf files merged for downstream analysis.
 
 #### Examples
+For paired-end:
 ```
-sample1_forward,sample1_reverse<TAB>group
+sample1_forward.fastq.gz,sample1_reverse.fastq.gz<TAB>groupA
+sample2_forward.fastq.gz,sample2_reverse.fastq.gz<TAB>groupB
 ```
+For single-end:
 ```
-sample1<TAB>group
+sample1.fastq.gz<TAB>groupA
 ```
 
 ### Three column format

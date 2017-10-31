@@ -61,11 +61,11 @@ fi
 ##BOWTIE 2 ALIGNMENT##
 
 # go to the directory of the index file
-cd $bowtie2_index
+cd $genome_bowtie2_index
 
-# indexing a reference genome (already built, moved under software/bowtie2_index)
+# indexing a reference genome (run only once)
 # cd ~
-# $bowtie/bowtie2-build $hairpin_human_fa $basename
+# $bowtie2/bowtie2-build $genome_fasta $basename
 
 if [ "$fastq_end2" == "NULL" ]
 then
