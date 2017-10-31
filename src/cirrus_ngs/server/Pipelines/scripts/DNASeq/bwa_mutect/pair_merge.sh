@@ -11,7 +11,6 @@ output_address=$8   #this is an s3 address e.g. s3://path/to/output/directory
 log_dir=$9
 is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
 num_threads=${11}
-chromosome_list=${12}
 
 #logging
 log_dir=$log_dir/$normal_sample
@@ -24,7 +23,7 @@ status_file=$log_dir/'status.log'
 touch $status_file
 
 #prepare output directories
-workspace=$root_dir/$project_name/$workflow/$fastq_end1
+workspace=$root_dir/$project_name/$workflow/$normal_sample
 mkdir -p $workspace
 mkdir -p $workspace/temp
 
@@ -59,7 +58,7 @@ then
     #download all separated vcf and bam files
     for chrom in $chromosome_list
     do
-        aws s3 cp $input_address/$project_name/$normal_sample/$pair_base_name.$chrom$file_suffix $workspace/
+        aws s3 cp $input_address/$normal_sample/$pair_base_name.$chrom$file_suffix $workspace/
     done
 fi
 ##END_DOWNLOAD##
@@ -74,7 +73,7 @@ done
 
 ##MERGE##
 check_exit_status "$vcf_concat $vcf_file_list > $workspace/$pair_base_name.raw.vcf" $JOB_NAME $status_file
-check_exit_status "$vcf_sort $workspace/temp $workspace/$pair_base_name.raw.vcf > $workspace/$pair_base_name.merged.vcf" $JOB_NAME $status_file
+check_exit_status "$python $vcf_sort $workspace/$pair_base_name.raw.vcf '$chromosome_list' -o $workspace/$pair_base_name.merged.vcf" $JOB_NAME $status_file
 ##END_MERGE##
 
 ##UPLOAD##
