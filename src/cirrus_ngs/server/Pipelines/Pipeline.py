@@ -37,9 +37,10 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
         os.environ["style_ext"] = ".peaks.txt"
 
     os.environ["genome_fasta"] = os.environ[genome + "_fasta"]
-    os.environ["genome_fai"] = os.environ[genome + "_fai"]
-    os.environ["dbsnp"] = os.environ[genome + "_dbsnp"]
-    os.environ["bwa_index"] = os.environ[genome + "_bwa_index"]
+
+    os.environ["genome_fai"] = os.environ.get(genome + "_fai", "")
+    os.environ["dbsnp"] = os.environ.get(genome + "_dbsnp", "")
+    os.environ["bwa_index"] = os.environ.get(genome + "_bwa_index", "")
     os.environ["bowtie_index"] = os.environ.get(genome + "_bowtie_index", "")
     os.environ["mills"] = os.environ.get(genome + "_mills", "")
     os.environ["hapmap"] = os.environ.get(genome + "_hapmap", "")
@@ -48,11 +49,10 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     os.environ["indels_1000G"] = os.environ.get(genome + "_indels_1000G" , "")
     os.environ["indels"] = os.environ.get(genome + "_indels", "")
     os.environ["cosmic"] = os.environ.get(genome + "_cosmic", "")
-
-    os.environ["genome_gtf"] = os.environ[genome + "_gtf"]
-    os.environ["STAR_index"] = os.environ[genome + "_STAR_index"]
-
-    os.environ["genome_bowtie2_index"] = os.environ[genome + "_bowtie2_index"]
+    os.environ["chromosome_list"] = os.environ.get(genome + "_chromosome_list", "")
+    os.environ["genome_gtf"] = os.environ.get(genome + "_gtf", "")
+    os.environ["STAR_index"] = os.environ.get(genome + "_STAR_index", "")
+    os.environ["genome_bowtie2_index"] = os.environ.get(genome + "_bowtie2_index", "")
 
 
     #used for pair-based analysis
@@ -111,7 +111,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         num_threads = 1
 
     #chromosome lists are determined by the genome name from the software.conf configuration file
-    CHROMOSOME_LIST = os.environ[os.environ["genome"] +"_chromosome_list"].split()
+    CHROMOSOME_LIST = os.environ["chromosome_list"].split()
 
     #contains all qsub flags and the name of the shell script for this step
     subprocess_call_list = ["qsub", "-V", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
