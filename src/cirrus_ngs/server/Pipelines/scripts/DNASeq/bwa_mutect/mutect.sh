@@ -12,6 +12,7 @@ log_dir=$9
 is_zipped=${10}    #either "True" or "False", indicates whether input is gzipped
 num_threads=${11}
 chromosome=${12}
+##TUMOR VS NORMAL
 
 
 #logging
@@ -48,26 +49,34 @@ then
         download_suffix=$file_suffix".gz"
     fi
 
-    #always download forward reads
-    aws s3 cp $input_address/$project_name/$normal_sample/$normal_sample$download_suffix $workspace/
-    aws s3 cp $input_address/$project_name/$normal_sample/$normal_sample$download_suffix.bai $workspace/
+    aws s3 cp $input_address/$normal_sample/$normal_sample$download_suffix $workspace/
+    aws s3 cp $input_address/$normal_sample/$normal_sample$download_suffix.bai $workspace/
     gunzip -q $workspace/$normal_sample$download_suffix
 
-    aws s3 cp $input_address/$project_name/$tumor_sample/$tumor_sample$download_suffix $workspace/
-    aws s3 cp $input_address/$project_name/$tumor_sample/$tumor_sample$download_suffix.bai $workspace/
+    aws s3 cp $input_address/$tumor_sample/$tumor_sample$download_suffix $workspace/
+    aws s3 cp $input_address/$tumor_sample/$tumor_sample$download_suffix.bai $workspace/
     gunzip -q $workspace/$tumor_sample$download_suffix
+
+    #always download forward reads
 fi
 ##END_DOWNLOAD##
 
 ##MUTECT##
+
+if [ -z $cosmic ]
+then
+    references="--dbsnp $dbsnp"
+else
+    references="--dbsnp $dbsnp --cosmic $cosmic"
+fi
+
 check_exit_status "$java -Djava.io.tmpdir=$workspace/temp -Xmx4g -jar $gatk \
     -T MuTect2 \
     -nct $num_threads \
     -R $genome_fasta \
     -I:normal $workspace/$normal_sample$file_suffix \
     -I:tumor $workspace/$tumor_sample$file_suffix \
-    --dbsnp $dbsnp \
-    --cosmic $cosmic \
+     $references \
     -L $chromosome \
     -o $workspace/$normal_sample'_vs_'$tumor_sample.$chromosome.vcf" $JOB_NAME"_$chromosome" $status_file
 ##END_MUTECT##
