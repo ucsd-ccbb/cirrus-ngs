@@ -108,7 +108,7 @@ cut_adapt:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-bowtie2_count:
+align_and_count:
     script_path: "SmallRNASeq/bowtie2/bowtie2"
     download_suffix: ".cut{}"
     input_is_output: True
