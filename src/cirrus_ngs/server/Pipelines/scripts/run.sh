@@ -9,4 +9,6 @@ log_file=$log_dir/'run.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
+source /shared/workspace/Pipelines/config/software.conf
+
 $python /shared/workspace/Pipelines/Pipeline.py $yaml_file $log_dir $pipeline.yaml
