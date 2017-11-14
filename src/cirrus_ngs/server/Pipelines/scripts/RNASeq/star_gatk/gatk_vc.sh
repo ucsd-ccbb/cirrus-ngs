@@ -47,14 +47,14 @@ fi
 
 # START THE PIPELINE
 
-check_exit_status "$java -Djava.io.tmpdir=$tempDir -jar $picard/AddOrReplaceReadGroups.jar \
+check_exit_status "$java -Djava.io.tmpdir=$tempDir -jar $picard_add_or_replace_read_groups \
     I=$inDir/$fastq_end1$file_suffix \
     O=$outDir/Aligned.sortedByCoord.out.grp.bam \
 	SO=coordinate \
 	RGID=ILLUMINA RGLB=LaneX RGPL=illumina RGPU=NONE RGSM=HLI_tumor" $JOB_NAME $status_file
 
 # MARK DUPLICATES
-check_exit_status "$java -jar $picard/MarkDuplicates.jar \
+check_exit_status "$java -jar $picard_mark_duplicates \
 	I=$outDir/Aligned.sortedByCoord.out.grp.bam \
 	O=$outDir/Aligned.sortedByCoord.out.dedupped.bam \
 	CREATE_INDEX=true \
