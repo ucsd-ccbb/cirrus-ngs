@@ -52,7 +52,7 @@ fi
 
 
 ##MARKDUPLICATES##
-check_exit_status "java -jar -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g $mark_duplicates \
+check_exit_status "java -jar -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g $picard_mark_duplicates \
     INPUT=$workspace/$fastq_end1$file_suffix OUTPUT=$workspace/$fastq_end1.dedup.bam \
     METRICS_FILE=$workspace/$fastq_end1.matrics.txt AS=true \
     VALIDATION_STRINGENCY=LENIENT" $JOB_NAME $status_file
