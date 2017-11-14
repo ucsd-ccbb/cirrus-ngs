@@ -24,6 +24,9 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
     os.remove(yaml_file)
 
     print("executing pipeline...")
+    
+#TODO change qsub to nohup and test
+    
     ConnectionManager.execute_command(ssh_client,
                                       "qsub -V -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
                                       + workspace + "yaml_files/{}/{}/{} ".format(pipeline, workflow, yaml_file)

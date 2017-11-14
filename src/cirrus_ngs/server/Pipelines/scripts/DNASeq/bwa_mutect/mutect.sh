@@ -78,11 +78,11 @@ check_exit_status "$java -Djava.io.tmpdir=$workspace/temp -Xmx4g -jar $gatk \
     -I:tumor $workspace/$tumor_sample$file_suffix \
      $references \
     -L $chromosome \
-    -o $workspace/$normal_sample'_vs_'$tumor_sample.$chromosome.vcf" $JOB_NAME"_$chromosome" $status_file
+    -o $workspace/$tumor_sample'_vs_'$normal_sample.$chromosome.vcf" $JOB_NAME"_$chromosome" $status_file
 ##END_MUTECT##
 
 
 ##UPLOAD##
-out_file=$normal_sample'_vs_'$tumor_sample.$chromosome.vcf
+out_file=$tumor_sample'_vs_'$normal_sample.$chromosome.vcf
 aws s3 cp $workspace $output_address --exclude "*" --include "$out_file" --recursive
 ##END_UPLOAD##

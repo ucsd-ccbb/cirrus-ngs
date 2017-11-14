@@ -55,7 +55,7 @@ fi
 
 ##POSTALIGN##
 #picard - mark duplicates
-check_exit_status "$java -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g -jar $mark_duplicates \
+check_exit_status "$java -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g -jar $picard_mark_duplicates \
     INPUT=$workspace/$fastq_end1$file_suffix \
     OUTPUT=$workspace/$fastq_end1.$chromosome.dedup.bam \
     METRICS_FILE=$workspace/$fastq_end1.$chromosome.metrics.txt \
