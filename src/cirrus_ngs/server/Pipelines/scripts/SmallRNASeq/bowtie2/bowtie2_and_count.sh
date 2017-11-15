@@ -24,7 +24,6 @@ touch $status_file
 #prepare output directories
 workspace=$root_dir/$project_name/$workflow/$fastq_end1
 mkdir -p $workspace
-basename=hairpin_human
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 date
@@ -63,20 +62,16 @@ fi
 # go to the directory of the index file
 cd $genome_bowtie2_index
 
-# indexing a reference genome (run only once)
-# cd ~
-# $bowtie2/bowtie2-build $genome_fasta $basename
-
 if [ "$fastq_end2" == "NULL" ]
 then
     # single end
-    check_exit_status "$bowtie2/bowtie2 --local -p 8 -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
-     -x $basename -U $workspace/$fastq_end1$file_suffix \
+    check_exit_status "$bowtie2 --local -p 8 -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
+     -x $genome -U $workspace/$fastq_end1$file_suffix \
     -S $workspace/$fastq_end1.sam" $JOB_NAME $status_file
 else
     # paired end: using the same output file name ($fastq_end1.sam)
-    check_exit_status "$bowtie2/bowtie2 --local -p 8 -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
-    -x $basename -1 $workspace/$fastq_end1$file_suffix \
+    check_exit_status "$bowtie2 --local -p 8 -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
+    -x $genome -1 $workspace/$fastq_end1$file_suffix \
     -2 $workspace/$fastq_end2/$file_suffix -S $workspace/$fastq_end1.sam" $JOB_NAME $status_file
 fi
 
@@ -86,13 +81,13 @@ fi
 check_exit_status "$samtools stats $workspace/$fastq_end1.sam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
 echo "Finished samtools stats"
 
-# TODO: Count reads for individual samfile: produce .out file
-check_exit_status "$python /shared/workspace/Pipelines/util/count_reads.py \
-$workspace $workspace/$fastq_end1.sam" $JOB_NAME $status_file
+# Count reads for individual samfile
+check_exit_status "$python /shared/workspace/Pipelines/util/miRNA/SAMParser.py \
+$workspace $fastq_end1" $JOB_NAME $status_file
 
 ##UPLOAD##
 # upload the sam files, txt files from samtool stats, and count text file
-aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --include "*.txt*" --include "*.out*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --include "*.txt*" --recursive
 ##END_UPLOAD##
 
 

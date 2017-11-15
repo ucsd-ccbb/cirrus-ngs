@@ -109,14 +109,14 @@ cut_adapt:
     can_be_zipped: False
     uses_chromosomes: False
 align_and_count:
-    script_path: "SmallRNASeq/bowtie2/bowtie2"
+    script_path: "SmallRNASeq/bowtie2/bowtie2_and_count"
     download_suffix: ".cut{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
 merge_counts:  # merge the count files
-    script_path: "merge_counts"
-    download_suffix: "_counts.txt"
+    script_path: "SmallRNASeq/bowtie2/miRNA_merge_counts"
+    download_suffix: ".counts.txt"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
@@ -206,7 +206,7 @@ kallisto_count:
     can_be_zipped: False
     uses_chromosomes: False
 kallisto_merge:
-    script_path: "merge_counts"
+    script_path: "RNASeq/RNA_merge_counts"
     download_suffix: "_counts.txt"
     input_is_output: True
     can_be_zipped: False
@@ -300,7 +300,7 @@ star_htseq_count:
     can_be_zipped: False
     uses_chromosomes: False
 star_htseq_merge:  # same with kallisto
-    script_path: "merge_counts"
+    script_path: "RNASeq/RNA_merge_counts"
     download_suffix: "_counts.txt"
     input_is_output: True
     can_be_zipped: False
