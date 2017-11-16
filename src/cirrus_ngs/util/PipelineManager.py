@@ -30,14 +30,10 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
 
     print("executing pipeline...")
     
-#TODO change qsub to nohup and test
-    
     ConnectionManager.execute_command(ssh_client,
                                       "nohup bash " + workspace + "scripts/run.sh "
                                       + workspace + "yaml_files/{}/{}/{} ".format(pipeline, workflow, yaml_file)
                                       + logs_dir + " " + pipeline+"_"+workflow)
-    #"qsub -V -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
-
 
 def check_status(ssh_client, job_name):
     print("checking status of jobs...")

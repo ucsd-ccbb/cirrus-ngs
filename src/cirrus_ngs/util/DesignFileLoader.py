@@ -1,9 +1,24 @@
+__doc__ = """
+Used in the pipeline jupyter notebooks to extract information
+from the design file given by the user
+"""
 __author__ = 'Guorong Xu<g1xu@ucsd.edu>'
 
 import re
 
 ## load design file
 def load_design_file(design_file):
+    """
+    Parses the design file the user input into the jupyter notebook for the pipeline.
+    Seem README.md for details on design file formats
+
+    returns tuple:
+        (
+            list of dictionaries containing information about each sample,
+            list of all groups in the project,
+            dictionary with key=normal/chip samples and values=tumor/input samples
+        )
+    """
     sample_list = []
     group_list = []
     normal_samples = {}
