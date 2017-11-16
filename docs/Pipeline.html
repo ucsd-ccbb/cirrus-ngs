@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module Pipeline</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>Pipeline</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mustafa/ccbb/cirrus-ngs/src/cirrus_ngs/server/Pipelines/Pipeline.py">/home/mustafa/ccbb/cirrus-ngs/src/cirrus_ngs/server/Pipelines/Pipeline.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="util.PBSTracker.html">util.PBSTracker</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+<a href="subprocess.html">subprocess</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+<a href="yaml.html">yaml</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-by_all_samples_argument_generator"><strong>by_all_samples_argument_generator</strong></a>(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir)</dt><dd><tt>generator&nbsp;that&nbsp;yields&nbsp;list&nbsp;of&nbsp;shell&nbsp;script&nbsp;arguments&nbsp;for&nbsp;a&nbsp;tool&nbsp;that&nbsp;runs&nbsp;on&nbsp;all&nbsp;samples&nbsp;at&nbsp;once<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;project_name:&nbsp;name&nbsp;of&nbsp;the&nbsp;project&nbsp;being&nbsp;run<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workflow:&nbsp;workflow&nbsp;this&nbsp;run&nbsp;belongs&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sample_list:&nbsp;a&nbsp;list&nbsp;of&nbsp;dictionaries&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;input_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;output_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config_dictionary:&nbsp;configuration&nbsp;dictionary&nbsp;for&nbsp;this&nbsp;tool,&nbsp;taken&nbsp;from&nbsp;tools.yaml<br>
+&nbsp;&nbsp;&nbsp;&nbsp;log_dir:&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;log&nbsp;directory&nbsp;this&nbsp;tool<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;project&nbsp;name,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;workflow,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;suffix&nbsp;used&nbsp;for&nbsp;downloading&nbsp;file,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;directory&nbsp;where&nbsp;outputs&nbsp;should&nbsp;be&nbsp;stored&nbsp;while&nbsp;running,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NULL,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NULL,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;s3&nbsp;input&nbsp;address&nbsp;for&nbsp;precursor&nbsp;files,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;s3&nbsp;output&nbsp;address&nbsp;for&nbsp;uploading&nbsp;results,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;directory&nbsp;on&nbsp;the&nbsp;cluster&nbsp;for&nbsp;log&nbsp;files,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;str(bool)&nbsp;representing&nbsp;if&nbsp;the&nbsp;input&nbsp;files&nbsp;are&nbsp;gzipped&nbsp;or&nbsp;not,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;space&nbsp;delimited&nbsp;string&nbsp;of&nbsp;all&nbsp;samples&nbsp;in&nbsp;this&nbsp;project<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]</tt></dd></dl>
+ <dl><dt><a name="-by_group_argument_generator"><strong>by_group_argument_generator</strong></a>(project_name, workflow, group_list, input_address, output_address, config_dictionary, log_dir)</dt><dd><tt>generator&nbsp;that&nbsp;yields&nbsp;list&nbsp;of&nbsp;shell&nbsp;script&nbsp;arguments&nbsp;for&nbsp;a&nbsp;given&nbsp;group&nbsp;and&nbsp;tool<br>
+group-by-group&nbsp;generation<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;project_name:&nbsp;name&nbsp;of&nbsp;the&nbsp;project&nbsp;being&nbsp;run<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workflow:&nbsp;workflow&nbsp;this&nbsp;run&nbsp;belongs&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;group_list:&nbsp;a&nbsp;dictionarie&nbsp;with&nbsp;key=group&nbsp;name,&nbsp;value=list&nbsp;tuples&nbsp;for&nbsp;samples&nbsp;in&nbsp;that&nbsp;group&nbsp;from&nbsp;separate_file_suffix<br>
+&nbsp;&nbsp;&nbsp;&nbsp;input_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;output_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config_dictionary:&nbsp;configuration&nbsp;dictionary&nbsp;for&nbsp;this&nbsp;tool,&nbsp;taken&nbsp;from&nbsp;tools.yaml<br>
+&nbsp;&nbsp;&nbsp;&nbsp;log_dir:&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;log&nbsp;directory&nbsp;this&nbsp;tool<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;project&nbsp;name,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;workflow,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;suffix&nbsp;used&nbsp;for&nbsp;downloading&nbsp;file,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;directory&nbsp;where&nbsp;outputs&nbsp;should&nbsp;be&nbsp;stored&nbsp;while&nbsp;running,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;current&nbsp;group,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NULL,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;s3&nbsp;input&nbsp;address&nbsp;for&nbsp;precursor&nbsp;files,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;s3&nbsp;output&nbsp;address&nbsp;for&nbsp;uploading&nbsp;results,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;directory&nbsp;on&nbsp;the&nbsp;cluster&nbsp;for&nbsp;log&nbsp;files,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;str(bool)&nbsp;representing&nbsp;if&nbsp;the&nbsp;input&nbsp;files&nbsp;are&nbsp;gzipped&nbsp;or&nbsp;not,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;space&nbsp;delimited&nbsp;string&nbsp;with&nbsp;all&nbsp;samples&nbsp;in&nbsp;this&nbsp;group&nbsp;in&nbsp;it<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]</tt></dd></dl>
+ <dl><dt><a name="-by_pair_argument_generator"><strong>by_pair_argument_generator</strong></a>(project_name, workflow, group_list, pair_list, input_address, output_address, config_dictionary, log_dir)</dt><dd><tt>generator&nbsp;that&nbsp;yields&nbsp;list&nbsp;of&nbsp;shell&nbsp;script&nbsp;arguments&nbsp;for&nbsp;a&nbsp;given&nbsp;normal-tumor&nbsp;sample&nbsp;pair&nbsp;and&nbsp;tool<br>
+pair-by-pair&nbsp;generation<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;project_name:&nbsp;name&nbsp;of&nbsp;the&nbsp;project&nbsp;being&nbsp;run<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workflow:&nbsp;workflow&nbsp;this&nbsp;run&nbsp;belongs&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;group_list:&nbsp;a&nbsp;dictionary&nbsp;with&nbsp;key=group&nbsp;name,&nbsp;value=list&nbsp;tuples&nbsp;for&nbsp;samples&nbsp;in&nbsp;that&nbsp;group&nbsp;from&nbsp;separate_file_suffix<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pair_list:&nbsp;a&nbsp;dictionary&nbsp;with&nbsp;key=normal&nbsp;sample,&nbsp;value=tumor&nbsp;sample<br>
+&nbsp;&nbsp;&nbsp;&nbsp;input_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;output_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config_dictionary:&nbsp;configuration&nbsp;dictionary&nbsp;for&nbsp;this&nbsp;tool,&nbsp;taken&nbsp;from&nbsp;tools.yaml<br>
+&nbsp;&nbsp;&nbsp;&nbsp;log_dir:&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;log&nbsp;directory&nbsp;this&nbsp;tool<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;project&nbsp;name,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;workflow,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;suffix&nbsp;used&nbsp;for&nbsp;downloading&nbsp;file,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;directory&nbsp;where&nbsp;outputs&nbsp;should&nbsp;be&nbsp;stored&nbsp;while&nbsp;running,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;normal&nbsp;sample,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;tumor&nbsp;sample,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;s3&nbsp;input&nbsp;address&nbsp;for&nbsp;precursor&nbsp;files,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;s3&nbsp;output&nbsp;address&nbsp;for&nbsp;uploading&nbsp;results,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;directory&nbsp;on&nbsp;the&nbsp;cluster&nbsp;for&nbsp;log&nbsp;files,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;str(bool)&nbsp;representing&nbsp;if&nbsp;the&nbsp;input&nbsp;files&nbsp;are&nbsp;gzipped&nbsp;or&nbsp;not,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]</tt></dd></dl>
+ <dl><dt><a name="-run_analysis"><strong>run_analysis</strong></a>(yaml_file, log_dir, pipeline_config_file)</dt><dd><tt>overarching&nbsp;function&nbsp;for&nbsp;running&nbsp;analysis<br>
+takes&nbsp;in&nbsp;a&nbsp;yaml_file&nbsp;name,&nbsp;<br>
+a&nbsp;string&nbsp;representing&nbsp;the&nbsp;target&nbsp;log&nbsp;directory&nbsp;on&nbsp;the&nbsp;cluster,&nbsp;<br>
+and&nbsp;a&nbsp;path&nbsp;to&nbsp;a&nbsp;pipeline-specific&nbsp;configuration&nbsp;yaml&nbsp;file</tt></dd></dl>
+ <dl><dt><a name="-run_tool"><strong>run_tool</strong></a>(tool_config_dict, extra_bash_args, project_name, workflow, sample_list, input_address, output_address, group_list, pair_list, log_dir)</dt><dd><tt>run&nbsp;any&nbsp;tool&nbsp;in&nbsp;the&nbsp;pipeline<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;tool_config_dict:&nbsp;configuration&nbsp;dictionary&nbsp;for&nbsp;this&nbsp;tool,&nbsp;taken&nbsp;from&nbsp;tools.yaml<br>
+&nbsp;&nbsp;&nbsp;&nbsp;extra_bash_args:&nbsp;additional&nbsp;arguments&nbsp;to&nbsp;the&nbsp;shell&nbsp;script&nbsp;for&nbsp;this&nbsp;tool,&nbsp;taken&nbsp;from&nbsp;pipeline-specific&nbsp;configuration<br>
+&nbsp;&nbsp;&nbsp;&nbsp;project_name:&nbsp;name&nbsp;of&nbsp;the&nbsp;project&nbsp;this&nbsp;tool&nbsp;is&nbsp;running&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workflow:&nbsp;the&nbsp;workflow&nbsp;that&nbsp;this&nbsp;project&nbsp;is&nbsp;using<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sample_list:&nbsp;a&nbsp;list&nbsp;of&nbsp;dictionaries&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;input_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;output_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;group_list:&nbsp;dictionary&nbsp;with&nbsp;key=group&nbsp;and&nbsp;value=list&nbsp;of&nbsp;tuples&nbsp;from&nbsp;separate_file_suffix<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pair_list:&nbsp;dictionary&nbsp;with&nbsp;key=normal_sample&nbsp;and&nbsp;value=associated&nbsp;tumor&nbsp;sample<br>
+&nbsp;&nbsp;&nbsp;&nbsp;log_dir:&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;log&nbsp;directory&nbsp;this&nbsp;tool<br>
+does&nbsp;not&nbsp;return&nbsp;a&nbsp;value<br>
+revelant&nbsp;tool's&nbsp;shell&nbsp;script&nbsp;will&nbsp;be&nbsp;submitted&nbsp;via&nbsp;qsub&nbsp;with&nbsp;correct&nbsp;arguments</tt></dd></dl>
+ <dl><dt><a name="-sample_argument_generator"><strong>sample_argument_generator</strong></a>(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir)</dt><dd><tt>generator&nbsp;that&nbsp;yields&nbsp;list&nbsp;of&nbsp;shell&nbsp;script&nbsp;arguments&nbsp;for&nbsp;a&nbsp;given&nbsp;sample&nbsp;and&nbsp;tool<br>
+sample-by-sample&nbsp;generation<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;project_name:&nbsp;name&nbsp;of&nbsp;the&nbsp;project&nbsp;being&nbsp;run<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workflow:&nbsp;workflow&nbsp;this&nbsp;run&nbsp;belongs&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sample_list:&nbsp;a&nbsp;list&nbsp;of&nbsp;dictionaries&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;input_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;output_address:&nbsp;the&nbsp;s3&nbsp;input&nbsp;address,&nbsp;taken&nbsp;from&nbsp;the&nbsp;project_name.yaml&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config_dictionary:&nbsp;configuration&nbsp;dictionary&nbsp;for&nbsp;this&nbsp;tool,&nbsp;taken&nbsp;from&nbsp;tools.yaml<br>
+&nbsp;&nbsp;&nbsp;&nbsp;log_dir:&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;log&nbsp;directory&nbsp;this&nbsp;tool<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;project&nbsp;name,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;workflow,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;suffix&nbsp;used&nbsp;for&nbsp;downloading&nbsp;file,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;directory&nbsp;where&nbsp;outputs&nbsp;should&nbsp;be&nbsp;stored&nbsp;while&nbsp;running,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;forward&nbsp;reads&nbsp;file&nbsp;name&nbsp;(no&nbsp;ext),&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;reverse&nbsp;reads&nbsp;file&nbsp;name&nbsp;(no&nbsp;ext,&nbsp;NULL&nbsp;if&nbsp;no&nbsp;reverse),&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;s3&nbsp;input&nbsp;address&nbsp;for&nbsp;precursor&nbsp;files,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;s3&nbsp;output&nbsp;address&nbsp;for&nbsp;uploading&nbsp;results,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;directory&nbsp;on&nbsp;the&nbsp;cluster&nbsp;for&nbsp;log&nbsp;files,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;str(bool)&nbsp;representing&nbsp;if&nbsp;the&nbsp;input&nbsp;files&nbsp;are&nbsp;gzipped&nbsp;or&nbsp;not<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]</tt></dd></dl>
+ <dl><dt><a name="-separate_file_suffix"><strong>separate_file_suffix</strong></a>(sample_file)</dt><dd><tt>takes&nbsp;in&nbsp;a&nbsp;str&nbsp;name&nbsp;of&nbsp;a&nbsp;file<br>
+returns&nbsp;a&nbsp;tuple&nbsp;(file&nbsp;name&nbsp;without&nbsp;suffix,&nbsp;.fastq&nbsp;|&nbsp;.fq,&nbsp;str&nbsp;boolean&nbsp;representing&nbsp;if&nbsp;file&nbsp;was&nbsp;gzipped&nbsp;or&nbsp;not<br>
+users&nbsp;shouldn't&nbsp;have&nbsp;"fastq"&nbsp;or&nbsp;"fq"&nbsp;in&nbsp;their&nbsp;file&nbsp;name&nbsp;except&nbsp;for&nbsp;the&nbsp;extension</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>ROOT_DIR</strong> = '/scratch'<br>
+<strong>SCRIPTS</strong> = '/shared/workspace/Pipelines/scripts/'</td></tr></table>
+</body></html>
