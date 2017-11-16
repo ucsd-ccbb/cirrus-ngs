@@ -125,9 +125,9 @@ merge_counts:  # merge the count files
 # ChiPSeq steps #
 bowtie:
     script_path: "ChiPSeq/homer/bowtie"
-    download_suffix: ~
-    input_is_output: False
-    can_be_zipped: True
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
     uses_chromosomes: False
 make_tag_directory:
     script_path: "ChiPSeq/homer/make_tag_directory"
