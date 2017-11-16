@@ -11,6 +11,11 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
         sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
     yaml_file = project_name + ".yaml"
 
+    if s3_output_files_address.endswith("/"):
+        s3_output_files_address = s3_output_files_address[:-1]
+    if s3_input_files_address.endswith("/"):
+        s3_input_files_address = s3_input_files_address[:-1]
+
     logs_dir = "/shared/workspace/logs/{}/{}/{}".format(pipeline, workflow, project_name)
 
     print("making the yaml file...")
@@ -28,9 +33,10 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
 #TODO change qsub to nohup and test
     
     ConnectionManager.execute_command(ssh_client,
-                                      "qsub -V -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
+                                      "nohup bash " + workspace + "scripts/run.sh "
                                       + workspace + "yaml_files/{}/{}/{} ".format(pipeline, workflow, yaml_file)
                                       + logs_dir + " " + pipeline+"_"+workflow)
+    #"qsub -V -o /dev/null -e /dev/null " + workspace + "scripts/run.sh "
 
 
 def check_status(ssh_client, job_name):
