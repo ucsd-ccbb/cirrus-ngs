@@ -78,11 +78,13 @@ def parse_variants(vcf_file, chromosome_order, header_offset):
 
 def sort_vcf(vcf_file, chromosome_dict, chromosome_order, out_fh):
     with open(vcf_file, "r") as f:
+        newline = ""
         for chrom in chromosome_order:
             curr_sorted_variants = sorted(chromosome_dict[chrom], key=itemgetter(0))
             for offset in [x[1] for x in curr_sorted_variants]:
                 f.seek(offset)
-                out_fh.write(f.readline())
+                out_fh.write(newline + f.readline().rstrip())
+                newline = "\n"
 
 if __name__ == "__main__":
     vcf_file, chromosome_order, out_fh = get_options(sys.argv[1:])
