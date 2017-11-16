@@ -1,9 +1,7 @@
 .gitignore
-WGSPipeline.ipynb
 smallrnaseq_design_example.txt
 private_miRNAPipeline.ipynb
 Private_Multiqc_Report.ipynb
-src/cirrus_ngs/server/Pipelines/yaml_examples/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
