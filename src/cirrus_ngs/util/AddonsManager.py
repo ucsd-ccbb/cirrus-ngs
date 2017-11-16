@@ -58,7 +58,7 @@ def cat_script(ssh_client, script_dict, pipeline, workflow, script_name):
     elif script_name in script_dict["All Pipelines"]:
         return "All Pipelines", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/scripts/{}".format(script_name))
     else:
-        return "This script doesn't exist anywhere"
+        return "This script isn't called in the specified Pipeline/Workflow", ""
 
 
 def get_software_dict(ssh_client):
