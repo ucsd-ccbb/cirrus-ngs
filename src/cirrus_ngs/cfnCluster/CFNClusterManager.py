@@ -8,14 +8,24 @@ from shutil import copyfile
 config_template_file = "~/.cfncluster/config" #os.getcwd().replace("notebooks", "data") + "/config"
 
 def install_cfn_cluster():
+    """
+    Uses pip to install the cfncluster framework
+    """
     print("Installing cfncluster package...")
     print(os.popen("pip install cfncluster").read())
 
 def upgrade_cfn_cluster():
+    """
+    Uses pip to update the cfncluster framework
+    """
     print("Upgrading cfncluster package...")
     print(os.popen("pip install --upgrade cfncluster").read())
 
 def make_config_file():
+    """
+    Creates a template configuration file for cfncluster
+    Writes to the ~/.cfncluster/config file
+    """
     dir = os.path.dirname(config_template_file)
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -57,6 +67,10 @@ def make_config_file():
 
 ## viewing CFNCluster configuration settings
 def view_cfncluster_config():
+    """
+    Prints out the current ~/.cfncluster/config file if it exsits
+    If it doesn't exist, it creates the template version using make_config_file before printing
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -75,6 +89,10 @@ def view_cfncluster_config():
 ## inserting AWS access keys
 def insert_access_keys(aws_access_key_id="***",
                        aws_secret_access_key="***"):
+    """
+    Adds user's aws key IDs and keys to the cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
 
     if not os.path.isfile(config_template_file):
         make_config_file()
@@ -94,6 +112,10 @@ def insert_access_keys(aws_access_key_id="***",
 
 ## configuring aws region name
 def config_aws_region_name(aws_region_name="us-east-1"):
+    """
+    Adds user's region of choice to the cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -109,10 +131,15 @@ def config_aws_region_name(aws_region_name="us-east-1"):
 
 ## configuring key pem file
 def config_key_name(key_name):
+    """
+    Adds user's configuration key name to the cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
-    private_key = key_name[key_name.rfind("/") + 1:-4]
+    #basename of private_key name, no .pem extension
+    private_key = key_name[key_name.rfind("/") + 1:-4] 
 
     with open(config_template_file, 'r+') as f:
         lines = f.readlines()
@@ -126,6 +153,10 @@ def config_key_name(key_name):
 
 ## configuring master instance type and computer instance types
 def config_instance_types(master_instance_type="m3.large", compute_instance_type="r3.2xlarge"):
+    """
+    Adds user's master instance type (head node) and compute instance type (computing nodes) to cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -144,6 +175,10 @@ def config_instance_types(master_instance_type="m3.large", compute_instance_type
 
 ## configuring initial cluster size
 def config_initial_cluster_size(initial_cluster_size="1"):
+    """
+    Adds user's choice of starting cluster size to cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -159,6 +194,10 @@ def config_initial_cluster_size(initial_cluster_size="1"):
 
 ## configuring spot price for computer instances
 def config_spot_price(spot_price="0.5"):
+    """
+    Adds user's choice of spot price to the cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -174,6 +213,10 @@ def config_spot_price(spot_price="0.5"):
 
 ## configuring S3 read/write resource: bucket name
 def config_s3_resource(s3_read_resource="s3://bucket_name/", s3_read_write_resource="s3://bucket_name/"):
+    """
+    Adds user's choice of input and output s3 resources to the cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
     ## s3://ucsd-ccbb-wgs-test-us-east-1/RNASeq_Pipeline_Code/test_data
@@ -197,6 +240,10 @@ def config_s3_resource(s3_read_resource="s3://bucket_name/", s3_read_write_resou
 
 ## configuring post installation shell script for creating CFNCluster
 def config_post_install(post_install="s3://bucket_name/path/to/postinstall.sh"):
+    """
+    Adds path to post-installation shell script to cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -213,6 +260,10 @@ def config_post_install(post_install="s3://bucket_name/path/to/postinstall.sh"):
 ## configuring vpc and subnet ids
 def config_vpc_subnet_id(master_subnet_id="subnet-00000000",
                        vpc_id="vpc-00000000"):
+    """
+    Adds user's master subnet ID and vpc ID to the cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -231,6 +282,10 @@ def config_vpc_subnet_id(master_subnet_id="subnet-00000000",
 
 ## configuring EBS snapshot id
 def config_ebs_snapshot_id(ebs_snapshot_id="snap-a6e477ff"):
+    """
+    Adds cirrus EBS snapshot ID to the cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -246,6 +301,10 @@ def config_ebs_snapshot_id(ebs_snapshot_id="snap-a6e477ff"):
 
 ## configuring EBS volume size to attach to CFNCluster
 def config_volume_size(volume_size="200"):
+    """
+    Adds user's choice of EBS volume size to the cfncluster configuration file
+    If the configuration file doesn't exist it creates the template version first using make_config_file
+    """
     if not os.path.isfile(config_template_file):
         make_config_file()
 
@@ -261,10 +320,16 @@ def config_volume_size(volume_size="200"):
 
 ## listing all current cfnclusters
 def list_cfn_cluster():
+    """
+    Prints a list of current cfnclusters
+    """
     print(os.popen("cfncluster list").read())
 
 ## creating a CFNCluster with the specific cluster name
 def create_cfn_cluster(cluster_name="mycluster"):
+    """
+    Creates a cfncluster with name=<cluster_name> using the cfncluster cli if a cluster with the given name doesn't already exist
+    """
     master_ip_address = ""
 
     response = os.popen("cfncluster status " + cluster_name).read()
@@ -290,6 +355,9 @@ def create_cfn_cluster(cluster_name="mycluster"):
 
 ## deleting the specific CFNCluster
 def delete_cfn_cluster(cluster_name="mycluster"):
+    """
+    Deletes the cfncluster with name=<cluster_name>
+    """
     print(os.popen("cfncluster delete " + cluster_name).read())
 
 if __name__ == "__main__":
