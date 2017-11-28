@@ -2,9 +2,9 @@
 smallrnaseq_design_example.txt
 private_miRNAPipeline.ipynb
 Private_Multiqc_Report.ipynb
-WES|WGSPipeline.ipynb
-ChiPSeqPipeline.ipynb
-CirrusAddons.ipynb
+notebooks/cirrus-ngs/WES|WGSPipeline.ipynb
+notebooks/cirrus-ngs/ChiPSeqPipeline.ipynb
+notebooks/cirrus-ngs/CirrusAddons.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
