@@ -50,6 +50,7 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
     print("copying yaml file to remote master node...")
     ConnectionManager.copy_file(ssh_client, yaml_file, "{}yaml_files/{}/{}".format(workspace, pipeline, workflow))
 
+#TODO make temp file
     # Remove the local yaml file
     os.remove(yaml_file)
 
