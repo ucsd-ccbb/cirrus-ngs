@@ -31,7 +31,6 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
-
 rm -r $workspace/tags_$chip_sample $workspace/tags_$input_sample &>/dev/null
 
 pair_base_name=$chip_sample
@@ -45,8 +44,8 @@ then
     then
         mkdir -p $workspace/tags_$input_sample
         pair_base_name=$chip_sample'_vs_'$input_sample
-        aws s3 cp $input_address/$project_name/$input_sample/tags_$input_sample $workspace/tags_$input_sample --recursive
-        input_address=$input_address/$project_name/$chip_sample
+        aws s3 cp $input_address/$input_sample/tags_$input_sample $workspace/tags_$input_sample --recursive
+        input_address=$input_address/$chip_sample
     fi
 
     aws s3 cp $input_address/tags_$chip_sample $workspace/tags_$chip_sample --recursive

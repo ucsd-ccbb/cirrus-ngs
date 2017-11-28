@@ -9,6 +9,11 @@ from cfnCluster import ConnectionManager
 from ast import literal_eval
 from difflib import get_close_matches
 import yaml
+from pygments import highlight
+from pygments.lexers import BashLexer 
+from pygments.formatters import HtmlFormatter
+from IPython.core.display import display, HTML
+
 
 def get_scripts_dict(ssh_client):
     """
@@ -111,6 +116,36 @@ def get_steps_calling_script(ssh_client, scripts_dict, script_name):
 
     return result
 
+def get_step_config(ssh_client, scripts_dict, step_name):
+    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
+    step_conf = yaml.dump(tools_conf[step_name], default_flow_style=False)
+    result = "\ntools.yaml configuration entry for {} step:\n{}\n\n".format(step_name, step_conf)
+
+    specific_confs_dict = literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/GetAllSpecificConfs.py"))
+
+    for pipeline in specific_confs_dict:
+        for workflow in specific_confs_dict[pipeline]:
+            curr_conf = yaml.load(specific_confs_dict[pipeline][workflow])
+            if step_name in curr_conf:
+                curr_entry = yaml.dump({step_name:curr_conf[step_name]}, default_flow_style=False)
+                _,args = cat_script(ssh_client, scripts_dict, pipeline, workflow, tools_conf[step_name]["script_path"].split("/")[-1] + ".sh")
+                args = list(map(lambda x : x.split("=")[0], args.split("\n\n")[1].splitlines()[10:]))[:len(curr_entry.splitlines())-1]
+
+                result += "{}_{}.yaml configuration entry for {} step:\n{}".format(
+                        pipeline, workflow, step_name, curr_entry)
+                for ind,arg in enumerate(args):
+                    result += "Argument {} is {}, ".format(ind+1, arg)
+                result = result.rstrip(", ")
+                result += "\n\n"
+
+    return result
+
+
+
+
+    #keys=pipline names, values=list of workflows in that pipeline
+    #excludes "All Pipelines" key from original scripts_dict
+#    pipe_work_dict = {pipeline:get_workflows_in_pipeline(scripts_dict, pipeline) for pipeline in get_all_pipeline_names(scripts_dict)}
 
 
 
@@ -137,6 +172,9 @@ def cat_script(ssh_client, scripts_dict, pipeline, workflow, script_name):
     else:
         return "This script isn't called in the specified Pipeline/Workflow", ""
 
+def show_script(str_script):
+    html_vers = highlight(str_script, BashLexer(), HtmlFormatter(full=True))
+    display(HTML(html_vers))
 
 def get_software_dict(ssh_client):
     """
