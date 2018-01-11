@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module PipelineManager</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>PipelineManager</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mustafa/ccbb/cirrus-ngs/src/cirrus_ngs/util/PipelineManager.py">/home/mustafa/ccbb/cirrus-ngs/src/cirrus_ngs/util/PipelineManager.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;contains&nbsp;the&nbsp;main&nbsp;pipeline&nbsp;execution&nbsp;method&nbsp;on&nbsp;the&nbsp;<br>
+local&nbsp;side.&nbsp;It&nbsp;is&nbsp;shared&nbsp;between&nbsp;all&nbsp;pipelines&nbsp;and&nbsp;workflows&nbsp;with<br>
+differing&nbsp;parameters.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="cfnCluster.ConnectionManager.html">cfnCluster.ConnectionManager</a><br>
+</td><td width="25%" valign=top><a href="util.QstatParser.html">util.QstatParser</a><br>
+</td><td width="25%" valign=top><a href="util.YamlFileMaker.html">util.YamlFileMaker</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-execute"><strong>execute</strong></a>(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_input_files_address, sample_list, group_list, s3_output_files_address, genome, style, pairs_list)</dt><dd><tt>The&nbsp;main&nbsp;local&nbsp;side&nbsp;function&nbsp;for&nbsp;executing&nbsp;a&nbsp;pipeline&nbsp;with&nbsp;all&nbsp;user&nbsp;inputs&nbsp;to&nbsp;jupyter&nbsp;notebook.<br>
+Calls&nbsp;the&nbsp;run.sh&nbsp;shell&nbsp;script&nbsp;on&nbsp;the&nbsp;cluster&nbsp;head&nbsp;node&nbsp;using&nbsp;nohup.<br>
+&nbsp;<br>
+input:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pipeline:&nbsp;name&nbsp;of&nbsp;the&nbsp;pipeline&nbsp;to&nbsp;be&nbsp;run,&nbsp;supported&nbsp;pipelines&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;CirrusAddons&nbsp;notebook<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ssh_client:&nbsp;a&nbsp;paramiko&nbsp;SSHClient&nbsp;object&nbsp;that&nbsp;connects&nbsp;to&nbsp;the&nbsp;cluster&nbsp;where&nbsp;analysis&nbsp;is&nbsp;run<br>
+&nbsp;&nbsp;&nbsp;&nbsp;project_name:&nbsp;name&nbsp;of&nbsp;the&nbsp;current&nbsp;project,&nbsp;&lt;project_name&gt;.yaml&nbsp;contains&nbsp;all&nbsp;user&nbsp;input&nbsp;to&nbsp;notebook<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workflow:&nbsp;name&nbsp;of&nbsp;the&nbsp;workflow&nbsp;to&nbsp;be&nbsp;run,&nbsp;supported&nbsp;workflows&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;CirrusAddons&nbsp;notebook<br>
+&nbsp;&nbsp;&nbsp;&nbsp;analysis_steps:&nbsp;set&nbsp;of&nbsp;analysis&nbsp;steps&nbsp;to&nbsp;be&nbsp;run,&nbsp;supported&nbsp;steps&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;pipeline's&nbsp;notebook<br>
+&nbsp;&nbsp;&nbsp;&nbsp;s3_input_files_address:&nbsp;s3&nbsp;bucket&nbsp;containing&nbsp;all&nbsp;fastq&nbsp;files&nbsp;for&nbsp;project<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sample_list:&nbsp;list&nbsp;of&nbsp;dictionaries&nbsp;with&nbsp;sample&nbsp;info&nbsp;for&nbsp;each&nbsp;sample<br>
+&nbsp;&nbsp;&nbsp;&nbsp;group_list:&nbsp;list&nbsp;of&nbsp;all&nbsp;groups,&nbsp;shares&nbsp;indices&nbsp;with&nbsp;sample_list&nbsp;(sample_list[0]&nbsp;is&nbsp;in&nbsp;group[0],&nbsp;etc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;s3_output_files_address:&nbsp;root&nbsp;s3&nbsp;bucket&nbsp;where&nbsp;analysis&nbsp;results&nbsp;should&nbsp;be&nbsp;uploaded<br>
+&nbsp;&nbsp;&nbsp;&nbsp;genome:&nbsp;reference&nbsp;genome&nbsp;to&nbsp;be&nbsp;used,&nbsp;supported&nbsp;genomes&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;pipeline's&nbsp;notebook<br>
+&nbsp;&nbsp;&nbsp;&nbsp;style:&nbsp;only&nbsp;for&nbsp;ChIPSeq&nbsp;homer&nbsp;workflow,&nbsp;can&nbsp;be&nbsp;"factor"&nbsp;or&nbsp;"histone"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pairs_list:&nbsp;dictionary&nbsp;with&nbsp;keys=normal&nbsp;samples,&nbsp;values=experimental&nbsp;samples<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;ChIPSeq&nbsp;the&nbsp;keys=ChIP&nbsp;samples,&nbsp;values=corresponding&nbsp;input&nbsp;regularization&nbsp;samples</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>workspace</strong> = '/shared/workspace/Pipelines/'</td></tr></table>
+</body></html>
