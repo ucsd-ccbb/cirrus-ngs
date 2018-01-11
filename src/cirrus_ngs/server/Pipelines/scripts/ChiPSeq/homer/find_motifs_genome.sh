@@ -40,7 +40,7 @@ then
     if [ "$pairs_exist" == "True" ]
     then
         pair_base_name=$chip_sample'_vs_'$input_sample
-        input_address=$input_address/$project_name/$chip_sample
+        input_address=$input_address/$chip_sample
     fi
 
     aws s3 cp $input_address/$pair_base_name$style_ext $workspace/

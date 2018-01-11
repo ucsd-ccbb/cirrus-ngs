@@ -1,6 +1,8 @@
 steps:
     - "fastqc"
+    - "trim"
     - "bowtie"
+    - "multiqc"
     - "make_tag_directory"
     - "make_UCSC_file"
     - "find_peaks"
@@ -8,12 +10,16 @@ steps:
     - "pos2bed"
     - "find_motifs_genome"
 fastqc: []
+trim: 
+    - 4 #number of threads
+    - 36 #minlen for trimmommatic
 bowtie:
-    - 4
+    - 4 #number of threads
+multiqc: []
 make_tag_directory: []
 make_UCSC_file: []
 find_peaks: []
 annotate_peaks: []
 pos2bed: []
 find_motifs_genome:
-    - 4
+    - 4 #number of threads

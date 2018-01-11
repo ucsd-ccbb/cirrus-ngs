@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module YamlFileMaker</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>YamlFileMaker</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mustafa/ccbb/cirrus-ngs/src/cirrus_ngs/util/YamlFileMaker.py">/home/mustafa/ccbb/cirrus-ngs/src/cirrus_ngs/util/YamlFileMaker.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;utility&nbsp;module&nbsp;is&nbsp;used&nbsp;to&nbsp;create&nbsp;a&nbsp;yaml&nbsp;file&nbsp;summarizing&nbsp;the&nbsp;data<br>
+a&nbsp;user&nbsp;put&nbsp;into&nbsp;a&nbsp;given&nbsp;pipeline's&nbsp;jupyter&nbsp;notebook.&nbsp;That&nbsp;yaml&nbsp;file<br>
+is&nbsp;then&nbsp;moved&nbsp;to&nbsp;the&nbsp;cluster&nbsp;where&nbsp;analysis&nbsp;will&nbsp;be&nbsp;run</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-make_yaml_file"><strong>make_yaml_file</strong></a>(yaml_file, pipeline, project_name, workflow, analysis_steps, s3_input_files_address, sample_list, group_list, s3_output_files_address, genome, style, pairs_list)</dt><dd><tt>Writes&nbsp;formatted&nbsp;information&nbsp;from&nbsp;the&nbsp;jupyter&nbsp;notebook&nbsp;into&nbsp;a&nbsp;given&nbsp;yaml&nbsp;file<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;yaml_file:&nbsp;name&nbsp;of&nbsp;file&nbsp;being&nbsp;written&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pipeline:&nbsp;name&nbsp;of&nbsp;the&nbsp;pipeline&nbsp;being&nbsp;run<br>
+&nbsp;&nbsp;&nbsp;&nbsp;project_name:&nbsp;name&nbsp;of&nbsp;the&nbsp;project&nbsp;being&nbsp;run<br>
+&nbsp;&nbsp;&nbsp;&nbsp;workflow:&nbsp;name&nbsp;of&nbsp;the&nbsp;workflow&nbsp;being&nbsp;run&nbsp;under&nbsp;given&nbsp;pipeline<br>
+&nbsp;&nbsp;&nbsp;&nbsp;analysis_steps:&nbsp;set&nbsp;of&nbsp;strings&nbsp;corresponding&nbsp;to&nbsp;possible&nbsp;analysis&nbsp;steps&nbsp;for&nbsp;the&nbsp;workflow.&nbsp;See&nbsp;notebooks&nbsp;for&nbsp;possible&nbsp;steps<br>
+&nbsp;&nbsp;&nbsp;&nbsp;s3_input_files_address:&nbsp;user-given&nbsp;path&nbsp;to&nbsp;input&nbsp;files&nbsp;for&nbsp;analysis<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sample_list:&nbsp;from&nbsp;DesignFileLoader,&nbsp;see&nbsp;load_design_file&nbsp;function&nbsp;output<br>
+&nbsp;&nbsp;&nbsp;&nbsp;group_list:&nbsp;from&nbsp;DesignFileLoader,&nbsp;see&nbsp;load_design_file&nbsp;function&nbsp;output<br>
+&nbsp;&nbsp;&nbsp;&nbsp;s3_output_files_address:&nbsp;user-given&nbsp;path&nbsp;to&nbsp;upload&nbsp;analysis&nbsp;output&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;genome:&nbsp;name&nbsp;of&nbsp;reference&nbsp;genome&nbsp;being&nbsp;used.&nbsp;See&nbsp;pipeline&nbsp;notebook&nbsp;for&nbsp;allowed&nbsp;values<br>
+&nbsp;&nbsp;&nbsp;&nbsp;style:&nbsp;only&nbsp;for&nbsp;ChIPSeq,&nbsp;either&nbsp;factor&nbsp;or&nbsp;histone<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pairs_list:&nbsp;from&nbsp;DesignFileLoader,&nbsp;see&nbsp;load_design_file&nbsp;function&nbsp;output</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#7799ee">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Guorong&nbsp;Xu&lt;g1xu@ucsd.edu&gt;</td></tr></table>
+</body></html>

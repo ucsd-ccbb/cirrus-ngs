@@ -1,36 +1,99 @@
+__doc__ = """
+This module contains a library of functions used in the
+CirrusAddons jupyter notebook. It contains utility functions 
+that can be used to check content on the cluster from jupyter.
+"""
+__author__ = "Mustafa Guler"
+
 from cfnCluster import ConnectionManager
 from ast import literal_eval
 from difflib import get_close_matches
 import yaml
+from pygments import highlight
+from pygments.lexers import BashLexer 
+from pygments.formatters import HtmlFormatter
+from IPython.core.display import display, HTML
+
 
 def get_scripts_dict(ssh_client):
+    """
+    Returns a dictionary representing all scripts on the cluster. Uses cluster's GetScripts.py.
+    The dictionary has supported Pipelines and "All Pipelines" as keys and a second dict as values.
+        The inner dictionaries have supported workflows for that pipeline and "All Workflows" as keys.
+        The values for each is a list of shell script names
+    This dictionary is the core data structure behind the "Check Scripts on Cluster" section in the
+    CirrusAddons notebook
+
+    input:
+        ssh_client: a paramiko SSHClient obj
+    """
     return literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/GetScripts.py"))
 
-def get_all_pipeline_names(script_dict):
-    return [pipeline for pipeline in script_dict if not pipeline == "All Pipelines"]
+def get_all_pipeline_names(scripts_dict):
+    """
+    Returns the names of the supported pipelines on the cluster. 
+    Does so by returning all keys in scripts dictionary except for "All Pipelines"
 
-def get_workflows_in_pipeline(script_dict, pipeline):
+    input: 
+        scripts_dict: scripts dictionary described in get_scripts_dict function
+    """
+    return [pipeline for pipeline in scripts_dict if not pipeline == "All Pipelines"]
+
+def get_workflows_in_pipeline(scripts_dict, pipeline):
+    """
+    IF pipeline == "all":
+        return a dictionary with keys=pipeline names, values=list of workflows in that pipeline 
+    ELSE:
+        return a list of workflows in a given pipeline
+
+    input: 
+        scripts_dict: scripts dictionary described in get_scripts_dict function
+        pipeline: name of a supported target pipeline or "all". 
+    """
     if pipeline == "all":
         print()
-        return {curr_pipeline:[workflow for workflow in script_dict[curr_pipeline] if not workflow == "All Workflows"] 
-                for curr_pipeline in script_dict if not curr_pipeline == "All Pipelines"}
-    return [workflow for workflow in script_dict[pipeline] if not workflow == "All Workflows"]
+        return {curr_pipeline:[workflow for workflow in scripts_dict[curr_pipeline] if not workflow == "All Workflows"] 
+                for curr_pipeline in scripts_dict if not curr_pipeline == "All Pipelines"}
+    return [workflow for workflow in scripts_dict[pipeline] if not workflow == "All Workflows"]
 
-def get_scripts(script_dict, pipeline, workflow):
+def get_scripts(scripts_dict, pipeline, workflow):
+    """
+    input:
+        scripts_dict: scripts dictionary described in get_scripts_dict function
+        pipeline: name of a supported target pipeline or "all". 
+        workflow: name of a supported target workflow or "all"
+
+    If the pipeline parameter is "all", returns the full scripts_dict
+    If it isn't "all" but workflow is "all", returns dictionary with keys=workflows in pipeline, values=scripts in workflow
+        It also contains the "All Pipelines" list from the original scripts_dict
+    If both pipeline and workflow aren't "all" returns dictionary with keys=target workflow, All <pipeline> Workflows, All Pipelines
+        and values=list of scripts under each key
+    """
     if pipeline == "all":
-        return script_dict
+        return scripts_dict
 
     if workflow == "all":
-        return {**script_dict[pipeline], **{"All Pipelines":script_dict["All Pipelines"]}}
+        return {**scripts_dict[pipeline], **{"All Pipelines":scripts_dict["All Pipelines"]}}
 
-    return {workflow:script_dict[pipeline][workflow], 
-            "All {} Workflows".format(pipeline):script_dict[pipeline]["All Workflows"],
-            "All Pipelines":script_dict["All Pipelines"]}
+    return {workflow:scripts_dict[pipeline][workflow], 
+            "All {} Workflows".format(pipeline):scripts_dict[pipeline]["All Workflows"],
+            "All Pipelines":scripts_dict["All Pipelines"]}
 
-def get_steps_calling_script(ssh_client, script_dict, script_name):
+def get_steps_calling_script(ssh_client, scripts_dict, script_name):
+    """
+    Gets which steps call the given shell script. Does so by parsing tools.yaml on the cluster. 
+    Returns str that summarizes that information
+
+    input:
+        ssh_client: a paramiko SSHClient obj
+        scripts_dict: scripts dictionary described in get_scripts_dict function
+        script_name: name of target script including .sh extension
+    """
     tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
 
-    pipe_work_dict = {pipeline:get_workflows_in_pipeline(script_dict, pipeline) for pipeline in get_all_pipeline_names(script_dict)}
+    #keys=pipline names, values=list of workflows in that pipeline
+    #excludes "All Pipelines" key from original scripts_dict
+    pipe_work_dict = {pipeline:get_workflows_in_pipeline(scripts_dict, pipeline) for pipeline in get_all_pipeline_names(scripts_dict)}
 
 
 
@@ -39,6 +102,12 @@ def get_steps_calling_script(ssh_client, script_dict, script_name):
     for step in tools_conf:
         dirs = tools_conf[step]["script_path"].split("/")
         
+        #if length of dirs 1, then the script path must just contain script name
+        #   therefore, script in all Pipelines
+        #if length of dirs 2, then script path must have pipeline and script name
+        #   therefore, script in all workflows for a specific pipeline
+        #if length of dirs 3, then script path must have pipeline,workflow,script name
+        #   therefore, script in specific workflow for specific pipeline
         in_strings = ["in all Pipelines", "in all Workflows in {}", "in the {} {} workflow"]
         in_string = in_strings[len(dirs)-1].format(*dirs[:-1])
 
@@ -47,24 +116,87 @@ def get_steps_calling_script(ssh_client, script_dict, script_name):
 
     return result
 
+def get_step_config(ssh_client, scripts_dict, step_name):
+    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
+    step_conf = yaml.dump(tools_conf[step_name], default_flow_style=False)
+    result = "\ntools.yaml configuration entry for {} step:\n{}\n\n".format(step_name, step_conf)
+
+    specific_confs_dict = literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/GetAllSpecificConfs.py"))
+
+    for pipeline in specific_confs_dict:
+        for workflow in specific_confs_dict[pipeline]:
+            curr_conf = yaml.load(specific_confs_dict[pipeline][workflow])
+            if step_name in curr_conf:
+                curr_entry = yaml.dump({step_name:curr_conf[step_name]}, default_flow_style=False)
+                _,args = cat_script(ssh_client, scripts_dict, pipeline, workflow, tools_conf[step_name]["script_path"].split("/")[-1] + ".sh")
+                args = list(map(lambda x : x.split("=")[0], args.split("\n\n")[1].splitlines()[10:]))[:len(curr_entry.splitlines())-1]
+
+                result += "{}_{}.yaml configuration entry for {} step:\n{}".format(
+                        pipeline, workflow, step_name, curr_entry)
+                for ind,arg in enumerate(args):
+                    result += "Argument {} is {}, ".format(ind+1, arg)
+                result = result.rstrip(", ")
+                result += "\n\n"
+
+    return result
 
 
 
-def cat_script(ssh_client, script_dict, pipeline, workflow, script_name):
-    if script_name in script_dict[pipeline][workflow]:
+
+    #keys=pipline names, values=list of workflows in that pipeline
+    #excludes "All Pipelines" key from original scripts_dict
+#    pipe_work_dict = {pipeline:get_workflows_in_pipeline(scripts_dict, pipeline) for pipeline in get_all_pipeline_names(scripts_dict)}
+
+
+
+def cat_script(ssh_client, scripts_dict, pipeline, workflow, script_name):
+    """
+    Returns tuple:
+        (specificity of script, string representation of given script contents )
+    Specificty in ["Workflow Specific", "Pipeline Specific", "All Pipelines"]
+    Must specify which workflow and pipeline the script is in.
+
+    input:
+        ssh_client: a paramiko SSHClient obj
+        scripts_dict: scripts dictionary described in get_scripts_dict function
+        pipeline: name of a supported target pipeline
+        workflow: name of a supported target workflow
+        script_name: name of target script including .sh extension
+    """
+    if script_name in scripts_dict[pipeline][workflow]:
         return "Workflow Specific", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/scripts/{}/{}/{}".format(pipeline, workflow, script_name))
-    elif script_name in script_dict[pipeline]["All Workflows"]:
+    elif script_name in scripts_dict[pipeline]["All Workflows"]:
         return "Pipeline Specific", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/scripts/{}/{}".format(pipeline, script_name))
-    elif script_name in script_dict["All Pipelines"]:
+    elif script_name in scripts_dict["All Pipelines"]:
         return "All Pipelines", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/scripts/{}".format(script_name))
     else:
         return "This script isn't called in the specified Pipeline/Workflow", ""
 
+def show_script(str_script):
+    html_vers = highlight(str_script, BashLexer(), HtmlFormatter(full=True))
+    display(HTML(html_vers))
 
 def get_software_dict(ssh_client):
+    """
+    Returns a dictionary representing all software on the cluster. Uses cluster's GetSoftware.py.
+    The dictionary has installed software names as keys and a list of the installed versions as values
+    This dictionary is the core data structure behind the "Check Software on Cluster" section in the
+    CirrusAddons notebook
+
+    input:
+        ssh_client: a paramiko SSHClient obj
+    """
     return literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/GetSoftware.py"))
 
 def check_tool_is_installed(software_dict, tool):
+    """
+    Returns str with tool's versions in it if the tool is installed on cluster, otherwise recommends other tools names if possible.
+    If no recommendations availabe, returns str saying tools not installed
+
+    input:
+        software_dict: software dictionary described in get_software_dict function
+        tool: name of a target tool/software to check installation of on cluster
+    """
     for key in software_dict:
         if key.lower() == tool.lower():
             return "{} installed with version(s):\n{}".format(key, "\n".join(software_dict[key]))
