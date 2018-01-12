@@ -5,6 +5,7 @@ that can be used to check content on the cluster from jupyter.
 """
 __author__ = "Mustafa Guler"
 
+import os
 from cfnCluster import ConnectionManager
 from ast import literal_eval
 from difflib import get_close_matches
@@ -14,6 +15,72 @@ from pygments.lexers import BashLexer
 from pygments.formatters import HtmlFormatter
 from IPython.core.display import display, HTML
 
+shell_script_template = """#!/bin/bash
+
+project_name=$1
+workflow=$2
+file_suffix=$3
+root_dir=$4
+fastq_end1=$5
+fastq_end2=$6
+input_address=$7
+output_address=$8
+log_dir=$9
+is_zipped=${10}
+{EXTRA ARGUMENTS HERE}
+
+#logging
+log_dir=$log_dir/fastq_end1
+mkdir -p $log_dir
+log_file=$log_dir/{LOG FILE NAME HERE}
+exec 1>>$log_file
+exec 2>>$log_file
+
+status_file=$log_dir/'status.log'
+touch $status_file
+
+#prepare output directories
+workspace=$root_dir/$project_name/$workflow/$fastq_end1
+mkdir -p $workspace
+
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+date
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+
+check_step_already_done $JOB_NAME $status_file
+
+##DOWNLOAD##
+if [ ! -f $workspace/$fastq_end1$file_suffix ]
+then
+    download_suffix=$file_suffix
+
+    if [ "$is_zipped" == "True" ]
+    then
+        download_suffix=$file_suffix".gz"
+    fi
+
+    check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/" $JOB_NAME $status_file
+    gunzip -q $workspace/$fastq_end1$download_suffix
+
+    if [ "$fastq_end2" != "NULL" ]
+    then
+        check_exit_status "aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/" $JOB_NAME $status_file
+        gunzip -q $workspace/$fastq_end2$download_suffix
+    fi
+fi
+##END_DOWNLOAD##
+
+
+##TOOL##
+check_exit_status "{TOOL CALL HERE}" $JOB_NAME $status_file
+##END_TOOL##
+
+
+##UPLOAD##
+#can use multiple includes if needed 
+aws s3 cp $workspace $output_address/ --exclude "*" --include "{GLOB FOR OUTPUT FILES HERE}" --recursive
+##END_UPLOAD##
+"""
 
 def get_scripts_dict(ssh_client):
     """
@@ -115,39 +182,41 @@ def get_steps_calling_script(ssh_client, scripts_dict, script_name):
             result += "{} {}\n".format(step, in_string)
 
     return result
-
-def get_step_config(ssh_client, scripts_dict, step_name):
+def get_step_config_dicts(ssh_client, scripts_dict, step_name):
     tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
-    step_conf = yaml.dump(tools_conf[step_name], default_flow_style=False)
-    result = "\ntools.yaml configuration entry for {} step:\n{}\n\n".format(step_name, step_conf)
+    step_tools_conf = tools_conf[step_name]
 
     specific_confs_dict = literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/GetAllSpecificConfs.py"))
+
+    step_spec_conf = {}
 
     for pipeline in specific_confs_dict:
         for workflow in specific_confs_dict[pipeline]:
             curr_conf = yaml.load(specific_confs_dict[pipeline][workflow])
             if step_name in curr_conf:
-                curr_entry = yaml.dump({step_name:curr_conf[step_name]}, default_flow_style=False)
-                _,args = cat_script(ssh_client, scripts_dict, pipeline, workflow, tools_conf[step_name]["script_path"].split("/")[-1] + ".sh")
-                args = list(map(lambda x : x.split("=")[0], args.split("\n\n")[1].splitlines()[10:]))[:len(curr_entry.splitlines())-1]
+                step_spec_conf.update({(pipeline, workflow):curr_conf[step_name]})
 
-                result += "{}_{}.yaml configuration entry for {} step:\n{}".format(
-                        pipeline, workflow, step_name, curr_entry)
-                for ind,arg in enumerate(args):
-                    result += "Argument {} is {}, ".format(ind+1, arg)
-                result = result.rstrip(", ")
-                result += "\n\n"
+    return step_tools_conf, step_spec_conf
+
+def get_step_config(ssh_client, scripts_dict, step_name, step_tools_conf, step_spec_conf):
+    step_conf = yaml.dump(step_tools_conf, default_flow_style=False)
+    result = "\ntools.yaml configuration entry for {} step:\n{}\n\n".format(step_name, step_conf)
+
+    for key in step_spec_conf:
+        curr_entry = yaml.dump({step_name:step_spec_conf[key]}, default_flow_style=False)
+        pipeline, workflow = key
+        _,args = cat_script(ssh_client, scripts_dict, pipeline, workflow, step_tools_conf["script_path"].split("/")[-1] + ".sh")
+        args = list(map(lambda x : x.split("=")[0], args.split("\n\n")[1].splitlines()[10:]))[:len(curr_entry.splitlines())-1]
+
+        result += "{}_{}.yaml configuration entry for {} step:\n{}".format(pipeline, workflow, step_name, curr_entry)
+
+        for ind,arg in enumerate(args):
+            result += "Argument {} is {}, ".format(ind+1, arg)
+
+        result = result.rstrip(", ")
+        result += "\n\n"
 
     return result
-
-
-
-
-    #keys=pipline names, values=list of workflows in that pipeline
-    #excludes "All Pipelines" key from original scripts_dict
-#    pipe_work_dict = {pipeline:get_workflows_in_pipeline(scripts_dict, pipeline) for pipeline in get_all_pipeline_names(scripts_dict)}
-
-
 
 def cat_script(ssh_client, scripts_dict, pipeline, workflow, script_name):
     """
@@ -175,6 +244,46 @@ def cat_script(ssh_client, scripts_dict, pipeline, workflow, script_name):
 def show_script(str_script):
     html_vers = highlight(str_script, BashLexer(), HtmlFormatter(full=True))
     display(HTML(html_vers))
+
+
+def edit_step_tools_config(ssh_client, new_step_tools_conf, step_name):
+    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
+    tools_conf[step_name] = new_step_tools_conf
+    with open("tools.yaml", "w+") as f:
+        f.write(yaml.dump(tools_conf, default_flow_style=False))
+    ConnectionManager.execute_command(ssh_client, "mv -n /shared/workspace/Pipelines/config/tools.yaml /shared/workspace/Pipelines/config/tools.yaml.BACKUP")
+    ConnectionManager.copy_file(ssh_client, "{}/tools.yaml".format(os.getcwd()), "/shared/workspace/Pipelines/config/tools.yaml")
+
+def edit_step_specific_config(ssh_client, pipeline, workflow, new_extra_bash_args, step_name):
+    conf_file_name = "{}_{}.yaml".format(pipeline, workflow)
+    spec_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/{}/{}".format(pipeline, conf_file_name)))
+    spec_conf[step_name] = new_extra_bash_args
+
+    with open(conf_file_name, "w+") as f:
+        f.write(yaml.dump(spec_conf, default_flow_style=False))
+    ConnectionManager.execute_command(ssh_client, "mv -n /shared/workspace/Pipelines/config/{0}/{1} /shared/workspace/Pipelines/config/{0}/{1}.BACKUP".format(pipeline, conf_file_name))
+    ConnectionManager.copy_file(ssh_client, "{}/{}".format(os.getcwd(), conf_file_name), "/shared/workspace/Pipelines/config/{}/{}".format(pipeline, conf_file_name))
+
+def edit_script(ssh_client, scripts_dict, pipeline, workflow, script_name):
+    _,script_text = cat_script(ssh_client, scripts_dict, pipeline, workflow, script_name)
+    return "%%writefile {}\n{}".format(script_name, script_text)
+
+def upload_script(ssh_client, pipeline, workflow, script_name):
+    script_path_cluster = "/shared/workspace/Pipelines/scripts/"
+
+    if pipeline == "all":
+        script_path_cluster += script_name
+    elif workflow == "all":
+        script_path_cluster += "{}/{}".format(pipeline, script_name)
+    else:
+        script_path_cluster += "{}/{}/{}".format(pipeline, workflow, script_name)
+
+    ConnectionManager.execute_command(ssh_client, "mv -n {0} {0}.BACKUP".format(script_path_cluster))
+    ConnectionManager.copy_file(ssh_client, "{}/{}".format(os.getcwd(), script_name), script_path_cluster)
+
+def restore_backups(ssh_client):
+    ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/RestoreBackups.py")
+
 
 def get_software_dict(ssh_client):
     """

@@ -53,6 +53,7 @@ fi
 
 ##FASTQC##
 check_exit_status "$make_UCSC_file $workspace/tags_$fastq_end1 -o auto" $JOB_NAME $status_file
+check_exit_status "check_outputs_exist $workspace/tags_$fastq_end1/tags_$fastq_end1.ucsc.bedGraph.gz" $JOB_NAME $status_file
 ##END_FASTQC##
 
 

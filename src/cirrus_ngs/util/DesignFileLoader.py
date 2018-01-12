@@ -8,11 +8,16 @@ import re
 
 ## load design file
 def load_design_file(design_file):
-    """
-    Parses the design file the user input into the jupyter notebook for the pipeline.
-    Seem README.md for details on design file formats
+    """Parses the design file the user input into the jupyter notebook for the pipeline.
+    
+    See README.md for details on design file formats. This function should
+    be called from a pipeline's jupyter notebook. 
 
-    returns tuple:
+    Args:
+        design_file: string absolute path to the project's design file
+
+    Returns:
+        a tuple of form:
         (
             list of dictionaries containing information about each sample,
             list of all groups in the project,

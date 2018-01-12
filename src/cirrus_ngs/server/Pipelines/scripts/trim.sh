@@ -66,6 +66,7 @@ then
         $workspace/$fastq_end1$file_suffix \
         $workspace/$fastq_end1.trim$file_suffix \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len" $JOB_NAME $status_file
+    check_exit_status "check_outputs_exist $workspace/$fastq_end1.trim$file_suffix" $JOB_NAME $status_file
 # paired-end
 else
     check_exit_status "java -jar $trimmomatic PE -threads $num_threads -phred33 -trimlog /dev/null \
@@ -76,6 +77,8 @@ else
         $workspace/$fastq_end2.trim$file_suffix \
         $workspace/$fastq_end2.unpaired$file_suffix \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len" $JOB_NAME $status_file
+
+    check_exit_status "check_outputs_exist $workspace/$fastq_end1.trim$file_suffix $workspace/$fastq_end2.trim$file_suffix" $JOB_NAME $status_file
 fi
 ##END_TRIM##
 
