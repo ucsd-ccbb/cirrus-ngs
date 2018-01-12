@@ -52,12 +52,12 @@ fi
 # Star align
 if [ "$fastq_end2" == "NULL" ]
 then
-    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $human_genome \
+    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_index \
     --readFilesIn $workspace/$fastq_end1$file_suffix \
     --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 else
     # paired-end
-    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $human_genome \
+    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_index \
     --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
     --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 fi
@@ -78,7 +78,7 @@ if [ ! -f $workspace/$fastq_end1."Aligned.out.sorted.bam.bai" ]; then
 fi
 # End star align
 
-# TODO: perform samtools stats, for multiqc purposes
+# Perform samtools stats, for multiqc purposes
 check_exit_status "$samtools stats $workspace/$fastq_end1.Aligned.out.sorted.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
 if [ -f $workspace/$fastq_end1.txt ]
 then
