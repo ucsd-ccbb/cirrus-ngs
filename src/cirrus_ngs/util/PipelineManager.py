@@ -1,8 +1,9 @@
-__doc__="""
-This module contains the main pipeline execution method on the 
-local side. It is shared between all pipelines and workflows with
-differing parameters.
-"""
+#__doc__="""
+#This module contains the main pipeline execution method on the 
+#local side. It is shared between all pipelines and workflows with
+#differing parameters.
+#"""
+#TODO figure out licensing stuff
 
 import os
 from util import YamlFileMaker
@@ -15,11 +16,13 @@ workspace = "/shared/workspace/Pipelines/"
 # executing a specified pipeline with the specific yaml file
 def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_input_files_address,
         sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
-    """
-    The main local side function for executing a pipeline with all user inputs to jupyter notebook.
-    Calls the run.sh shell script on the cluster head node using nohup.
+    """Executes a pipeline.
 
-    input:
+    The main local side function for executing a pipeline with all user inputs to jupyter notebook.
+    Calls the run.sh shell script on the cluster head node using nohup after creating
+    a yaml file summarizing user input and uploaded that file to the cluster.
+
+    Args:
         pipeline: name of the pipeline to be run, supported pipelines can be found in CirrusAddons notebook
         ssh_client: a paramiko SSHClient object that connects to the cluster where analysis is run
         project_name: name of the current project, <project_name>.yaml contains all user input to notebook
@@ -33,6 +36,9 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
         style: only for ChIPSeq homer workflow, can be "factor" or "histone"
         pairs_list: dictionary with keys=normal samples, values=experimental samples
             for ChIPSeq the keys=ChIP samples, values=corresponding input regularization samples
+
+    Returns:
+        None
     """
     yaml_file = project_name + ".yaml"
 
@@ -50,7 +56,6 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
     print("copying yaml file to remote master node...")
     ConnectionManager.copy_file(ssh_client, yaml_file, "{}yaml_files/{}/{}".format(workspace, pipeline, workflow))
 
-#TODO make temp file
     # Remove the local yaml file
     os.remove(yaml_file)
 

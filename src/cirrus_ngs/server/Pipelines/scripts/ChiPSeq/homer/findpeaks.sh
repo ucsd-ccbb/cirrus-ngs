@@ -62,6 +62,8 @@ else
     check_exit_status "$find_peaks $workspace/tags_$chip_sample -style $style \
         -o $workspace/$pair_base_name$style_ext" $JOB_NAME $status_file
 fi
+
+check_exit_status "check_outputs_exist $workspace/$pair_base_name$style_ext" $JOB_NAME $status_file
 ##END_FINDPEAKS##
 
 

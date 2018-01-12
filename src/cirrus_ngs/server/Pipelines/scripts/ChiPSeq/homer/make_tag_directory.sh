@@ -51,9 +51,15 @@ check_step_already_done $JOB_NAME $status_file
 ##END_DOWNLOAD##
 
 
-##FASTQC##
+##MAKETAGDIRECTORY##
 check_exit_status "$make_tag_directory $workspace/tags_$fastq_end1 $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file
-##END_FASTQC##
+outputs=($workspace/tags_$fastq_end1/tagAutocorrelation.txt $workspace/tags_$fastq_end1/tagCountDistribution.txt $workspace/tags_$fastq_end1/tagInfo.txt $workspace/tags_$fastq_end1/tagLengthDistribution.txt)
+for chrom in $chromosome_list;
+do
+    outputs+=($workspace/tags_$fastq_end1/$chrom.tags.tsv)
+done
+check_exit_status "check_outputs_exist ${outputs[@]}" $JOB_NAME $status_file
+##END_MAKETAGDIRECTORY##
 
 
 ##UPLOAD##

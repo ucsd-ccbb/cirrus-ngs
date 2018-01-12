@@ -1,29 +1,39 @@
-__doc__ =  """
-This utility module is used to create a yaml file summarizing the data
-a user put into a given pipeline's jupyter notebook. That yaml file
-is then moved to the cluster where analysis will be run
-"""
+#__doc__ =  """
+#This utility module is used to create a yaml file summarizing the data
+#a user put into a given pipeline's jupyter notebook. That yaml file
+#is then moved to the cluster where analysis will be run
+#"""
 __author__ = 'Guorong Xu<g1xu@ucsd.edu>'
 
 import time
 
 def make_yaml_file(yaml_file, pipeline, project_name, workflow, analysis_steps, s3_input_files_address,
         sample_list, group_list, s3_output_files_address, genome, style, pairs_list):
-    """
-    Writes formatted information from the jupyter notebook into a given yaml file
-    args:
-        yaml_file: name of file being written to
-        pipeline: name of the pipeline being run
-        project_name: name of the project being run
-        workflow: name of the workflow being run under given pipeline
-        analysis_steps: set of strings corresponding to possible analysis steps for the workflow. See notebooks for possible steps
-        s3_input_files_address: user-given path to input files for analysis
+    """Writes user input to a yaml file.
+
+    The user information is taken from a pipeline's jupyter notebook. Yaml
+    file is later used in the PipelineManager execute function.
+
+    Args:
+        yaml_file: A string name of file being written to
+        pipeline: A string name of the pipeline being run
+        project_name: A string name of the project being run
+        workflow: A string name of the workflow being run under given pipeline
+        analysis_steps: A set of strings corresponding to possible analysis steps 
+            for the workflow. See notebooks for possible steps.
+        s3_input_files_address: A string user-given s3 bucket path to 
+            input files for analysis
         sample_list: from DesignFileLoader, see load_design_file function output
         group_list: from DesignFileLoader, see load_design_file function output
-        s3_output_files_address: user-given path to upload analysis output 
-        genome: name of reference genome being used. See pipeline notebook for allowed values
-        style: only for ChIPSeq, either factor or histone
+        s3_output_files_address: A string user-given s3 bucket path to 
+            upload analysis output 
+        genome: A string name of reference genome being used. 
+            See pipeline notebook for allowed values
+        style: Only for ChIPSeq, a string that is either "factor" or "histone"
         pairs_list: from DesignFileLoader, see load_design_file function output
+
+    Returns:
+        None
     """
     filewriter = open(yaml_file, "w")
     filewriter.write("project: " + project_name + "\n")

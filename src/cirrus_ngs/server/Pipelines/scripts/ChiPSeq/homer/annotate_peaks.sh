@@ -56,6 +56,35 @@ mkdir -p $workspace/ontology_$pair_base_name
 check_exit_status "$annotate_peaks $workspace/$pair_base_name$style_ext $genome \
     -go "$workspace/go_$pair_base_name" -genomeOntology "$workspace/ontology_$pair_base_name" \
     > $workspace/$pair_base_name.annotated$style_ext" $JOB_NAME $status_file
+
+go_dir_outputs=($workspace/go_$pair_base_name/biocyc.txt
+$workspace/go_$pair_base_name/biological_process.txt
+$workspace/go_$pair_base_name/cellular_component.txt
+$workspace/go_$pair_base_name/chromosome.txt
+$workspace/go_$pair_base_name/cosmic.txt
+$workspace/go_$pair_base_name/gene3d.txt
+$workspace/go_$pair_base_name/geneOntology.html
+$workspace/go_$pair_base_name/gwas.txt
+$workspace/go_$pair_base_name/interactions.txt
+$workspace/go_$pair_base_name/interpro.txt
+$workspace/go_$pair_base_name/kegg.txt
+$workspace/go_$pair_base_name/lipidmaps.txt
+$workspace/go_$pair_base_name/molecular_function.txt
+$workspace/go_$pair_base_name/msigdb.txt
+$workspace/go_$pair_base_name/pathwayInteractionDB.txt
+$workspace/go_$pair_base_name/pfam.txt
+$workspace/go_$pair_base_name/prints.txt
+$workspace/go_$pair_base_name/prosite.txt
+$workspace/go_$pair_base_name/reactome.txt
+$workspace/go_$pair_base_name/smart.txt
+$workspace/go_$pair_base_name/smpdb.txt
+$workspace/go_$pair_base_name/wikipathways.txt)
+
+ontology_dir_outputs=($workspace/ontology_$pair_base_name/basic.genomeOntology.txt
+$workspace/ontology_$pair_base_name/GenomeOntology.html
+$workspace/ontology_$pair_base_name/repeats.genomeOntology.txt)
+
+check_exit_status "check_outputs_exist ${go_dir_outputs[@]} ${ontology_dir_outputs[@]} $workspace/$pair_base_name.annotated$style_ext" $JOB_NAME $status_file
 ##END_ANNOTATEPEAKS##
 
 

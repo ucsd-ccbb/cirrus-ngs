@@ -55,6 +55,20 @@ export PATH=$PATH:/shared/workspace/software/ghostscript-9.19-linux-x86_64
 export PATH=$PATH:/shared/workspace/software/samtools/samtools-1.1
 check_exit_status "$find_motifs_genome $workspace/$pair_base_name$style_ext \
     $genome $workspace/motifs_$pair_base_name -size 200 -mask -p $num_threads" $JOB_NAME $status_file
+
+motifs_dir_output=($workspace/motifs_$pair_base_name/homerMotifs.all.motifs
+$workspace/motifs_$pair_base_name/homerMotifs.motifs10
+$workspace/motifs_$pair_base_name/homerMotifs.motifs12
+$workspace/motifs_$pair_base_name/homerMotifs.motifs8
+$workspace/motifs_$pair_base_name/homerResults
+$workspace/motifs_$pair_base_name/homerResults.html
+$workspace/motifs_$pair_base_name/knownResults
+$workspace/motifs_$pair_base_name/knownResults.html
+$workspace/motifs_$pair_base_name/knownResults.txt
+$workspace/motifs_$pair_base_name/motifFindingParameters.txt
+$workspace/motifs_$pair_base_name/seq.autonorm.tsv)
+
+check_exit_status "check_outputs_exist ${motifs_dir_output[@]}" $JOB_NAME $status_file
 ##END_ANNOTATEPEAKS##
 
 

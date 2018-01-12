@@ -61,12 +61,14 @@ fi
 check_exit_status "$fastqc $workspace/$fastq_end1$file_suffix -o $workspace/" $JOB_NAME $status_file
 mv $workspace/$fastq_end1$file_suffix"_fastqc.html" $workspace/$fastq_end1"_fastqc.html" 2>/dev/null
 mv $workspace/$fastq_end1$file_suffix"_fastqc.zip" $workspace/$fastq_end1"_fastqc.zip" 2>/dev/null
+check_exit_status "check_outputs_exist $workspace/${fastq_end1}_fastqc.html $workspace/${fastq_end1}_fastqc.zip" $JOB_NAME $status_file
 
 if [ "$fastq_end2" != "NULL" ];
 then
     check_exit_status "$fastqc $workspace/$fastq_end2$file_suffix -o $workspace/" $JOB_NAME $status_file
     mv $workspace/$fastq_end2$file_suffix"_fastqc.html" $workspace/$fastq_end2"_fastqc.html" 2>/dev/null
     mv $workspace/$fastq_end2$file_suffix"_fastqc.zip" $workspace/$fastq_end2"_fastqc.zip" 2>/dev/null
+    check_exit_status "check_outputs_exist $workspace/${fastq_end2}_fastqc.html $workspace/${fastq_end2}_fastqc.zip" $JOB_NAME $status_file
 fi
 ##END_FASTQC##
 

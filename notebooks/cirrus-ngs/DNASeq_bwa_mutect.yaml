@@ -1,0 +1,40 @@
+bam_merge:
+- 4
+- 'False'
+bwa:
+- 4
+- ILLUMINA
+dedup:
+- 4
+fastqc:
+- 1
+- 36
+filter:
+- 4
+multiqc: []
+mutect:
+- 4
+pair_vcf_merge:
+- 4
+postalignment:
+- 2
+sort:
+- 4
+split:
+- 1
+steps:
+- fastqc
+- trim
+- bwa
+- multiqc
+- sort
+- dedup
+- split
+- postalignment
+- mutect
+- bam_merge
+- pair_vcf_merge
+- filter
+trim:
+- 4
+- 36

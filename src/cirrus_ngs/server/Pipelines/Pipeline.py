@@ -2,21 +2,29 @@ import sys
 import os
 import subprocess
 from util import PBSTracker
-#from util import YamlFileReader
 import re
 import yaml
 
 ROOT_DIR = "/scratch"
 SCRIPTS = "/shared/workspace/Pipelines/scripts/"
-#CHROMOSOME_LIST = list(map(str, range(1,23))) + ["X", "Y", "M"]
 
 ##run the actual pipeline
 def run_analysis(yaml_file, log_dir, pipeline_config_file):
-    """
-    overarching function for running analysis
-    takes in a yaml_file name, 
-    a string representing the target log directory on the cluster, 
-    and a path to a pipeline-specific configuration yaml file
+    """Runs a full pipeline.
+    
+    The function called from this module's main, which is 
+    subsequently called from run.sh. User information comes
+    from a yaml file uploaded by the PipelineManager. Additional
+    configuration comes from the configuration files.
+
+    Args:
+        yaml_file: string absolute path to the yaml file uploaded by PipelineManager
+        log_dir: string absolute path to directory in which logs should be stored
+        pipeline_config_file: string absolute path to the specific configuration
+            file for this pipeline and workflow.
+
+    Returns:
+        None
     """
     #reads in the project's yaml file, YamlFileReader deprecated
     yaml_file_stream = open(yaml_file)
@@ -37,13 +45,14 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     genome = documents.get("genome")
     os.environ["genome"] = genome
 
+    #for chipseq
     if os.environ["style"] == "histone":
         os.environ["style_ext"] = ".regions.txt"
     elif os.environ["style"] == "factor":
         os.environ["style_ext"] = ".peaks.txt"
 
+    
     os.environ["genome_fasta"] = os.environ[genome + "_fasta"]
-
     os.environ["genome_fai"] = os.environ.get(genome + "_fai", "")
     os.environ["dbsnp"] = os.environ.get(genome + "_dbsnp", "")
     os.environ["bwa_index"] = os.environ.get(genome + "_bwa_index", "")
@@ -69,13 +78,13 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 
 
     #used for group-based analysis
-    #dictionary with key=group, value=list of tuples from separate_file_suffix
+    #dictionary with key=group, value=list of tuples from _separate_file_suffix
     group_list = {}
 
     for sample_pair in sample_list:
         curr_group = sample_pair.get("group")
         curr_sample = sample_pair.get("filename").split(",")[0].strip()
-        curr_sample_tuple = separate_file_suffix(curr_sample)
+        curr_sample_tuple = _separate_file_suffix(curr_sample)
         if group_list.get(curr_group, None):
             group_list.get(curr_group).append(curr_sample_tuple)
         else:
@@ -99,11 +108,19 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
                     project_name, workflow, sample_list, input_address, output_address, group_list, pair_list, log_dir)
 
 def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_list, input_address, output_address, group_list, pair_list, log_dir):
-    """
-    run any tool in the pipeline
-    args:
-        tool_config_dict: configuration dictionary for this tool, taken from tools.yaml
-        extra_bash_args: additional arguments to the shell script for this tool, taken from pipeline-specific configuration
+    """Runs a single step in the current pipeline.
+
+    This function can run any step in any pipeline/workflow based
+    on the configuration entries in tools.yaml and the pipeline
+    specific configuration file for that step. Generates arguments
+    for each sample with a different generator depending
+    on how the step's tools.yaml entry. Eventually submits
+    the shell script for the current step as a job for
+    each sample.
+
+    Args:
+        tool_config_dict: configuration dictionary for this tool, parsed from tools.yaml
+        extra_bash_args: additional arguments list to the shell script for this tool, taken from pipeline-specific configuration
         project_name: name of the project this tool is running in
         workflow: the workflow that this project is using
         sample_list: a list of dictionaries taken from the project_name.yaml file
@@ -112,11 +129,12 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         group_list: dictionary with key=group and value=list of tuples from separate_file_suffix
         pair_list: dictionary with key=normal_sample and value=associated tumor sample
         log_dir: the path to the log directory this tool
-    does not return a value
-    revelant tool's shell script will be submitted via qsub with correct arguments
-    """
 
+    Returns:
+        None
+    """
     #num_threads used to request nodes with a specific amount of threads for step
+    #first extra argument should always be number of threads
     if len(extra_bash_args) > 0:
         num_threads = extra_bash_args[0]
     else:
@@ -129,16 +147,14 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
     subprocess_call_list = ["qsub", "-V", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
             SCRIPTS + tool_config_dict["script_path"] + ".sh"]
     
-    #extra arguments to the current shell script outside of the 9 necessary ones (see shell script format documentation)
+    #extra arguments to the current shell script outside of the 10 necessary ones (see shell script format documentation)
     #if not empty, first extra argument must be a number representing number of threads used by script
     extra_bash_args = list(map(str, extra_bash_args))
 
-    #runs tool on every sample in project
+    #runs tool on every sample in project in one go
     if tool_config_dict.get("all_samples", False):
-        all_sample_arguments = by_all_samples_argument_generator(project_name, 
+        all_sample_arguments = _by_all_samples_argument_generator(project_name, 
                 workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
-
-        #for tools that run on each chromosome the file suffix has the current chrom number added to it
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = all_sample_arguments[2]
             for chromosome in CHROMOSOME_LIST:
@@ -148,9 +164,9 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
             subprocess.call(subprocess_call_list + all_sample_arguments + extra_bash_args)
         return
 
-    #runs tool on each pair if tool config says it should be run by_pair
+    #run tool on pairs in project
     if tool_config_dict.get("by_pair", False) and os.environ["pairs_exist"] == "True":
-        for pair_arguments in by_pair_argument_generator(project_name, workflow, 
+        for pair_arguments in _by_pair_argument_generator(project_name, workflow, 
                 group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = pair_arguments[2]
@@ -163,9 +179,9 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
         return
 
-    #runs tool on samples in each group if tool config says it should be run by_group
+    #runsn tool on samples in each group
     if tool_config_dict.get("by_group", False):
-        for group_arguments in by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, tool_config_dict, log_dir):
+        for group_arguments in _by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = group_arguments[2]
                 for chromosome in CHROMOSOME_LIST:
@@ -178,8 +194,9 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
         return
 
-    #default, sample-by-sample tool run
-    for curr_sample_arguments in sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir):
+    #run tool separately for each sample
+    for curr_sample_arguments in _sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, tool_config_dict, log_dir):
+        #for tools that run on each chromosome the file suffix has the current chrom number added to it
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = curr_sample_arguments[2]
             for chromosome in CHROMOSOME_LIST:
@@ -191,13 +208,28 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
 
     PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
 
-def separate_file_suffix(sample_file):
-    """
-    takes in a str name of a file
-    returns a tuple (file name without suffix, .fastq | .fq, str boolean representing if file was gzipped or not
-    users shouldn't have "fastq" or "fq" in their file name except for the extension
-    """
+#returns tuple
+#first element is file name without suffix
+#second element is .fastq or .fq
+#third element is str boolean representing if file was zipped
+def _separate_file_suffix(sample_file):
+    """Extracts information about file extensions from fq/fastq files.
 
+    FASTQ files can come with .fq or .fastq extensions, this
+    function automatically extracts those extensions. Additionally, 
+    this function determines if the fastq file was gzipped.
+
+    Args:
+        sample_file: a string name of a file, not the path
+
+    Returns:
+        a tuple of form:
+        (
+            string file name without extensions, 
+            the .fq or .fastq extension,
+            string "True" or "False" representing if file was gzipped, 
+        )
+    """
     #regex matches .fastq or .fq and then any extensions following them
     #user shouldn't have "fastq" or "fq" in their file names before the ext
     original_suffix = re.search("\.f(?:ast){0,1}q.*$", sample_file).group()
@@ -207,19 +239,34 @@ def separate_file_suffix(sample_file):
 
     return file_prefix, file_suffix, str(is_zipped)
 
-def sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir):
-    """
-    generator that yields list of shell script arguments for a given sample and tool
-    sample-by-sample generation
-    args:
-        project_name: name of the project being run
-        workflow: workflow this run belongs to
+#generator that yields tuple containing arguments for shell script
+#yielded arguments are standard for every tool
+#returned tuple:
+#   file_suffix:    file extension (.fq or .fastq) without .gz
+#   ROOT_DIR:       directory under which output will be saved
+#   fastq_end1:     forward reads (or single end file)
+#   fastq_end2:     reverse reads (or "NULL" if single end)
+#   input_address:  from "download" value of each sample, is S3 address
+#   output_address: S3 address where final analysis will be uploaded
+#   LOG_DIR:        directory where logs will be stored
+#   is_zipped:      str version of boolean, indicates if files to be downloaded are gzipped
+def _sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir):
+    """Generator that yields list of shell script arguments for sample-by-sample tool runs.
+
+    For each sample in the project generates the shells script
+    arguments and yields them. These arguments will be passed to the
+    shell script when it's submitted.
+
+    Args:
+        project_name: string name of the project being run
+        workflow: string workflow this run belongs to
         sample_list: a list of dictionaries taken from the project_name.yaml file
         input_address: the s3 input address, taken from the project_name.yaml file
         output_address: the s3 input address, taken from the project_name.yaml file
         config_dictionary: configuration dictionary for this tool, taken from tools.yaml
         log_dir: the path to the log directory this tool
-    returns:
+
+    Yields:
         list
         [
             project name, 
@@ -233,6 +280,7 @@ def sample_argument_generator(project_name, workflow, sample_list, input_address
             the directory on the cluster for log files, 
             a str(bool) representing if the input files are gzipped or not
         ]
+        for each sample
     """
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
@@ -241,13 +289,13 @@ def sample_argument_generator(project_name, workflow, sample_list, input_address
 
     for sample_pair in sample_list:
         curr_samples = [file_name.strip() for file_name in sample_pair.get("filename").split(",")]
-        fastq_end1, file_suffix, is_zipped = separate_file_suffix(curr_samples[0])
+        fastq_end1, file_suffix, is_zipped = _separate_file_suffix(curr_samples[0])
 
         curr_output_address = output_address + "/{}/{}/{}".format(project_name, workflow, fastq_end1)
 
         #puts "NULL" in fastq_end2 if sample isn't paired end
         if len(curr_samples) > 1:
-            fastq_end2 = separate_file_suffix(curr_samples[1])[0]
+            fastq_end2 = _separate_file_suffix(curr_samples[1])[0]
         else:
             fastq_end2 = "NULL"
 
@@ -270,29 +318,23 @@ def sample_argument_generator(project_name, workflow, sample_list, input_address
         yield [project_name, workflow, file_suffix, ROOT_DIR, fastq_end1, fastq_end2, 
                 input_address, curr_output_address, log_dir, is_zipped]
 
-#generator that yields tuple containing arguments for shell script
-#returned tuple:
-#   file_suffix:    file extension (.fq or .fastq) without .gz
-#   ROOT_DIR:       directory under which output will be saved
-#   fastq_end1:     forward reads (or single end file)
-#   fastq_end2:     reverse reads (or "NULL" if single end)
-#   input_address:  from "download" value of each sample, is S3 address
-#   output_address: S3 address where final analysis will be uploaded
-#   LOG_DIR:        directory where logs will be stored
-#   is_zipped:      str version of boolean, indicates if files to be downloaded are gzipped
-def by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, config_dictionary, log_dir):
-    """
-    generator that yields list of shell script arguments for a given group and tool
-    group-by-group generation
-    args:
-        project_name: name of the project being run
-        workflow: workflow this run belongs to
-        group_list: a dictionarie with key=group name, value=list tuples for samples in that group from separate_file_suffix
+def _by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, config_dictionary, log_dir):
+    """Generator that yields list of shell script arguments for group-by-group tool runs.
+
+    For each group in the project generates the shell script
+    arguments and yields them. These arguments will be passed to the
+    shell script when it's submitted.
+
+    Args:
+        project_name: string name of the project being run
+        workflow: string workflow this run belongs to
+        group_list: a dictionary with key=group name, value=list tuples for samples in that group from separate_file_suffix
         input_address: the s3 input address, taken from the project_name.yaml file
         output_address: the s3 input address, taken from the project_name.yaml file
         config_dictionary: configuration dictionary for this tool, taken from tools.yaml
         log_dir: the path to the log directory this tool
-    returns:
+
+    Yields:
         list
         [
             project name, 
@@ -300,13 +342,14 @@ def by_group_argument_generator(project_name, workflow, group_list, input_addres
             file suffix used for downloading file, 
             the directory where outputs should be stored while running, 
             the name of the current group,
-            NULL,
+            "NULL",
             the s3 input address for precursor files,
             the s3 output address for uploading results, 
             the directory on the cluster for log files, 
             a str(bool) representing if the input files are gzipped or not,
             a space delimited string with all samples in this group in it
         ]
+        for each group in the project
     """
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
@@ -334,11 +377,17 @@ def by_group_argument_generator(project_name, workflow, group_list, input_addres
         yield [project_name, workflow, file_suffix, ROOT_DIR, group, "NULL", input_address,
                 curr_output_address, log_dir, is_zipped, samples]
 
-def by_pair_argument_generator(project_name, workflow, group_list, pair_list, input_address, output_address, config_dictionary, log_dir):
-    """
-    generator that yields list of shell script arguments for a given normal-tumor sample pair and tool
-    pair-by-pair generation
-    args:
+def _by_pair_argument_generator(project_name, workflow, group_list, pair_list, input_address, output_address, config_dictionary, log_dir):
+    """Generator that yields list of shell script arguments for pair-by-pair tool runs.
+
+    For each pair in the project generates the shell script
+    arguments and yields them. These arguments will be passed to the
+    shell script when it's submitted. Pairs can be any two
+    samples that are somehow related. Used in the bwa_mutect
+    workflow in DNASeq for normal_vs_tumor comparisons as well
+    as in ChIPSeq for input_vs_chip comparisons.
+
+    Args:
         project_name: name of the project being run
         workflow: workflow this run belongs to
         group_list: a dictionary with key=group name, value=list tuples for samples in that group from separate_file_suffix
@@ -347,7 +396,8 @@ def by_pair_argument_generator(project_name, workflow, group_list, pair_list, in
         output_address: the s3 input address, taken from the project_name.yaml file
         config_dictionary: configuration dictionary for this tool, taken from tools.yaml
         log_dir: the path to the log directory this tool
-    returns:
+
+    Yields:
         list
         [
             project name, 
@@ -361,6 +411,7 @@ def by_pair_argument_generator(project_name, workflow, group_list, pair_list, in
             the directory on the cluster for log files, 
             a str(bool) representing if the input files are gzipped or not,
         ]
+        for each pair in the project
     """
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
@@ -399,10 +450,15 @@ def by_pair_argument_generator(project_name, workflow, group_list, pair_list, in
                 curr_output_address, log_dir, is_zipped]
 
 
-def by_all_samples_argument_generator(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir):
-    """
-    generator that yields list of shell script arguments for a tool that runs on all samples at once
-    args:
+def _by_all_samples_argument_generator(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir):
+    """Generator that yields list of shell script arguments for tools that run on all samples at once.
+
+    Generates one argument list that contains information 
+    about all the samples in the project. These arguments will be passed 
+    to the shell script when it's submitted. All sample runs can be
+    useful for comparisons (multiqc, counting, etc)
+
+    Args:
         project_name: name of the project being run
         workflow: workflow this run belongs to
         sample_list: a list of dictionaries taken from the project_name.yaml file
@@ -410,7 +466,8 @@ def by_all_samples_argument_generator(project_name, workflow, sample_list, input
         output_address: the s3 input address, taken from the project_name.yaml file
         config_dictionary: configuration dictionary for this tool, taken from tools.yaml
         log_dir: the path to the log directory this tool
-    returns:
+
+    Yields:
         list
         [
             project name, 
@@ -425,16 +482,15 @@ def by_all_samples_argument_generator(project_name, workflow, sample_list, input
             a str(bool) representing if the input files are gzipped or not,
             a space delimited string of all samples in this project
         ]
+        exactly once
     """
     download_suffix = config_dictionary["download_suffix"]
     input_is_output = config_dictionary["input_is_output"]
     can_be_zipped = config_dictionary["can_be_zipped"]
     uses_chromosomes = config_dictionary["uses_chromosomes"]
 
-    #all samples must either be zipped or not zipped
-    #won't work if some are ziopped and some aren't
     first_sample = sample_list[0].get("filename").split(",")[0].strip()
-    fastq_end1, file_suffix, is_zipped = separate_file_suffix(first_sample)
+    fastq_end1, file_suffix, is_zipped = _separate_file_suffix(first_sample)
 
     # turn download suffix to an empty string when it's a Nonetype
     if download_suffix:
@@ -458,7 +514,7 @@ def by_all_samples_argument_generator(project_name, workflow, sample_list, input
 
     samples = " ".join(samples)
 
-    return [project_name, workflow, file_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
+    yield [project_name, workflow, file_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
             curr_output_address, log_dir, is_zipped, samples]
 
 

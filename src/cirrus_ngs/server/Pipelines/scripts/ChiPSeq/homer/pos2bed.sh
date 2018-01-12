@@ -50,6 +50,7 @@ fi
 ##ANNOTATEPEAKS##
 check_exit_status "$pos2bed $workspace/$pair_base_name$style_ext \
     > $workspace/$pair_base_name.bed" $JOB_NAME $status_file
+check_exit_status "check_outputs_exist $workspace/$pair_base_name.bed" $JOB_NAME $status_file
 ##END_ANNOTATEPEAKS##
 
 
