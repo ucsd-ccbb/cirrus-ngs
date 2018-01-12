@@ -32,7 +32,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
-# Download fastqc zip files and text files from alignment
+# Download fastqc zip files and text files generated with the alignment
 for file in $all_samples
 do
     aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*_fastqc.zip" --recursive
