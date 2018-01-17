@@ -59,12 +59,14 @@ fi
 
 
 ##ALIGNMENT##
+# single-end
 if [ "$fastq_end2" == "NULL" ]
 then
     check_exit_status "$kallisto/kallisto quant -i $kallisto/kallisto_index -o $workspace/ -t $num_threads --single -l 50 -s 20 \
     $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file
+# paired-end
 else
-    check_exit_status "$kallisto/kallisto quant -i $kallisto/kallisto_index -o $workspace/ -t $num_threads \
+    check_exit_status "$kallisto/kallisto quant -i $kallisto/kallisto_index -o $workspace/ -t $num_threads -l 50 \
     $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix" $JOB_NAME $status_file
 fi
 ##END_ALIGNMENT##

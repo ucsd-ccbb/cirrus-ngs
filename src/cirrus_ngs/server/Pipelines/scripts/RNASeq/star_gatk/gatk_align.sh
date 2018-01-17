@@ -77,6 +77,15 @@ if [ ! -f $workspace/$fastq_end1."Aligned.out.sorted.bam.bai" ]; then
 fi
 # End star align
 
+# TODO: Perform samtools stats, for multiqc purposes
+check_exit_status "$samtools stats $workspace/$fastq_end1.Aligned.out.sorted.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
+if [ -f $workspace/$fastq_end1.txt ]
+then
+    echo "Finished samtools stats"
+else
+    echo "Failed samtools stats"
+fi
+
 # Upload
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*.Aligned*" --exclude "*.sam*" --recursive
 ##END_UPLOAD##
