@@ -83,11 +83,13 @@ done
 
 ##MERGE##
 check_exit_status "$sambamba merge -t $num_threads $workspace/$fastq_end1.final.bam $bam_file_list" $JOB_NAME $status_file
+check_exit_status "check_outputs_exist $workspace/$fastq_end1.final.bam" $JOB_NAME $status_file
 
 if [ "$do_vcf_merging" == "True" ]
 then
     check_exit_status "$vcf_concat $vcf_file_list > $workspace/$fastq_end1.raw.vcf" $JOB_NAME $status_file
     check_exit_status "$python $vcf_sort $workspace/$fastq_end1.raw.vcf '$chromosome_list' -o $workspace/$fastq_end1.merged.g.vcf" $JOB_NAME $status_file
+    check_exit_status "check_outputs_exist $workspace/$fastq_end1.merged.g.vcf" $JOB_NAME $status_file
 fi
 ##END_MERGE##
 

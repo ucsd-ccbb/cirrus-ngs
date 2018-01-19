@@ -59,6 +59,9 @@ check_exit_status "$samtools view -b $workspace/$fastq_end1$file_suffix $chromos
 
 check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.$chromosome.bam \
     $workspace/$fastq_end1.$chromosome.bam.bai" $JOB_NAME"_$chromosome" $status_file
+
+check_exit_status "check_outputs_exist $workspace/$fastq_end1.$chromosome.bam \
+    $workspace/$fastq_end1.$chromosome.bam.bai" ${JOB_NAME}_$chromosome $status_file
 ##END_SPLIT##
 
 ##UPLOAD##

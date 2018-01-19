@@ -59,6 +59,9 @@ check_exit_status "java -jar -Djava.io.tmpdir=$workspace/temp -Xms250m -Xmx20g $
 
 check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.dedup.bam \
     $workspace/$fastq_end1.dedup.bam.bai" $JOB_NAME $status_file
+
+check_exit_status "check_outputs_exist $workspace/$fastq_end1.dedup.bam \
+    $workspace/$fastq_end1.dedup.bam.bai $workspace/$fastq_end1.matrics.txt" $JOB_NAME $status_file
 ##END_MARKDUPLICATES##
 
 

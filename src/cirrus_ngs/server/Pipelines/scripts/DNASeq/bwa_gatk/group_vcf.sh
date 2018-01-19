@@ -88,6 +88,8 @@ check_exit_status "$java -Xms454m -Xmx3181m -Djava.io.tmpdir=$workspace/temp \
     -o $workspace/$group_name.vcf \
     --dbsnp $dbsnp" $JOB_NAME $status_file
 
+check_exit_status "check_outputs_exist $workspace/$group_name.vcf" $JOB_NAME $status_file
+
 #END_COMBINEVCF##
 
 ##UPLOAD##

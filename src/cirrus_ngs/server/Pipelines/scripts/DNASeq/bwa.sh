@@ -72,6 +72,7 @@ else
 fi
 
 check_exit_status "$samtools stats $workspace/$fastq_end1.bam > $workspace/${fastq_end1}.txt" $JOB_NAME $status_file
+check_exit_status "check_outputs_exist $workspace/$fastq_end1.txt $workspace/$fastq_end1.bam" $JOB_NAME $status_file
 ##END_ALIGN##
 
 ##UPLOAD##
