@@ -73,7 +73,6 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     #used for pair-based analysis
     #dictionary with key=normal_sample, value=tumor_sample
     pair_list = documents.get("pairs")
-
     os.environ["pairs_exist"] = str(not len(pair_list) == 0)
 
 
@@ -151,7 +150,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
     #if not empty, first extra argument must be a number representing number of threads used by script
     extra_bash_args = list(map(str, extra_bash_args))
 
-    #runs tool on every sample in project in one go
+    #runs tool on every sample in project in one step 
     if tool_config_dict.get("all_samples", False):
         all_sample_arguments = _by_all_samples_argument_generator(project_name, 
                 workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
@@ -179,7 +178,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
         PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
         return
 
-    #runsn tool on samples in each group
+    #runs tool on samples in each group
     if tool_config_dict.get("by_group", False):
         for group_arguments in _by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
