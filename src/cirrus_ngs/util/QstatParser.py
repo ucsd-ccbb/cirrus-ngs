@@ -3,6 +3,7 @@ from collections import defaultdict
 from collections import Counter
 from cfnCluster import ConnectionManager
 import datetime
+import re
 
 def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysis_steps,verbose=False):
     print("checking status of jobs...\n")
@@ -52,7 +53,10 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
 
             for line in split_qstat:
                 line = line.split()
-                line_job = line[2]
+                line_id = line[0]
+
+                #get job name from qstat -j otherwise job name could be longer than qstat allows
+                line_job = re.search("job_name:\s+(.*)\n",get_qstat_j(ssh_client, job_name)).group(1)
                 if not line_job == job_name:
                     continue
 
