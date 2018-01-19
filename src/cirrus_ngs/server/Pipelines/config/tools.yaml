@@ -228,13 +228,6 @@ kallisto_multiqc:
     all_samples: True
 
 # Star_gatk workflow #
-star_gatk_make_group:
-    script_path: "RNASeq/make_group"
-    download_suffix: ~
-    input_is_output: False
-    can_be_zipped: False
-    uses_chromosomes: False
-    all_samples: True
 star_gatk_fastqc:
     script_path: "fastqc"
     download_suffix: ~

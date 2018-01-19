@@ -48,8 +48,9 @@ then
 fi
 ##END_DOWNLOAD##
 
-# Call the perl file
-check_exit_status "perl $kallisto_counts $workspace/$fastq_end1 $output_address" $JOB_NAME $status_file
+# TODO: Call the perl file
+# command: perl $count_script $output_file
+check_exit_status "perl $kallisto_counts $workspace/$fastq_end1"_counts.txt"" $JOB_NAME $status_file
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt*" --recursive
