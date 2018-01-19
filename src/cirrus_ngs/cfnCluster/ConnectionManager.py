@@ -56,7 +56,7 @@ def connect_master(hostname, username, private_key_file):
     return ssh_client
 
 ## executing command using the ssh client
-def execute_command(ssh_client, command):
+def execute_command(ssh_client, command,verbose=False):
     """Runs a command on a remote host.
 
     Used to execute scripts on the cluster from local controllers.
@@ -74,15 +74,16 @@ def execute_command(ssh_client, command):
         if command does not output anything to stderr or
         stdout.
     """
-    print("Executing {}".format(command))
+    if verbose:
+        print("Executing {}".format(command))
     stdin, stdout, stderr = ssh_client.exec_command(command)
     result = stdout.read().decode("utf-8")
     result += stderr.read().decode("utf-8")
 
     return result
 
-#def list_dir(ssh_client, directory):
-#    return execute_command(ssh_client, "ls {}".format(directory)).split()
+def list_dir(ssh_client, directory):
+    return execute_command(ssh_client, "ls {}".format(directory)).split()
 
 def copy_file(ssh_client, localpath, remotepath):
     """Copies local file to remote host.
