@@ -38,7 +38,7 @@ pair_base_name=$normal_sample'_vs_'$tumor_sample
 downloads_needed="False"
 for chrom in $chromosome_list
 do
-    if [ ! -f $workspace/$pair_base_name.$chrom$file_suffix ]
+    if [ ! -f $workspace/$pair_base_name.$chrom$file_suffix ] || [ ! -f $workspace/$normal_sample.final.$chrom.bam ] || [ ! -f $workspace/$tumor_sample.final.$chrom.bam ]
     then
         downloads_needed="True"
     fi
@@ -59,22 +59,31 @@ then
     for chrom in $chromosome_list
     do
         aws s3 cp $input_address/$normal_sample/$pair_base_name.$chrom$file_suffix $workspace/
+        aws s3 cp $input_address/$normal_sample/$normal_sample.final.$chrom.bam $workspace/
+        aws s3 cp $input_address/$tumor_sample/$tumor_sample.final.$chrom.bam $workspace/
     done
 fi
 ##END_DOWNLOAD##
 
+bam_file_list_norm=""
+bam_file_list_tumor=""
 vcf_file_list=""
 
 for chrom in $chromosome_list
 do
     vcf_file_list=$vcf_file_list"$workspace/$pair_base_name.$chrom$file_suffix "
+    bam_file_list_norm=$bam_file_list_norm"$workspace/$normal_sample.final.$chrom.bam "
+    bam_file_list_tumor=$bam_file_list_tumor"$workspace/$tumor_sample.final.$chrom.bam "
 done
 
 
 ##MERGE##
+check_exit_status "$sambamba merge -t $num_threads $workspace/$normal_sample.final.bam $bam_file_list_norm" $JOB_NAME $status_file
+check_exit_status "$sambamba merge -t $num_threads $workspace/$tumor_sample.final.bam $bam_file_list_tumor" $JOB_NAME $status_file
+
 check_exit_status "$vcf_concat $vcf_file_list > $workspace/$pair_base_name.raw.vcf" $JOB_NAME $status_file
 check_exit_status "$python $vcf_sort $workspace/$pair_base_name.raw.vcf '$chromosome_list' -o $workspace/$pair_base_name.merged.vcf" $JOB_NAME $status_file
-check_exit_status "check_outputs_exist $workspace/$pair_base_name.merged.vcf" $JOB_NAME $status_file
+check_exit_status "check_outputs_exist $workspace/$pair_base_name.merged.vcf $workspace/$normal_sample.final.bam $workspace/$tumor_sample.final.bam" $JOB_NAME $status_file
 ##END_MERGE##
 
 ##UPLOAD##
