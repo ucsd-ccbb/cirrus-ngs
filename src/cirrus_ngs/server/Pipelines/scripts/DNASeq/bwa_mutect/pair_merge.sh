@@ -74,6 +74,7 @@ done
 ##MERGE##
 check_exit_status "$vcf_concat $vcf_file_list > $workspace/$pair_base_name.raw.vcf" $JOB_NAME $status_file
 check_exit_status "$python $vcf_sort $workspace/$pair_base_name.raw.vcf '$chromosome_list' -o $workspace/$pair_base_name.merged.vcf" $JOB_NAME $status_file
+check_exit_status "check_outputs_exist $workspace/$pair_base_name.merged.vcf" $JOB_NAME $status_file
 ##END_MERGE##
 
 ##UPLOAD##

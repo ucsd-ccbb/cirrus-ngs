@@ -79,6 +79,8 @@ check_exit_status "$java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$work
     --standard_min_confidence_threshold_for_calling 30.0 \
     -ERC GVCF \
     --dbsnp $dbsnp" $JOB_NAME"_$chromosome" $status_file
+
+check_exit_status "check_outputs_exist $workspace/$fastq_end1.$chromosome.g.vcf" $JOB_NAME"_$chromosome" $status_file
 ##END_HAPLOTYPE##
 
 ##UPLOAD##

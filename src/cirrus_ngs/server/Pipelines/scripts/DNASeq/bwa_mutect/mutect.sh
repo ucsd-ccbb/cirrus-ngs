@@ -79,10 +79,12 @@ check_exit_status "$java -Djava.io.tmpdir=$workspace/temp -Xmx4g -jar $gatk \
      $references \
     -L $chromosome \
     -o $workspace/$normal_sample'_vs_'$tumor_sample.$chromosome.vcf" $JOB_NAME"_$chromosome" $status_file
+
+out_file=$normal_sample'_vs_'$tumor_sample.$chromosome.vcf
+check_exit_status "check_outputs_exist $workspace/$out_file" $JOB_NAME"_$chromosome" $status_file
 ##END_MUTECT##
 
 
 ##UPLOAD##
-out_file=$normal_sample'_vs_'$tumor_sample.$chromosome.vcf
 aws s3 cp $workspace $output_address --exclude "*" --include "$out_file" --recursive
 ##END_UPLOAD##

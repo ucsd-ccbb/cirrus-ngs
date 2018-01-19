@@ -119,6 +119,9 @@ check_exit_status "$java -d64 -jar -Djava.io.tmpdir=$workspace/temp -Xmx8g \
 check_exit_status "$sambamba index  $workspace/$fastq_end1.final.$chromosome.bam \
     $workspace/$fastq_end1.final.$chromosome.bam.bai" $JOB_NAME"_$chromosome" $status_file
 
+check_exit_status "check_outputs_exist $workspace/$fastq_end1.final.$chromosome.bam \
+    $workspace/$fastq_end1.final.$chromosome.bam.bai" ${JOB_NAME}_$chromosome $status_file
+
 ##END_POSTALIGN##
 
 ##UPLOAD##
