@@ -65,9 +65,6 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
                                       "nohup bash " + workspace + "scripts/run.sh "
                                       + workspace + "yaml_files/{}/{}/{} ".format(pipeline, workflow, yaml_file)
                                       + logs_dir + " " + pipeline+"_"+workflow)
-#
-#def check_status(ssh_client, job_name):
-#    print("checking status of jobs...")
-#    qstat = ConnectionManager.execute_command(ssh_client, "qstat")
-#    logs = ConnectionManager.list_dir(ssh_client, logs_dir)
-#    QstatParser.parse_qstat(qstat, logs, job_name)
+
+def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysis_steps,verbose=False):
+    QstatParser.check_status(ssh_client, step_name, pipeline, workflow, project_name,analysis_steps,verbose)

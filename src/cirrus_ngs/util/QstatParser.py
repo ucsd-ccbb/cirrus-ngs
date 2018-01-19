@@ -1,122 +1,128 @@
-__author__ = "Mustafa Guler<mguler@ucsd.edu>"
-import re
-import os
-import sys
+import yaml
+from collections import defaultdict
+from collections import Counter
+from cfnCluster import ConnectionManager
+import datetime
 
-def get_job_ids(qstat):
-    if qstat == "\n":
-        return None
-
-    qstat_list = qstat.split("\n")
-
-    #removes header lines and last entry from the extra newline
-    qstat_list = qstat_list[2:-1]
-
-    job_ids = [[int(qstat_list[x].split()[0]), qstat_list[x].split()[4]] 
-            for x in range(len(qstat_list))]
-    return job_ids
-
-def parse_qstat(qstat, logs, job_name):
-    #removes header lines and extra newline at end
-    qstat_list = qstat.split("\n")[2:-1]
-
-    jobs = {"qw": [], "r": [], "d": [], "E": []}
-
-    for line in qstat_list:
-        line = line.strip().split()
-        curr_job_name = line[2].split(".")[0]
-
-        if job_name == curr_job_name or job_name == "all":
-            for key in jobs:
-                if key in line[4]:
-                    jobs[key].append(curr_job_name)
-
-    print("There are {} jobs currently running.".format(len(jobs["r"])))
-    if len(jobs["r"]) > 0:
-        print("\tRunning jobs:")
-    for job in jobs["r"]:
-        print("\t\t{}".format(job))
-    print("There are {} jobs currently queued.".format(len(jobs["qw"])))
-    if len(jobs["qw"]) > 0:
-        print("\tQueued jobs:")
-    for job in jobs["qw"]:
-        print("\t\t{}".format(job))
-
-    if len(jobs["d"]) > 0:
-        print("\tThere are {} jobs that are hanging.".format(len(jobs["d"])))
-        print("\t\tPlease delete the hanging jobs and try again")
-    if len(jobs["E"]) > 0:
-        print("\tThere are {} jobs that have encountered an error.".format(len(jobs["E"])))
-        #print("\t\tTo see an error breakdown run the error checking cell.")
-
-    job_done = False
-    for log in logs:
-        if job_name in log:
-            job_done = True
-            break
-
-    zeros = {"qw": [],
-             "r" : [],
-             "d" : [],
-             "E" : []}
-    if jobs == zeros and job_done:
-        print("Your \"{}\" job has finished!".format(job_name))
-    elif jobs == zeros:
-        print("Your \"{}\" job has not started yet.".format(job_name))
-            
-
+def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysis_steps,verbose=False):
+    print("checking status of jobs...\n")
     
+    possible_steps = get_possible_steps(ssh_client, pipeline, workflow, analysis_steps)
 
-## parses qstat output to give user status information
-#def parse_qstat(job_info , job_name, logs):
-#
-#    jobs = {"qw": [],
-#            "r" : [],
-#            "d" : [],
-#            "E" : []}
-#
-#    for job in job_info:
-#        curr_job_name = re.search("job_name:\s*(\S*)", job[2]).group(1)
-#        if job_name in curr_job_name:
-#            if "E" in job[1]:
-#                jobs["E"].append(curr_job_name)
-#            elif "d" in job[1]:
-#                jobs["d"].append(curr_job_name)
-#            elif job[1] == "qw" or job[1] == "r":
-#                jobs[job[1]].append(curr_job_name)
-#
-#    print("\nThe status of your \"{}\" job:".format(job_name))
-#
-#    print("There are {} jobs currently running.".format(len(jobs["r"])))
-#    if len(jobs["r"]) > 0:
-#        print("\tRunning jobs:")
-#    for job in jobs["r"]:
-#        print("\t\t{}".format(job))
-#    print("There are {} jobs currently queued.".format(len(jobs["qw"])))
-#    if len(jobs["qw"]) > 0:
-#        print("\tQueued jobs:")
-#    for job in jobs["qw"]:
-#        print("\t\t{}".format(job))
-#
-#    if len(jobs["d"]) > 0:
-#        print("\tThere are {} jobs that are hanging.".format(len(jobs["d"])))
-#        print("\t\tPlease delete the hanging jobs and try again")
-#    if len(jobs["E"]) > 0:
-#        print("\tThere are {} jobs that have encountered an error.".format(len(jobs["E"])))
-#        #print("\t\tTo see an error breakdown run the error checking cell.")
-#
-#    job_done = False
-#    for log in logs:
-#        if job_name in log:
-#            job_done = True
-#            break
-#
-#    zeros = {"qw": [],
-#             "r" : [],
-#             "d" : [],
-#             "E" : []}
-#    if jobs == zeros and job_done:
-#        print("Your \"{}\" job has finished!".format(job_name))
-#    elif jobs == zeros:
-#        print("Your \"{}\" job has not started yet.".format(job_name))
-#
+    if verbose:
+        print("Your project will go through the following steps:\n\t{}\n".format(
+            ", ".join(possible_steps)))
+
+    all_possible_job_dict = get_job_names(ssh_client, "all", possible_steps)
+    job_dict = get_job_names(ssh_client, step_name, possible_steps)
+
+    qstat = ConnectionManager.execute_command(ssh_client, "qstat")
+    current_job = get_current_job(qstat)
+    if qstat:
+        split_qstat = qstat.splitlines()[2:]
+    else:
+        split_qstat = []
+
+    curr_time = datetime.datetime.utcnow() #for time running in verbose output
+    status_conv = {"qw":"queued", "r":"running", "dr":"being deleted"}
+    possible_steps = [all_possible_job_dict[x] for x in possible_steps if not x == "done"]
+    possible_steps.append("done")
+
+    for step, job_name in job_dict.items():
+        if verbose:
+            print("The {} step calls the {} script on the cluster".format(step, job_name))
+
+        qstat_j = get_qstat_j(ssh_client, job_name)
+
+        if "Following jobs do not exist" in qstat_j: #only happens when qstat -j job_name fails
+            if not job_name in possible_steps:
+                print("The {} step was not specified as a step in analysis_steps".format(step))
+            elif possible_steps.index(current_job) < possible_steps.index(job_name):
+                print("The {} step has not started yet.".format(step))
+            elif check_step_failed(ssh_client, pipeline, workflow, project_name, job_name):
+                print("The {} step has finished running, but has failed".format(step))
+                print("\tPlease check the logs")
+            else:
+                print("The {} step has finished running without failure".format(step))
+        else: #job must be in qstat
+            print("The {} step is being executed".format(step))
+
+            num_jobs = {x:0 for x in status_conv.keys()}
+            job_specifics = defaultdict(list)
+
+            for line in split_qstat:
+                line = line.split()
+                line_job = line[2]
+                if not line_job == job_name:
+                    continue
+
+                line_status = line[4]
+                num_jobs[line_status] += 1
+
+                month,day,year = map(int,line[5].split("/"))
+                hour,minute,second = map(int,line[6].split(":"))
+                start_time = datetime.datetime(year,month,day,hour,minute,second)
+
+                line_num_cores = line[-1]
+                job_specifics[line_status].append("\tone is currently {} using {} core(s) and was submitted {} ago".format(
+                    status_conv[line_status], line_num_cores, _format_timedelta(curr_time-start_time)))
+
+            step_info = {stat:(num,job_specifics[stat]) for stat,num in num_jobs.items()}
+
+            for stat,info_tuple in step_info.items():
+                num, details = info_tuple
+                if num == 0:
+                    continue
+                print("There are {} instances of the {} step currently {}".format(num, step, status_conv[stat]))
+                if verbose:
+                    for det in details:
+                        print(det)
+        print()
+
+def get_possible_steps(ssh_client, pipeline, workflow, analysis_steps):
+    spec_yaml = ConnectionManager.execute_command(ssh_client, 
+            "cat /shared/workspace/Pipelines/config/{}/{}_{}.yaml".format(pipeline, pipeline, workflow))
+    spec_yaml = yaml.load(spec_yaml)
+
+    possible_steps = filter(lambda x:x in analysis_steps, spec_yaml["steps"])
+    return list(possible_steps)
+
+
+def get_job_names(ssh_client, step_name, possible_steps):
+    tools_yaml = ConnectionManager.execute_command(ssh_client, 
+            "cat /shared/workspace/Pipelines/config/tools.yaml")
+    tools_yaml = yaml.load(tools_yaml)
+
+    if not step_name == "all":
+        return {step_name:_step_to_job(tools_yaml, step_name)}
+    else:
+        return {step:_step_to_job(tools_yaml, step) for step in possible_steps if not step == "done"}
+
+def get_current_job(qstat):
+    if not qstat:
+        return "done"
+    else:
+        return qstat.splitlines()[2].split()[2]
+
+def get_qstat_j(ssh_client, job_name):
+    return ConnectionManager.execute_command(ssh_client, "qstat -j {}".format(job_name))
+
+def check_step_failed(ssh_client, pipeline, workflow, project_name, job_name):
+    status_log_checker = "ls /shared/workspace/logs/{}/{}/{}/*/status.log | xargs grep \"{}.*failed\" | wc -l"
+
+    #reports if step finished and failed or finished and passed
+    if int(ConnectionManager.execute_command(ssh_client,
+        status_log_checker.format(pipeline,workflow,project_name,job_name))):
+        return True
+
+    return False
+
+def _step_to_job(tools_yaml, step_name):
+    if step_name in tools_yaml:
+        return tools_yaml[step_name]["script_path"].split("/")[-1] + ".sh"
+    else:
+        raise ValueError("{} is not a possible step in your pipeline.".format(step_name))
+
+
+def _format_timedelta(td):
+    return "{} days, {} hours, and {} minutes".format(td.days, td.seconds//3600, (td.seconds//60)%60)
