@@ -43,8 +43,11 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
             elif check_step_failed(ssh_client, pipeline, workflow, project_name, job_name):
                 print("The {} step has finished running, but has failed".format(step))
                 print("\tPlease check the logs")
-            else:
+            elif check_step_passed(ssh_client, pipeline, workflow, project_name, job_name):
                 print("The {} step has finished running without failure".format(step))
+            else:
+                print("The {} step has not started yet.".format(step))
+#                print("The {} step has finished running without failure".format(step))
         else: #job must be in qstat
             print("The {} step is being executed".format(step))
 
@@ -102,17 +105,30 @@ def get_job_names(ssh_client, step_name, possible_steps):
     else:
         return {step:_step_to_job(tools_yaml, step) for step in possible_steps if not step == "done"}
 
+
 def get_current_job(qstat):
     if not qstat:
         return "done"
     else:
         return qstat.splitlines()[2].split()[2]
 
+
 def get_qstat_j(ssh_client, job_name):
     return ConnectionManager.execute_command(ssh_client, "qstat -j {}".format(job_name))
 
+
 def check_step_failed(ssh_client, pipeline, workflow, project_name, job_name):
     status_log_checker = "ls /shared/workspace/logs/{}/{}/{}/*/status.log | xargs grep \"{}.*failed\" | wc -l"
+
+    #reports if step finished and failed or finished and passed
+    if int(ConnectionManager.execute_command(ssh_client,
+        status_log_checker.format(pipeline,workflow,project_name,job_name))):
+        return True
+
+    return False
+
+def check_step_passed(ssh_client, pipeline, workflow, project_name, job_name):
+    status_log_checker = "ls /shared/workspace/logs/{}/{}/{}/*/status.log | xargs grep \"{}.*passed\" | wc -l"
 
     #reports if step finished and failed or finished and passed
     if int(ConnectionManager.execute_command(ssh_client,
