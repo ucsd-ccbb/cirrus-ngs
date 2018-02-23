@@ -23,9 +23,9 @@ if __name__ == "__main__":
                 input_file = os.path.join(dirpath, filename)
                 expression_list = read_data_file(input_file)
                 sample_list.update({filename:expression_list})
-            # no files are found
-            else:
-                raise FileNotFoundError("ERROR! No \"isoforms.results\" files are found.")
+    # no files are found
+    if len(sample_list) == 0:
+        raise FileNotFoundError("ERROR! No \"isoforms.results\" files are found.")
 
     filewriter.write("transcript_id\tgene_id")
     for sample in sample_list:
