@@ -51,7 +51,6 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     elif os.environ["style"] == "factor":
         os.environ["style_ext"] = ".peaks.txt"
 
-    
     os.environ["genome_fasta"] = os.environ[genome + "_fasta"]
     os.environ["genome_fai"] = os.environ.get(genome + "_fai", "")
     os.environ["dbsnp"] = os.environ.get(genome + "_dbsnp", "")
@@ -68,6 +67,7 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     os.environ["genome_gtf"] = os.environ.get(genome + "_gtf", "")
     os.environ["STAR_index"] = os.environ.get(genome + "_STAR_index", "")
     os.environ["genome_bowtie2_index"] = os.environ.get(genome + "_bowtie2_index", "")
+    os.environ["kallisto_index"] = os.environ.get(genome + "_kallisto_index","")
 
 
     #used for pair-based analysis
@@ -78,35 +78,26 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 
     #used for group-based analysis
     #dictionary with key=group, value=list of tuples from _separate_file_suffix
-    group_list = {}
 
-    for sample_pair in sample_list:
-        curr_group = sample_pair.get("group")
-        curr_sample = sample_pair.get("filename").split(",")[0].strip()
-        curr_sample_tuple = _separate_file_suffix(curr_sample)
-        if group_list.get(curr_group, None):
-            group_list.get(curr_group).append(curr_sample_tuple)
-        else:
-            group_list[curr_group] = [curr_sample_tuple]
+    group_list = _make_group_list(sample_list, output_address, project_name, workflow)
 
 
     #tools.yaml contains general configuration for all shell scripts
     #see comments in tools.yaml for more information
-    global_config_file = open("/shared/workspace/Pipelines/config/tools.yaml", "r")
-    global_config_dict = yaml.load(global_config_file)
 
     #configuration file for current pipeline
     #contains order of steps and extra arguments to each shell script
     specific_config_file = open("/shared/workspace/Pipelines/config/{}/{}".format(pipeline, pipeline_config_file), "r")
     specific_config_dict = yaml.load(specific_config_file)
+    specific_config_file.close()
 
     #steps list enforces order of possible steps in pipeline
     for step in specific_config_dict["steps"]:
         if step in analysis_steps:
-            run_tool(global_config_dict[step], specific_config_dict[step], 
+            run_tool(specific_config_dict[step], 
                     project_name, workflow, sample_list, input_address, output_address, group_list, pair_list, log_dir)
 
-def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_list, input_address, output_address, group_list, pair_list, log_dir):
+def run_tool(tool_config_dict, project_name, workflow, sample_list, input_address, output_address, group_list, pair_list, log_dir):
     """Runs a single step in the current pipeline.
 
     This function can run any step in any pipeline/workflow based
@@ -132,6 +123,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
     Returns:
         None
     """
+    extra_bash_args = tool_config_dict["extra_bash_args"]
     #num_threads used to request nodes with a specific amount of threads for step
     #first extra argument should always be number of threads
     if len(extra_bash_args) > 0:
@@ -161,6 +153,7 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
                 subprocess.call(subprocess_call_list + all_sample_arguments + extra_bash_args)
         else:
             subprocess.call(subprocess_call_list + all_sample_arguments + extra_bash_args)
+        PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
         return
 
     #run tool on pairs in project
@@ -207,10 +200,6 @@ def run_tool(tool_config_dict, extra_bash_args, project_name, workflow, sample_l
 
     PBSTracker.trackPBSQueue(1, tool_config_dict["script_path"])
 
-#returns tuple
-#first element is file name without suffix
-#second element is .fastq or .fq
-#third element is str boolean representing if file was zipped
 def _separate_file_suffix(sample_file):
     """Extracts information about file extensions from fq/fastq files.
 
@@ -238,17 +227,41 @@ def _separate_file_suffix(sample_file):
 
     return file_prefix, file_suffix, str(is_zipped)
 
-#generator that yields tuple containing arguments for shell script
-#yielded arguments are standard for every tool
-#returned tuple:
-#   file_suffix:    file extension (.fq or .fastq) without .gz
-#   ROOT_DIR:       directory under which output will be saved
-#   fastq_end1:     forward reads (or single end file)
-#   fastq_end2:     reverse reads (or "NULL" if single end)
-#   input_address:  from "download" value of each sample, is S3 address
-#   output_address: S3 address where final analysis will be uploaded
-#   LOG_DIR:        directory where logs will be stored
-#   is_zipped:      str version of boolean, indicates if files to be downloaded are gzipped
+def _make_group_list(sample_list, output_address, project_name, workflow):
+    """Creates a dicitonary containing information about samples in each group
+
+    The group parameter in the design files is generally used to identify
+    different experimental conditions. Samples from the same experimental
+    condition should belong to the same group.
+
+    Args:
+        sample_list: list of dictionaries, from the project.yaml file
+        output_address: s3 address the user wants the output to be uploaded to
+        project_name: name given to project by user in pipeline notebook
+        workflow: the workflow this project will use, specified by user in notebook
+
+    Returns:
+        a dictionary of form 
+        {
+            group name: list of tuples from calling _separate_file_suffix 
+                        on all sample file names in this group
+        }
+
+        Note: will only contain forward reads
+    """
+    group_list = {}
+
+    for sample_pair in sample_list:
+        curr_group = sample_pair.get("group")
+        curr_sample = sample_pair.get("filename").split(",")[0].strip()
+        curr_sample_tuple = _separate_file_suffix(curr_sample)
+        if group_list.get(curr_group, None):
+            group_list.get(curr_group).append(curr_sample_tuple)
+        else:
+            group_list[curr_group] = [curr_sample_tuple]
+
+    return group_list
+
 def _sample_argument_generator(project_name, workflow, sample_list, input_address, output_address, config_dictionary, log_dir):
     """Generator that yields list of shell script arguments for sample-by-sample tool runs.
 
@@ -513,7 +526,7 @@ def _by_all_samples_argument_generator(project_name, workflow, sample_list, inpu
 
     samples = " ".join(samples)
 
-    yield [project_name, workflow, file_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
+    return [project_name, workflow, file_suffix, ROOT_DIR, "NULL", "NULL", input_address, 
             curr_output_address, log_dir, is_zipped, samples]
 
 
