@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export R_LIBS="/shared/workspace/software/R-packages"
 
 project_name=$1
 workflow=$2
@@ -19,14 +18,14 @@ log_file=$log_dir/'k_diff_cal.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
-echo "output address:"$output_address
-
 status_file=$log_dir/'status.log'
 touch $status_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$workflow
 mkdir -p $workspace
+
+echo $workspace
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 date
@@ -35,14 +34,19 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 check_step_already_done $JOB_NAME $status_file
 
 # Download group text file
-if [ ! -f $workspace/group.txt ]
+if [ ! -f $workspace/group.txt ] || [ ! -f $workspace/all_gene_counts.txt ] 
 then
 
-    aws s3 cp $input_address/group.txt $workspace/
-
+    aws s3 cp $input_address/group.txt $workspace/group.txt
+    aws s3 cp $input_address/all_gene_counts.txt $workspace/all_gene_counts.txt
 fi
 ##END_DOWNLOAD##
 
 # Call R script
 check_exit_status "Rscript /shared/workspace/Pipelines/scripts/RNASeq/kallisto/RNA-seq_limma.R \
-$workspace/group.txt $output_address" $JOB_NAME $status_file
+    $workspace/group.txt \
+    $workspace/all_gene_counts.txt $workspace/" $JOB_NAME $status_file
+
+echo "##########################"
+ls $workspace/
+echo "##########################"
