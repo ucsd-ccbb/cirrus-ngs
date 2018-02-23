@@ -1,20 +1,54 @@
 steps:
-   - "kallisto_make_group"
-   - "kallisto_fastqc"
-   - "kallisto_trim"
-   - "kallisto_align"
-   - "kallisto_count"
-   - "kallisto_merge"
-   - "kallisto_differential_calculate" # only for kallisto
-   - "kallisto_multiqc"
-kallisto_make_group: []
-kallisto_fastqc: []
-kallisto_trim:
-   - 5      # number of threads
-   - 27     # min length to keep
-kallisto_align:
-   - 4      # number of threads
-kallisto_count: []
-kallisto_merge: []
-kallisto_differential_calculate: []
-kallisto_multiqc: []
+   - "fastqc"
+   - "trim"
+   - "align"
+   - "multiqc"
+   - "count"
+   - "merge_counts"
+fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args: []
+trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4     # number of threads
+        - 27    # min length to keep
+align: 
+    script_path: "RNASeq/kallisto/k_align"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4     # number of threads
+count:
+    script_path: "RNASeq/kallisto/k_count"
+    download_suffix: ".abundance.tsv"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args: []
+merge_counts:
+    script_path: "RNASeq/RNA_merge_counts"
+    download_suffix: "_counts.txt"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+    extra_bash_args: []
+multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+    extra_bash_args: []
