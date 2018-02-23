@@ -59,15 +59,13 @@ fi
 
 
 ##ALIGNMENT##
-# single-end
 if [ "$fastq_end2" == "NULL" ]
 then
-    check_exit_status "$kallisto/kallisto quant -i $kallisto/kallisto_index -o $workspace/ -t $num_threads --single -l 50 -s 20 \
-    $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file
-# paired-end
+    check_exit_status "$kallisto/kallisto quant -i $kallisto_index -o $workspace/ -t $num_threads --single -l 50 -s 20 \
+        $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file | tee $workspace/$fastq_end1.txt
 else
-    check_exit_status "$kallisto/kallisto quant -i $kallisto/kallisto_index -o $workspace/ -t $num_threads -l 50 \
-    $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix" $JOB_NAME $status_file
+    check_exit_status "$kallisto/kallisto quant -i $kallisto_index -o $workspace/ -t $num_threads \
+        $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix" $JOB_NAME $status_file | tee $workspace/$fastq_end1.txt
 fi
 ##END_ALIGNMENT##
 
@@ -77,5 +75,5 @@ mv $workspace/abundance.tsv $workspace/$fastq_end1.abundance.tsv
 mv $workspace/run_info.json $workspace/$fastq_end1.run_info.json
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address/ --exclude "*" --include "*.json*" --include "*.h5*" --include "*.tsv*" --recursive
+aws s3 cp $workspace $output_address/ --exclude "*"  --include "$fastq_end1.abundance.*" --include "$fastq_end1.run_info.json" --include "$fastq_end1.txt" --recursive
 ##END_UPLOAD##

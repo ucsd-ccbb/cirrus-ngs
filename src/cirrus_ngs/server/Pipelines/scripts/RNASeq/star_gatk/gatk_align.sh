@@ -49,43 +49,34 @@ then
 fi
 ##END_DOWNLOAD##
 
+#TODO check human_genome, i'm pretty sure it's empty
 # Star align
 if [ "$fastq_end2" == "NULL" ]
 then
-    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $human_genome \
-    --twopassMode Basic --readFilesIn $workspace/$fastq_end1$file_suffix \
-    --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
+    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_index \
+        --twopassMode Basic --readFilesIn $workspace/$fastq_end1$file_suffix \
+        --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 
 else
-    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $human_genome \
-    --twopassMode Basic --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
-    --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
+    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_index \
+        --twopassMode Basic --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
+        --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 fi
 
-if [ ! -f $workspace/$fastq_end1."Aligned.out.bam" ]; then
-   check_exit_status "$samtools view -Sb $workspace/$fastq_end1."Aligned.out.sam" \
-   > $workspace/$fastq_end1."Aligned.out.bam"" $JOB_NAME $status_file
-fi
+check_exit_status "$samtools view -Sb $workspace/$fastq_end1.Aligned.out.sam > \
+    $workspace/$fastq_end1.Aligned.out.bam" $JOB_NAME $status_file
 
-if [ ! -f $workspace/$fastq_end1."Aligned.out.sorted.bam" ]; then
-   check_exit_status "$samtools sort -m 2G -@ 4 $workspace/$fastq_end1."Aligned.out.bam" \
-   $workspace/$fastq_end1."Aligned.out.sorted"" $JOB_NAME $status_file
-fi
+#TODO: ask about sambamba
+check_exit_status "$samtools sort -m 2G -@ 4 $workspace/$fastq_end1.Aligned.out.bam \
+    $workspace/$fastq_end1.Aligned.out.sorted" $JOB_NAME $status_file
 
-if [ ! -f $workspace/$fastq_end1."Aligned.out.sorted.bam.bai" ]; then
-   check_exit_status "$samtools index $workspace/$fastq_end1."Aligned.out.sorted.bam"" $JOB_NAME $status_file
-fi
+check_exit_status "$samtools index $workspace/$fastq_end1.Aligned.out.sorted.bam" $JOB_NAME $status_file
+
+check_exit_status "$samtools stats $workspace/$fastq_end1.Aligned.out.sorted.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
 # End star align
 
-# TODO: Perform samtools stats, for multiqc purposes
-check_exit_status "$samtools stats $workspace/$fastq_end1.Aligned.out.sorted.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
-if [ -f $workspace/$fastq_end1.txt ]
-then
-    echo "Finished samtools stats"
-else
-    echo "Failed samtools stats"
-fi
+
 
 # Upload
-aws s3 cp $workspace $output_address/ --exclude "*" --include "*.Aligned*" --exclude "*.sam*" --recursive
+aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.Aligned.out.sorted.bam*" --include "$fastq_end1.txt" --recursive
 ##END_UPLOAD##
