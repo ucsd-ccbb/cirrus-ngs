@@ -79,8 +79,8 @@ bam_merge:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-pair_vcf_merge:
-    script_path: "DNASeq/bwa_mutect/pair_merge"
+merge_vcf_pairwise:
+    script_path: "DNASeq/bwa_mutect/merge_vcf_pairwise"
     download_suffix: ".vcf"
     input_is_output: True
     can_be_zipped: False
@@ -174,13 +174,6 @@ find_motifs_genome:
 # RNA-seq steps #
 
 # Kallisto workflow #
-kallisto_make_group:
-    script_path: "RNASeq/make_group"
-    download_suffix: ~
-    input_is_output: False
-    can_be_zipped: False
-    uses_chromosomes: False
-    all_samples: True
 kallisto_fastqc:
     script_path: "fastqc"
     download_suffix: ~
@@ -205,16 +198,9 @@ kallisto_count:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-kallisto_merge:
+kallisto_merge_counts:
     script_path: "RNASeq/RNA_merge_counts"
     download_suffix: "_counts.txt"
-    input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
-    all_samples: True
-kallisto_differential_calculate:
-    script_path: "RNASeq/kallisto/k_diff_cal"
-    download_suffix: ~
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
@@ -285,7 +271,7 @@ star_htseq_count:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-star_htseq_merge:  # same with kallisto
+star_htseq_merge_counts:  # same with kallisto
     script_path: "RNASeq/RNA_merge_counts"
     download_suffix: "_counts.txt"
     input_is_output: True
@@ -315,12 +301,12 @@ star_rsem_trim:
     uses_chromosomes: False
 star_rsem_calculate_expression:
     script_path: "RNASeq/star_rsem/cal_expression"
-    download_suffix: ~
+    download_suffix: ".trim{}"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-star_rsem_summary:
-    script_path: "RNASeq/star_rsem/summary"
+star_rsem_merge_counts:
+    script_path: "RNASeq/star_rsem/merge"
     download_suffix: ~
     input_is_output: True
     can_be_zipped: False

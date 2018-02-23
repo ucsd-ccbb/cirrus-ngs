@@ -5,14 +5,52 @@ steps:
    - "align_and_count"
    - "merge_counts"
    - "multiqc"
-fastqc: []
+fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args: []
 trim:
-   - 1  # number of threads
-   - 15  # drop the read if it is below this minimum length
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args:
+        - 1     # number of threads
+        - 15    # minlen for trimmomatic
 cut_adapt:
-   - 1  # number of threads
-   - 2  # drop the read if it is below this minimum length: to avoid warnings
-align_and_count: []  # alignment (using bowtie2) + counting for individual samfiles
-merge_counts: []
-multiqc: []
-
+    script_path: "SmallRNASeq/bowtie2/cutadapt"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args:
+        - 1     # number of threads
+        - 2    # minlengt for read
+align_and_count:
+    script_path: "SmallRNASeq/bowtie2/bowtie2_and_count"
+    download_suffix: ".cut{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4     # number of threads
+merge_counts:  # merge the count files
+    script_path: "SmallRNASeq/bowtie2/miRNA_merge_counts"
+    download_suffix: ".counts.txt"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+    extra_bash_args: []
+multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+    extra_bash_args: []
