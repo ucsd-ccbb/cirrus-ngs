@@ -8,20 +8,20 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
     print("checking status of jobs...\n")
     spec_yaml = ConnectionManager.execute_command(ssh_client, 
             "cat /shared/workspace/Pipelines/config/{}/{}_{}.yaml".format(pipeline, pipeline, workflow))
-    tools_yaml = ConnectionManager.execute_command(ssh_client, 
-            "cat /shared/workspace/Pipelines/config/tools.yaml")
+    spec_yaml = yaml.load(spec_yaml)
     
-    possible_steps = get_possible_steps(ssh_client, pipeline, workflow, analysis_steps, spec_yaml)
+    possible_steps = get_possible_steps(analysis_steps, spec_yaml)
 
     if verbose:
         print("Your project will go through the following steps:\n\t{}\n".format(
             ", ".join(possible_steps)))
 
-    all_possible_job_dict = get_job_names(ssh_client, "all", possible_steps, tools_yaml)
-    job_dict = get_job_names(ssh_client, step_name, possible_steps, tools_yaml)
+    all_possible_job_dict = get_job_names("all", possible_steps, spec_yaml)
+    job_dict = get_job_names(step_name, possible_steps, spec_yaml)
 
     qstat = ConnectionManager.execute_command(ssh_client, "qstat")
     current_job = get_current_job(ssh_client, qstat)
+
     if qstat:
         split_qstat = qstat.splitlines()[2:]
     else:
@@ -50,7 +50,6 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
                 print("The {} step has finished running without failure".format(step))
             else:
                 print("The {} step has not started yet.".format(step))
-#                print("The {} step has finished running without failure".format(step))
         else: #job must be in qstat
             print("The {} step is being executed".format(step))
 
@@ -93,20 +92,16 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
         print("\nYour pipeline has finished")
     print()
 
-def get_possible_steps(ssh_client, pipeline, workflow, analysis_steps, spec_yaml):
-    spec_yaml = yaml.load(spec_yaml)
-
+def get_possible_steps(analysis_steps, spec_yaml):
     possible_steps = filter(lambda x:x in analysis_steps, spec_yaml["steps"])
     return list(possible_steps)
 
 
-def get_job_names(ssh_client, step_name, possible_steps, tools_yaml):
-    tools_yaml = yaml.load(tools_yaml)
-
+def get_job_names(step_name, possible_steps, spec_yaml):
     if not step_name == "all":
-        return {step_name:_step_to_job(tools_yaml, step_name)}
+        return {step_name:_step_to_job(spec_yaml, step_name)}
     else:
-        return {step:_step_to_job(tools_yaml, step) for step in possible_steps if not step == "done"}
+        return {step:_step_to_job(spec_yaml, step) for step in possible_steps if not step == "done"}
 
 
 def get_current_job(ssh_client, qstat):
@@ -117,9 +112,6 @@ def get_current_job(ssh_client, qstat):
         for line in qstat_j.splitlines():
             if line.startswith("job_name"):
                 return line.split()[1]
-                
-
-
 
 def get_qstat_j(ssh_client, job_name):
     return ConnectionManager.execute_command(ssh_client, "qstat -j {}".format(job_name))
@@ -143,14 +135,14 @@ def check_step_passed(ssh_client, pipeline, workflow, project_name, job_name):
         status_log_checker.format(pipeline,workflow,project_name,"*/",job_name))):
         return True
     elif int(ConnectionManager.execute_command(ssh_client,
-        status_log_checker.format(pipeline,workflow,project_name,"",job_name))):
+        status_log_checker.format(pipeline,workflow,project_name,"",job_name)).split('\n')[0]):
         return True
 
     return False
 
-def _step_to_job(tools_yaml, step_name):
-    if step_name in tools_yaml:
-        return tools_yaml[step_name]["script_path"].split("/")[-1] + ".sh"
+def _step_to_job(spec_yaml, step_name):
+    if step_name in spec_yaml:
+        return spec_yaml[step_name]["script_path"].split("/")[-1] + ".sh"
     else:
         raise ValueError("{} is not a possible step in your pipeline.".format(step_name))
 

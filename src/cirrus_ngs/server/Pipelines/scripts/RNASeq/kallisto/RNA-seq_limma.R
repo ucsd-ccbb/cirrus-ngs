@@ -20,29 +20,39 @@ myfold <- function(x) {
 #infile<-commandArgs(trailingOnly = T)
 args<-commandArgs(trailingOnly = T)
 infile<-args[1]
-rootpath<-args[2]
-META<-read.table(infile,sep="\t",header=F) #read metadata
-filename<-as.character(META[1,1])
-ntext<-as.numeric(META[1,2])
+filename<-args[2]
+rootpath<-args[3]
+META<-read.table(infile,sep="\t",header=T) #read metadata
+#filename<-as.character(META[1,1])
+#ntext<-as.numeric(META[1,2])
+ntext<-3
 pink<-0.01
 red<-0.0001
 mmx<-5 #y range of MA plots
 
-k<-nrow(META)-1
+#k<-nrow(META)-1
+k<-nrow(META)
 
 print(paste("Doing a ",k,"-way analysis",sep=""))
 
-conditions<-t(as.character(META[2:(k+1),1]))
+#conditions<-t(as.character(META[2:(k+1),1]))
+conditions<-t(as.character(META[1:k,1]))
 nc<-length(conditions)
 npairs<-nc*(nc-1)/2
 outfile<-paste(c(rootpath,c(conditions,"lfdr.txt")),sep="",collapse="")
 
-nrep<-t(META[2:(k+1),2])
+#nrep<-t(META[2:(k+1),2])
+nrep<-t(META[1:k,2])
+if (any(nrep<3)) {
+   stop("All experimental conditions must have >= 3 samples for differential expression calculation.
+Differential expression will not be calculated for this project.")
+}
 
 nrto<-nrep
 for (i in 2:k) {
    nrto[i]<-nrto[i-1]+nrep[i]
 }
+
 
 X<-read.table(filename,sep="\t",header=T) #read counts
 nsamples<-sum(nrep) #number of samples
@@ -55,7 +65,6 @@ ngenes<-sum(detected)
 
 names<-X[detected,1:ntext]
 S<-round(X[detected,(ntext+1):(ntext+nsamples)])
-
 
 group<-factor(c(rep(conditions,nrep)),levels=conditions)
 #design<-model.matrix(~group) #for voom type 1

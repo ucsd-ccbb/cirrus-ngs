@@ -79,7 +79,7 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     #used for group-based analysis
     #dictionary with key=group, value=list of tuples from _separate_file_suffix
 
-    group_list = _make_group_list(sample_list, output_address, project_name, workflow)
+    group_list = _make_group_list(sample_list)
 
 
     #tools.yaml contains general configuration for all shell scripts
@@ -132,7 +132,7 @@ def run_tool(tool_config_dict, project_name, workflow, sample_list, input_addres
         num_threads = 1
 
     #chromosome lists are determined by the genome name from the software.conf configuration file
-    CHROMOSOME_LIST = os.environ["chromosome_list"].split()
+    chromosome_list = os.environ["chromosome_list"].split()
 
     #contains all qsub flags and the name of the shell script for this step
     subprocess_call_list = ["qsub", "-V", "-o", "/dev/null", "-e", "/dev/null", "-pe", "smp", str(num_threads),
@@ -148,7 +148,7 @@ def run_tool(tool_config_dict, project_name, workflow, sample_list, input_addres
                 workflow, sample_list, input_address, output_address, tool_config_dict, log_dir)
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = all_sample_arguments[2]
-            for chromosome in CHROMOSOME_LIST:
+            for chromosome in chromosome_list:
                 all_sample_arguments[2] = original_suffix.format(chromosome)
                 subprocess.call(subprocess_call_list + all_sample_arguments + extra_bash_args)
         else:
@@ -162,7 +162,7 @@ def run_tool(tool_config_dict, project_name, workflow, sample_list, input_addres
                 group_list, pair_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = pair_arguments[2]
-                for chromosome in CHROMOSOME_LIST:
+                for chromosome in chromosome_list:
                     pair_arguments[2] = original_suffix.format(chromosome)
                     subprocess.call(subprocess_call_list + pair_arguments + extra_bash_args + [chromosome])
             else:
@@ -176,7 +176,7 @@ def run_tool(tool_config_dict, project_name, workflow, sample_list, input_addres
         for group_arguments in _by_group_argument_generator(project_name, workflow, group_list, input_address, output_address, tool_config_dict, log_dir):
             if tool_config_dict["uses_chromosomes"]:
                 original_suffix = group_arguments[2]
-                for chromosome in CHROMOSOME_LIST:
+                for chromosome in chromosome_list:
                     group_arguments[2] = original_suffix.format(chromosome)
                     subprocess.call(subprocess_call_list + group_arguments + 
                             extra_bash_args + [chromosome])
@@ -191,7 +191,7 @@ def run_tool(tool_config_dict, project_name, workflow, sample_list, input_addres
         #for tools that run on each chromosome the file suffix has the current chrom number added to it
         if tool_config_dict["uses_chromosomes"]:
             original_suffix = curr_sample_arguments[2]
-            for chromosome in CHROMOSOME_LIST:
+            for chromosome in chromosome_list:
                 curr_sample_arguments[2] = original_suffix.format(chromosome)
                 subprocess.call(subprocess_call_list + curr_sample_arguments + 
                         extra_bash_args + [chromosome])
@@ -227,7 +227,7 @@ def _separate_file_suffix(sample_file):
 
     return file_prefix, file_suffix, str(is_zipped)
 
-def _make_group_list(sample_list, output_address, project_name, workflow):
+def _make_group_list(sample_list):
     """Creates a dicitonary containing information about samples in each group
 
     The group parameter in the design files is generally used to identify
@@ -236,9 +236,6 @@ def _make_group_list(sample_list, output_address, project_name, workflow):
 
     Args:
         sample_list: list of dictionaries, from the project.yaml file
-        output_address: s3 address the user wants the output to be uploaded to
-        project_name: name given to project by user in pipeline notebook
-        workflow: the workflow this project will use, specified by user in notebook
 
     Returns:
         a dictionary of form 

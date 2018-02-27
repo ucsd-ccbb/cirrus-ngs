@@ -1,10 +1,9 @@
 import sys
 
-#gencode = "/shared/workspace/software/kallisto_util/count_reads/gencode.v23.metadata.EntrezGene"
-#gencode = "/shared/workspace/software/references/Hsapiens/hg19/sequence/gencode.v19.metadata.HGNC"
-gencode = "/shared/workspace/software/references/Hsapiens/hg19/sequence/gencode.v27lift37.metadata.EntrezGene"
-hsa = "/shared/workspace/software/references/Hsapiens/hg19/sequence/new_hsa.txt"
-#hsa = "/shared/workspace/software/kallisto_util/count_reads/Hsa_gene_symbol_description.txt"
+gencode = "/shared/workspace/software/references/Hsapiens/hg19/annotations/gencode.v27lift37.metadata.EntrezGene"
+
+# this is just a trimmed version of Homo_sapiens.gene_info from Entrez Gene
+hsa = "/shared/workspace/software/references/Hsapiens/hg19/annotations/new_hsa.txt"
 
 genehash = {}
 mash = {}
@@ -22,11 +21,9 @@ with open(hsa, "r") as f:
         line = line.rstrip()
         gene, sym, descr = line.split("\t")[:3]
         gene2descr[gene] = "{}\t{}".format(sym, descr)
-#        sym2descr[sym] = (gene,descr)
 
 sample = sys.argv[1]
 
-#with open("{}.abundance.tsv".format(sample), "r") as f:
 with open(sample, "r") as f:
     f.readline() # skip header
     for line in f:
@@ -38,15 +35,16 @@ with open(sample, "r") as f:
         if transcr in genehash:
             mash[genehash[transcr]] += float(count)
 
-outfile = "{}_counts1.txt".format(sample)
+outfile = "{}_counts.txt".format(sample.split(".")[0])
 
+# gencode is a little behind entrez gene
+# these are the genes that were deprecated/updated 
 update_dict = {"100128028":"109729184", "440386":None, "554223":"352962", "83935":"143872", "9142":None}
 
 with open(outfile, "w+") as f:
     f.write("gene\tsymbol\tdescription\t{}\n".format(sample))
 
-
-    for key in sorted(mash.keys()):
+    for key in sorted(mash.keys(), key=int):
         new_key = update_dict.get(key, key)
         if new_key:
             f.write("{}\t{}\t{}\n".format(key, gene2descr[new_key], mash[key]))
