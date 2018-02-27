@@ -70,9 +70,5 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
 def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysis_steps,verbose=False):
     QstatParser.check_status(ssh_client, step_name, pipeline, workflow, project_name,analysis_steps,verbose)
 
-def find_tmp_dir():
-    tmp_file = subprocess.check_output("mktemp -u".split()).decode('utf-8')
-    tmp_dir = subprocess.check_output("dirname {}".format(tmp_file).split()).decode('utf-8')
-    return tmp_dir
-
-
+def stop_pipeline(ssh_client):
+    ConnectionManager.execute_command(ssh_client, "bash /shared/workspace/Pipelines/util/stop_pipeline.sh")
