@@ -60,7 +60,7 @@ No tabs were found in line:\n\t\"{}\" """.format(line.strip()))
                     else:
                         raise ValueError("Design file third column must be either \"Normal\"/\"Tumor\" or \"Chip\"/\"Input\". Current value is {}".format(fields[2]))
 
-    pair_list = {normal_samples[x]: tumor_samples[x] for x in normal_samples.keys()}
+    pair_list = {normal_samples[x]: tumor_samples[x] for x in normal_samples}
 
     print(sample_list)
     print(group_list)
