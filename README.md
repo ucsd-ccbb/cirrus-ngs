@@ -371,11 +371,73 @@ This file also contains three bash functions used in all shell scripts to preven
 ## Cluster organization
 Clusters are created using an EBS snapshot containing all the tools (bowtie, samtools, etc) and software needed to run cirrus-ngs. These clusters follow a very specific directory organization which must be maintained if the user wants to add anything to the cluster. All relevant files and directories are rooted at /shared/workspace/ which will be shortened to $root in the following sections. 
 ### Directories
-* $root/logs
-* $root/software
-* $root/Pipelines
+* $root/logs/
+* $root/software/
+* $root/Pipelines/
 
-#### $root/logs
+#### $root/logs/
 This directory contains the logs from any pipeline. A given pipeline's logs will be in $root/logs/$pipeline/$workflow/$project_name. The $log_dir parameter in each shell script contains this path. The user doesn't need to set it, it's handled already.
 
-#### $root/software
+#### $root/software/
+This directory contains all the tools that cirrus relies on to run. Each tool is under its own directory.
+
+**Example:**
+```$root/software/$tool_name/$version/```
+
+A tool can have multiple versions. Under the version is all the software associated with any given tool. For example, currently
+the STAR tool has 3 versions: 2.3.0e, 2.5.1a, and 2.5.3a. The STAR directory is organized as follows:
+
+* $root/software/STAR/
+  * 2.3.0e/
+    * <all STAR 2.3.0e files>
+  * 2.5.1a/
+    * <all STAR 2.5.1a files>
+  * 2.5.3a/
+    * <all STAR 2.5.3a files>
+    
+The software directory also contains a references directory ($root/software/references)
+##### $root/software/references/
+
+This directory contains all of the reference files needed for cirrus. This includes, but isn't limited to, fasta references, gtf files, and alignment indices (for different alignment tools). The directory is organized as follows:
+
+* $root/software/references/
+  * $organism_name/ (Hsapiens, Mmusculus, etc.)
+    * $assembly_name/ (hg19, etc.)
+      * annotations/
+        * gtf files, general gene annotations
+      * indices/
+        * $alignment_tool_name/ (STAR, bowtie, etc.)
+          * index built for that alignment tool
+      * sequence/
+        * fasta files for sequence references
+      * variation/
+        * vcf references (dbsnp, comsic, etc.)
+        
+This structure isn't set in stone, but provides an organized way of storing any references thay may be needed. 
+
+### $root/Pipelines/
+
+This directory contains the core of the non-local cirrus-ngs implementation. The main file, Pipeline.py, handles generating shell script arguments and submitting jobs based on the user's specifications. The directory is organized as follows. The config directory contains configuration files and information. The scripts directory contains all the shell scripts associated with all possible steps. The yaml_files directory contains the yaml files created from the user's input into the jupyter notebook. The util directory contains auxillary scripts and tools written specifically for cirrus.
+
+* $root/Pipelines/
+  * Pipeline.py
+  * config/
+    * software.conf
+    * $pipeline/
+      * configuration files for all workflows in $pipeline
+      * files are named ${pipeline}_${workflow}.yaml
+  * scripts/
+    * run.sh (this is the main entry point, it calls Pipeline.py)
+    * shared shell scripts (scripts called by every pipeline/workflow)
+    * $pipeline/
+      * shell scripts called by all workflows in this pipeline
+      * $workflow/
+        * shell scripts called by this workflow
+  * util/
+    * auxillary scripts for cirrus
+  * yaml_files/
+    * $pipeline/
+      * $workflow/
+        * $project_name.yaml (created from user's input to juptyer notebook)
+        
+The script_path filed mentioned in the configuration file section contains script paths relative to $root/Pipelines/scripts/. 
