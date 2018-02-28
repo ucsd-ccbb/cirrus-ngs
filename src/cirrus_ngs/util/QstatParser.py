@@ -28,9 +28,10 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
         split_qstat = []
 
     curr_time = datetime.datetime.utcnow() #for time running in verbose output
-    status_conv = {"qw":"queued", "r":"running", "dr":"being deleted"}
+    status_conv = {"qw":"queued", "r":"running", "dr":"being deleted", "t":"being transferred"}
     possible_steps = [all_possible_job_dict[x] for x in possible_steps if not x == "done"]
     possible_steps.append("done")
+    is_done = True
 
     for step, job_name in job_dict.items():
         if verbose:
@@ -41,15 +42,20 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
         if "Following jobs do not exist" in qstat_j: #only happens when qstat -j job_name fails
             if not job_name in possible_steps:
                 print("The {} step was not specified as a step in analysis_steps".format(step))
+                is_done = is_done and True
             elif possible_steps.index(current_job) < possible_steps.index(job_name):
                 print("The {} step has not started yet.".format(step))
+                is_done = False
             elif check_step_failed(ssh_client, pipeline, workflow, project_name, job_name):
                 print("The {} step has finished running, but has failed".format(step))
                 print("\tPlease check the logs")
+                is_done = is_done and True
             elif check_step_passed(ssh_client, pipeline, workflow, project_name, job_name):
                 print("The {} step has finished running without failure".format(step))
+                is_done = is_done and True
             else:
                 print("The {} step has not started yet.".format(step))
+                is_done = False
         else: #job must be in qstat
             print("The {} step is being executed".format(step))
 
@@ -88,7 +94,7 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
                         print(det)
         print()
 
-    if current_job == "done":
+    if current_job == "done" and is_done:
         print("\nYour pipeline has finished")
     print()
 
