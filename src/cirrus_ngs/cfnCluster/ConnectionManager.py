@@ -123,7 +123,7 @@ def copy_gatk(ssh_client, localpath):
         None
     """
     # SCPCLient takes a paramiko transport as its only argument
-    remotepath = "/shared/workspace/software/gatk/GenomeAnalysisTK-3.3-0"
+    remotepath = "/shared/workspace/software/gatk/3.8-0/"
     copy_file(ssh_client, localpath, remotepath)
 
 ## close the ssh connection
