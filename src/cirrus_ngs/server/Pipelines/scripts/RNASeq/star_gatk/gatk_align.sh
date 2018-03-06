@@ -49,7 +49,6 @@ then
 fi
 ##END_DOWNLOAD##
 
-#TODO check human_genome, i'm pretty sure it's empty
 # Star align
 if [ "$fastq_end2" == "NULL" ]
 then
@@ -63,11 +62,10 @@ else
         --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 fi
 
-check_exit_status "$samtools view -Sb $workspace/$fastq_end1.Aligned.out.sam > \
-    $workspace/$fastq_end1.Aligned.out.bam" $JOB_NAME $status_file
+check_exit_status "$samtools view -Sb $workspace/$fastq_end1.Aligned.out.sam \
+    -o $workspace/$fastq_end1.Aligned.out.bam" $JOB_NAME $status_file
 
-#TODO: ask about sambamba
-check_exit_status "$samtools sort -m 2G -@ 4 $workspace/$fastq_end1.Aligned.out.bam \
+check_exit_status "$sambamba sort -m 2G -t $num_threads $workspace/$fastq_end1.Aligned.out.bam \
     $workspace/$fastq_end1.Aligned.out.sorted" $JOB_NAME $status_file
 
 check_exit_status "$samtools index $workspace/$fastq_end1.Aligned.out.sorted.bam" $JOB_NAME $status_file

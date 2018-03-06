@@ -62,7 +62,7 @@ then
     check_exit_status "$rsem --star --output-genome-bam --sort-bam-by-coordinate \
         --star-path $star_path -p $num_threads \
         $workspace/$fastq_end1$file_suffix \
-        $STAR_index/human $workspace/$fastq_end1" $JOB_NAME $status_file
+        $rsem_index $workspace/$fastq_end1" $JOB_NAME $status_file
 
 else
     # paired end
@@ -70,7 +70,7 @@ else
         --star-path $star_path -p $num_threads \
         --paired-end $workspace/$fastq_end1$file_suffix \
         $workspace/$fastq_end2$file_suffix \
-        $STAR_index/human $workspace/$fastq_end1" $JOB_NAME $status_file
+        $rsem_index $workspace/$fastq_end1" $JOB_NAME $status_file
 fi
 
 # perform samtools stats, for multiqc purposes
