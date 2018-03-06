@@ -148,7 +148,7 @@ def get_scripts(scripts_dict, pipeline, workflow):
 
 def get_steps_calling_script(ssh_client, scripts_dict, script_name):
     """
-    Gets which steps call the given shell script. Does so by parsing tools.yaml on the cluster. 
+    Gets which steps call the given shell script. Does so by parsing workflow config yamls on the cluster. 
     Returns str that summarizes that information
 
     input:
@@ -162,26 +162,38 @@ def get_steps_calling_script(ssh_client, scripts_dict, script_name):
     #excludes "All Pipelines" key from original scripts_dict
     pipe_work_dict = {pipeline:get_workflows_in_pipeline(scripts_dict, pipeline) for pipeline in get_all_pipeline_names(scripts_dict)}
 
-
+    configs = []
+    for pipeline in pipe_work_dict:
+        for workflow in pipe_work_dict[pipeline]:
+            configs.append(yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/{0}/{0}_{1}.yaml".format(pipeline, workflow))))
 
     result = "{} called from:\n".format(script_name)
     script_name = script_name.replace(".sh", "")
-    for step in tools_conf:
-        dirs = tools_conf[step]["script_path"].split("/")
-        
-        #if length of dirs 1, then the script path must just contain script name
-        #   therefore, script in all Pipelines
-        #if length of dirs 2, then script path must have pipeline and script name
-        #   therefore, script in all workflows for a specific pipeline
-        #if length of dirs 3, then script path must have pipeline,workflow,script name
-        #   therefore, script in specific workflow for specific pipeline
-        in_strings = ["in all Pipelines", "in all Workflows in {}", "in the {} {} workflow"]
-        in_string = in_strings[len(dirs)-1].format(*dirs[:-1])
 
-        if dirs[-1] == script_name:
-            result += "{} {}\n".format(step, in_string)
+    for conf in configs:
+        for step in conf:
+            if step == "steps":
+                continue
+
+            dirs = conf[step]["script_path"].split("/")
+            
+            #if length of dirs 1, then the script path must just contain script name
+            #   therefore, script in all Pipelines
+            #if length of dirs 2, then script path must have pipeline and script name
+            #   therefore, script in all workflows for a specific pipeline
+            #if length of dirs 3, then script path must have pipeline,workflow,script name
+            #   therefore, script in specific workflow for specific pipeline
+            in_strings = ["in all Pipelines", "in all Workflows in {}", "in the {} {} workflow"]
+            in_string = in_strings[len(dirs)-1].format(*dirs[:-1])
+
+            if dirs[-1] == script_name:
+                result += "{} {}\n".format(step, in_string)
+                if len(dirs) != 3:
+                    return result
 
     return result
+
+
 def get_step_config_dicts(ssh_client, scripts_dict, step_name):
     tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
     step_tools_conf = tools_conf[step_name]
