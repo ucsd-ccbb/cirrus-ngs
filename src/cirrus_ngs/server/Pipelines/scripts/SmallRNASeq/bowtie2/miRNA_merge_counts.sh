@@ -37,7 +37,7 @@ for file in $all_samples; do
 done
 
 ## Call the merge count file
-check_exit_status "python /shared/workspace/Pipelines/util/miRNA/miRNA_MergeCount.py $workspace" $JOB_NAME $status_file
+check_exit_status "$python $miRNA_count $workspace" $JOB_NAME $status_file
 
 ## Upload
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*miRNA.all.counts.txt*" --recursive
