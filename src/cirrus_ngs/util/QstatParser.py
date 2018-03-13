@@ -124,6 +124,7 @@ def get_qstat_j(ssh_client, job_name):
 
 
 def check_step_failed(ssh_client, pipeline, workflow, project_name, job_name):
+    ConnectionManager.execute_command(ssh_client, "touch /shared/workspace/logs/{}/{}/{}/*/status.log".format(pipeline,workflow,project_name,job_name))
     status_log_checker = "ls /shared/workspace/logs/{}/{}/{}/*/status.log | xargs grep \"{}.*failed\" | wc -l"
 
     #reports if step finished and failed or finished and passed
