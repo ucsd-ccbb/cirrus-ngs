@@ -80,13 +80,12 @@ then
     filtered_fastq=`ls $workspace/ | grep "kept"`
 
     check_exit_status "$bowtie2 -p $num_threads -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
-     -x $genome_bowtie2_index -U $workspace/$filtered_fastq \
+     -x $bowtie2_index -U $workspace/$filtered_fastq \
     -S $workspace/$fastq_end1.sam" $JOB_NAME $status_file
 else
     # PAIRED END (using the same output file name)
-    echo "paired end"
-    check_exit_status "$bowtie2 --local -p $num_threads -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
-    -x $genome -1 $workspace/$fastq_end1$file_suffix \
+    check_exit_status "$bowtie2 -p $num_threads -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
+    -x $bowtie2_index -1 $workspace/$fastq_end1$file_suffix \
     -2 $workspace/$fastq_end2/$file_suffix -S $workspace/$fastq_end1.sam" $JOB_NAME $status_file
 fi
 
