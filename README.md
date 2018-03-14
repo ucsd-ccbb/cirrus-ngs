@@ -413,7 +413,74 @@ This directory contains all of the reference files needed for cirrus. This inclu
       * variation/
         * vcf references (dbsnp, comsic, etc.)
         
-This structure isn't set in stone, but provides an organized way of storing any references thay may be needed. 
+This structure isn't set in stone, but provides an organized way of storing any references thay may be needed. Following is an example of how the references directory would look if we had only the human hg19 references.
+
+* $root/software/references/
+  * Hsapiens/
+    * hg19/
+      * annotations/
+        * gencode.v19.annotation.gtf
+      * indices/
+        * bwa/
+          * ucsc.hg19.fasta.amb
+          * ucsc.hg19.fasta.ann
+          * ucsc.hg19.fasta.bwt
+          * ucsc.hg19.fasta.pac
+          * ucsc.hg19.fasta.sa
+        * STAR/
+          * chrLength.txt
+          * chrNameLength.txt
+          * chrName.txt
+          * chrStart.txt
+          * exonGeTrInfo.tab
+          * exonInfo.tab
+          * geneInfo.tab
+          * Genome
+          * genomeParameters.txt
+          * human.chrlist
+          * human.grp
+          * human.idx.fa
+          * humanLog.out
+          * human.n2g.idx.fa
+          * human.seq
+          * human.ti
+          * human.transcripts.fa
+          * SA
+          * SAindex
+          * sjdbInfo.txt
+          * sjdbList.fromGTF.out.tab
+          * sjdbList.out.tab
+          * transcriptInfo.tab
+        * bowtie/
+          * genome.1.ebwt
+          * genome.2.ebwt
+          * genome.3.ebwt
+          * genome.4.ebwt
+          * genome.fa
+          * genome.rev.1.ebwt
+          * genome.rev.2.ebwt
+        * bowtie2/
+        * kallisto/
+          * kallisto_index
+      * sequence/
+        * ucsc.hg19.dict
+        * ucsc.hg19.fasta
+        * ucsc.hg19.fasta.fai
+      * variation/
+        * 1000G_omni2.5.hg19.sites.vcf
+        * 1000G_omni2.5.hg19.sites.vcf.idx
+        * 1000G_phase1.indels.hg19.sites.vcf
+        * 1000G_phase1.indels.hg19.sites.vcf.idx
+        * 1000G_phase1.snps.high_confidence.hg19.sites.vcf
+        * 1000G_phase1.snps.high_confidence.hg19.sites.vcf.idx
+        * cosmic_hg19.vcf
+        * dbsnp_138.hg19.vcf
+        * dbsnp_138.hg19.vcf.idx
+        * hapmap_3.3.hg19.sites.vcf
+        * hapmap_3.3.hg19.sites.vcf.idx
+        * Mills_and_1000G_gold_standard.indels.hg19.sites.vcf
+        * Mills_and_1000G_gold_standard.indels.hg19.sites.vcf.idx
+
 
 ### $root/Pipelines/
 
