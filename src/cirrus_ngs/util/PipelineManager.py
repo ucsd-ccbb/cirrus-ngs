@@ -55,6 +55,11 @@ def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_inp
                                  sample_list, group_list, s3_output_files_address, genome, style, pairs_list)
 
     print("copying yaml file to remote master node...")
+
+    # Make sure remote directory exists
+    remote_dir = workspace + "yaml_files/" + pipeline + "/" + workflow
+    ssh_client.exec_command("mkdir -p " + remote_dir)
+    
     ConnectionManager.copy_file(ssh_client, yaml_file, "{}yaml_files/{}/{}".format(workspace, pipeline, workflow))
 
     # Remove the local yaml file
