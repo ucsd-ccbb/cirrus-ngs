@@ -44,6 +44,7 @@ done
 #       .txt files from alignment
 
 check_exit_status "$multiqc -f $workspace -o $workspace" $JOB_NAME $status_file
+check_exit_status "check_outputs_exist $workspace/multiqc_report.html" $JOB_NAME $status_file
 
 # Upload the html file to s3
 aws s3 cp $workspace/multiqc_report.html $output_address/multiqc_report.html
