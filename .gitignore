@@ -5,7 +5,7 @@ Private_Multiqc_Report.ipynb
 *.html
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
+__pycache__/*
 *.py[cod]
 *$py.class
 
@@ -75,33 +75,9 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+.DS_Store
+.Rproj.user
+.idea
 
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# dotenv
-.env
-
-# virtualenv
-.venv
-venv/
-ENV/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
+R.Rproj
+*.pyc
