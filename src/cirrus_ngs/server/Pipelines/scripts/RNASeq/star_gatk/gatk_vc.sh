@@ -42,6 +42,7 @@ check_step_already_done $JOB_NAME $status_file
 if [ ! -f $inDir/$fastq_end1$file_suffix ]
 then
     aws s3 cp $input_address/$fastq_end1$file_suffix $inDir/
+    aws s3 cp $input_address/$fastq_end1$file_suffix.bai $inDir/
 fi
 ##END_DOWNLOAD##
 
@@ -79,7 +80,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-I $outDir/Aligned.sortedByCoord.out.dedupped.split.bam \
 	-o $outDir/output.intervals \
 	-known $mills \
-	-known $G1000 \
+	-known $snps_1000G \
 	-nt 8" $JOB_NAME $status_file
 
 check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
@@ -89,7 +90,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-targetIntervals $outDir/output.intervals \
 	-o $outDir/Aligned.sortedByCoord.out.dedupped.split.realigned.bam \
 	-known $mills \
-	-known $G1000 \
+	-known $snps_1000G \
 	--consensusDeterminationModel KNOWNS_ONLY \
 	-LOD 0.4" $JOB_NAME $status_file
 
@@ -100,7 +101,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
     -I $outDir/Aligned.sortedByCoord.out.dedupped.split.realigned.bam \
     -knownSites $dbsnp \
     -knownSites $mills \
-    -knownSites $G1000 \
+    -knownSites $snps_1000G \
     -o $outDir/recal_data.table \
     -nct $num_threads" $JOB_NAME $status_file
 
@@ -120,6 +121,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-stand_call_conf 20.0 \
 	-o $outDir/${fastq_end1}_raw.vcf" $JOB_NAME $status_file
 
+: <<'END'
 # VARIANT FILTRATION
 $java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-T VariantFiltration \
@@ -133,14 +135,13 @@ $java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-filter "QD < 2.0" \
 	--missingValuesInExpressionsShouldEvaluateAsFailing True \
 	-o $outDir/${fastq_end1}_filt.vcf
+END
 
 # zip and index
-check_exit_status "$bgzip $outDir/${fastq_end1}_filt.vcf -c > $outDir/${fastq_end1}_filt.vcf.gz" $JOB_NAME $status_file
-check_exit_status "$tabix -p vcf $outDir/${fastq_end1}_filt.vcf.gz" $JOB_NAME $status_file
+check_exit_status "$bgzip $outDir/${fastq_end1}_raw.vcf -c > $outDir/${fastq_end1}.vcf.gz" $JOB_NAME $status_file
+check_exit_status "$tabix -p vcf $outDir/${fastq_end1}.vcf.gz" $JOB_NAME $status_file
 
 
-# Upload
-aws s3 cp $outDir/ $output_address/ --recursive
+##UPLOAD## 
+aws s3 cp $outDir/ $output_address/ --exclude "*" --include "${fastq_end1}.vcf.gz*" --recursive 
 ##END_UPLOAD##
-
-
