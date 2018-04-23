@@ -3,6 +3,7 @@ smallrnaseq_design_example.txt
 private_miRNAPipeline.ipynb
 Private_Multiqc_Report.ipynb
 *.html
+questions.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/*
