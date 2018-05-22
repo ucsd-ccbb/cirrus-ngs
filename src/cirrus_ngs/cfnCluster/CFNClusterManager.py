@@ -5,7 +5,7 @@ import re
 from shutil import copyfile
 
 ## Global variable: default configuation file for CFNCluster
-config_template_file = "~/.cfncluster/config" #os.getcwd().replace("notebooks", "data") + "/config"
+config_template_file = os.environ['HOME'] + "/.cfncluster/config" #os.getcwd().replace("notebooks", "data") + "/config"
 
 def install_cfn_cluster():
     """Installs cfncluster framework.
@@ -68,7 +68,7 @@ def make_config_file():
     filewriter.write("aws_access_key_id = ***" + "\n")
     filewriter.write("aws_secret_access_key = ***" + "\n")
 
-    filewriter.write("[cluster elasticsearch]" + "\n")
+    filewriter.write("[cluster cfncluster]" + "\n")
     filewriter.write("vpc_settings = ucsd" + "\n")
     filewriter.write("key_name = ***" + "\n")
     filewriter.write("master_instance_type = m3.large" + "\n")
@@ -80,7 +80,7 @@ def make_config_file():
 
     filewriter.write("s3_read_resource = arn:aws:s3:::bucket_name" + "\n")
     filewriter.write("s3_read_write_resource = arn:aws:s3:::bucket_name/*" + "\n")
-    filewriter.write("post_install = s3://bucket_name/path/to/postinstall.sh" + "\n")
+    filewriter.write("#post_install = s3://bucket_name/path/to/postinstall.sh" + "\n")
 
     filewriter.write("[vpc ucsd]" + "\n")
     filewriter.write("master_subnet_id = subnet-00000000" + "\n")
@@ -89,12 +89,13 @@ def make_config_file():
     filewriter.write("[global]" + "\n")
     filewriter.write("update_check = true" + "\n")
     filewriter.write("sanity_check = true" + "\n")
-    filewriter.write("cluster_template = elasticsearch" + "\n")
+    filewriter.write("cluster_template = cfncluster" + "\n")
 
     filewriter.write("[ebs custom]" + "\n")
     filewriter.write("ebs_snapshot_id = snap-a6e477ff" + "\n")
     filewriter.write("volume_size = 200" + "\n")
     filewriter.close()
+
 
 ## viewing CFNCluster configuration settings
 def view_cfncluster_config():
@@ -145,6 +146,7 @@ def insert_access_keys(aws_access_key_id="***",
     """
 
     if not os.path.isfile(config_template_file):
+        print("config_template_file not exist!")
         make_config_file()
 
     with open(config_template_file, 'r+') as f:
@@ -328,9 +330,9 @@ def config_s3_resource(s3_read_resource="s3://bucket_name/", s3_read_write_resou
         make_config_file()
     ## s3://ucsd-ccbb-wgs-test-us-east-1/RNASeq_Pipeline_Code/test_data
     read_bucket_name = s3_read_resource[5:]
-    read_bucket_name = read_bucket_name[:read_bucket_name.find("/")]
+    read_bucket_name = read_bucket_name
     write_bucket_name = s3_read_write_resource[5:]
-    write_bucket_name = write_bucket_name[:write_bucket_name.find("/")]
+    write_bucket_name = write_bucket_name
 
     with open(config_template_file, 'r+') as f:
         lines = f.readlines()
