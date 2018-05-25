@@ -1,0 +1,321 @@
+## Configuration file for tools in all the pipelines
+
+# Shared steps #
+fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+
+# MultiQC: aggregates results #
+multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+
+# WGS steps #
+bwa:
+    script_path: "DNASeq/bwa"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+sort:
+    script_path: "DNASeq/sort"
+    download_suffix: ".bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+dedup:
+    script_path: "DNASeq/dedup"
+    download_suffix: ".sort.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+split:
+    script_path: "DNASeq/split"
+    download_suffix: ".dedup.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
+postalignment:
+    script_path: "DNASeq/post"
+    download_suffix: ".{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
+haplotype:
+    script_path: "DNASeq/bwa_gatk/haplo"
+    download_suffix: ".final.{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
+mutect:
+    script_path: "DNASeq/bwa_mutect/mutect"
+    download_suffix: ".final.{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True
+    by_pair: True
+merge:
+    script_path: "DNASeq/merge"
+    download_suffix: ".g.vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+bam_merge:
+    script_path: "DNASeq/merge"
+    download_suffix: ".g.vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+merge_vcf_pairwise:
+    script_path: "DNASeq/bwa_mutect/merge_vcf_pairwise"
+    download_suffix: ".vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+combine_vcf:
+    script_path: "DNASeq/bwa_gatk/group_vcf"
+    download_suffix: ".merged.g.vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_group: True
+filter:
+    script_path: "DNASeq/bwa_gatk/filter"
+    download_suffix: ".vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_group: True
+
+# SmallRNA steps #
+cut_adapt:
+    script_path: "SmallRNASeq/bowtie2/cutadapt"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+align_and_count:
+    script_path: "SmallRNASeq/bowtie2/bowtie2_and_count"
+    download_suffix: ".cut{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+merge_counts:  # merge the count files
+    script_path: "SmallRNASeq/bowtie2/miRNA_merge_counts"
+    download_suffix: ".counts.txt"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+
+# ChiPSeq steps #
+bowtie:
+    script_path: "ChiPSeq/homer/bowtie"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+make_tag_directory:
+    script_path: "ChiPSeq/homer/make_tag_directory"
+    download_suffix: ".sam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+make_UCSC_file:
+    script_path: "ChiPSeq/homer/make_UCSC_file"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+find_peaks:
+    script_path: "ChiPSeq/homer/findpeaks"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+annotate_peaks:
+    script_path: "ChiPSeq/homer/annotate_peaks"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+pos2bed:
+    script_path: "ChiPSeq/homer/pos2bed"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+find_motifs_genome:
+    script_path: "ChiPSeq/homer/find_motifs_genome"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+
+
+# RNA-seq steps #
+
+# Kallisto workflow #
+kallisto_fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+kallisto_trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+kallisto_align: 
+    script_path: "RNASeq/kallisto/k_align"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+kallisto_count:
+    script_path: "RNASeq/kallisto/k_count"
+    download_suffix: ".abundance.tsv"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+kallisto_merge_counts:
+    script_path: "RNASeq/RNA_merge_counts"
+    download_suffix: "_counts.txt"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+kallisto_multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+
+# Star_gatk workflow #
+star_gatk_fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_gatk_trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_gatk_align:
+    script_path: "RNASeq/star_gatk/gatk_align"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_gatk_variant_calling:
+    script_path: "RNASeq/star_gatk/gatk_vc"
+    download_suffix: ".Aligned.out.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_gatk_multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+
+# Star_htseq workflow #
+star_htseq_fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_htseq_trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_htseq_align:
+    script_path: "RNASeq/star_htseq/ht_align"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_htseq_count:
+    script_path: "RNASeq/star_htseq/ht_count"
+    download_suffix: ".Aligned.out.sorted.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_htseq_merge_counts:  # same with kallisto
+    script_path: "RNASeq/RNA_merge_counts"
+    download_suffix: "_counts.txt"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+star_htseq_multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+
+# Star_RSEM workflow #
+star_rsem_fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_rsem_trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+star_rsem_calculate_expression:
+    script_path: "RNASeq/star_rsem/cal_expression"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_rsem_merge_counts:
+    script_path: "RNASeq/star_rsem/merge"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+star_rsem_multiqc:
+    script_path: "multiqc"
+    download_suffix: ~
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True

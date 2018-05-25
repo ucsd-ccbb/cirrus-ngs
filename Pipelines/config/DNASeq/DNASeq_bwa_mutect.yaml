@@ -1,0 +1,104 @@
+steps:
+- "fastqc"
+- "trim"
+- "bwa"
+- "multiqc"
+- "sort"
+- "dedup"
+- "split"
+- "postalignment"
+- "somatic_variant_calling"
+- "merge"
+- "filter"
+fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args: []
+trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4     # number of threads
+        - 36    # minlen for trimmomatic
+multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+    extra_bash_args: []
+align:
+    script_path: "DNASeq/bwa"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4             # number of threads
+        - "ILLUMINA"    # platform tech
+sort:
+    script_path: "DNASeq/sort"
+    download_suffix: ".bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4             # number of threads
+dedup:
+    script_path: "DNASeq/dedup"
+    download_suffix: ".sort.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4             # number of threads
+split:
+    script_path: "DNASeq/split"
+    download_suffix: ".dedup.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
+    extra_bash_args:
+        - 1             # number of threads
+postalignment:
+    script_path: "DNASeq/post"
+    download_suffix: ".{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True 
+    extra_bash_args:
+        - 2             # number of threads
+somatic_variant_calling:
+    script_path: "DNASeq/bwa_mutect/mutect"
+    download_suffix: ".final.{}.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: True
+    by_pair: True
+    extra_bash_args:
+        - 4             # number of threads
+merge:
+    script_path: "DNASeq/bwa_mutect/merge_vcf_pairwise"
+    download_suffix: ".vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_pair: True
+    extra_bash_args:
+        - 4             # number of threads
+filter:
+    script_path: "DNASeq/bwa_gatk/filter"
+    download_suffix: ".vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    by_group: True
+    extra_bash_args:
+        - 4             # number of threads
