@@ -4,6 +4,7 @@ setup(
     name = "cirrus-ngs",
     version = "1.0.0a1",
     description = "Cloud-optimized primary analysis pipelines for RNA-seq, miRNA-seq, ChIP-seq, and variant calling in whole-genome/whole-exome DNA-seq",
+    long_description_content_type = "text/markdown",
     long_description = open("README.md").read(),
     url = "https://github.com/ucsd-ccbb/cirrus-ngs",
     license = "MIT",
