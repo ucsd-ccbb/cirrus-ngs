@@ -1,7 +1,0 @@
-## design file format
-## column 1: chip file
-## column 2: input file
-chipseq_sample1_chip.fastq.gz	groupA	Chip
-chipseq_sample1_input.fastq.gz	groupA	Input
-chipseq_sample2_chip.fastq.gz	groupB	Chip
-chipseq_sample2_input.fastq.gz	groupB	Input

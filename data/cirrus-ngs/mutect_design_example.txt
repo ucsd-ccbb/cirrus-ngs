@@ -1,4 +1,0 @@
-##MUTECT
-##Format:
-##Normal_File\tTumor_File
-Sample_cDNA93_R1.fq.gz,Sample_cDNA93_R2.fq.gz	Sample_cDNA94_R1.fq.gz,Sample_cDNA94_R2.fq.gz	

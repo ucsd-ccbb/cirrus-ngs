@@ -1,8 +1,7 @@
 import unittest
 import sys
 import os
-sys.path.append(os.getcwd().replace("test", "src"))
-import cirrus_ngs.util.DesignFileLoader as dfl
+import cirrusngs.util.DesignFileLoader as dfl
 import tempfile 
 
 class Tests(unittest.TestCase):

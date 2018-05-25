@@ -1,8 +1,7 @@
 import unittest
 import sys
 import os
-sys.path.append(os.getcwd().replace("test", "src"))
-import cirrus_ngs.util.YamlFileMaker as yfm
+import cirrusngs.util.YamlFileMaker as yfm
 import tempfile 
 import time
 

@@ -1,10 +1,7 @@
 import unittest
 import sys
 import os
-sys.path.append(os.getcwd().replace("test", "src"))
-sys.path.append(os.getcwd().replace("test", "src") + "/cirrus_ngs")
-print(sys.path[-1])
-import cirrus_ngs.util.QstatParser as QstatParser
+import cirrusngs.util.QstatParser as QstatParser
 import datetime
 
 class Tests(unittest.TestCase):

@@ -1,6 +1,0 @@
-SRR5990681.fastq.gz	hyperthyroid
-SRR5990680.fastq.gz	hyperthyroid
-SRR5990679.fastq.gz	hyperthyroid
-SRR5990673.fastq.gz	hypothyroid
-SRR5990672.fastq.gz	hypothyroid
-SRR5990671.fastq.gz	hypothyroid
