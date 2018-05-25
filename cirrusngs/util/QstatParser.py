@@ -1,6 +1,6 @@
 import yaml
 from collections import defaultdict
-from cfnCluster import ConnectionManager
+from cirrusngs.managers import ConnectionManager
 import datetime
 import re
 

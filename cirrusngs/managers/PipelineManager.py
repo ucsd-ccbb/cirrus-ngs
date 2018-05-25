@@ -1,18 +1,16 @@
-#__doc__="""
-#This module contains the main pipeline execution method on the 
-#local side. It is shared between all pipelines and workflows with
-#differing parameters.
-#"""
-#TODO figure out licensing stuff
+__doc__="""
+This module contains the main pipeline execution method on the 
+local side. It is shared between all pipelines and workflows with
+differing parameters.
+"""
 
 import os
-from util import YamlFileMaker
-from cfnCluster import ConnectionManager
-from util import QstatParser
+from cirrusngs.util import YamlFileMaker
+from cirrusngs.managers import ConnectionManager
+from cirrusngs.util import QstatParser
 import subprocess
 
 workspace = "/shared/workspace/Pipelines/"
-
 
 # executing a specified pipeline with the specific yaml file
 def execute(pipeline, ssh_client, project_name, workflow, analysis_steps, s3_input_files_address,
