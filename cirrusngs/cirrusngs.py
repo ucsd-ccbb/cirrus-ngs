@@ -52,7 +52,7 @@ def add(pipeline_name):
     pipeline_name = pipeline_name.lower()
     table = str.maketrans(dict.fromkeys(string.punctuation))
     pipeline_name = pipeline_name.translate(table)
-    if not (pipeline_name.endswith("seq") or pipeline_name == "wgs" or pipeline_name == "wes"):
+    if not (pipeline_name.endswith("seq") or pipeline_name in {"wgs", "wes", "all"}):
         pipeline_name += "seq"
 
     # get possible pipeline names
@@ -61,6 +61,24 @@ def add(pipeline_name):
     notebooks = os.listdir(notebook_dir)
     notebooks = list(filter(lambda x:x.endswith(".ipynb"), notebooks))
     possible_names = list(map(lambda x:x.split("Template")[0].lower(), notebooks))
+
+    # plain copying of all notebooks and design files, can't config them later
+    if pipeline_name == "all":
+        for nb in notebooks:
+            if not nb.endswith("SeqTemplate.ipynb"):
+                continue
+            if nb.startswith("DNA"):
+                target = "WGS|WESPipeline.ipynb"
+            else:
+                target = nb.replace("Template", "Pipeline")
+
+            shutil.copy(os.path.join(notebook_dir, nb),
+                    "notebooks/{}".format(target))
+            target = nb.replace("Template.ipynb", "_design_example.txt")
+            shutil.copy(os.path.join(design_dir, target),
+                    "design_files/{}".format(target))
+        return
+
 
     if not pipeline_name in possible_names:
         raise ValueError("{} is not a supported pipeline".format(pipeline_name))

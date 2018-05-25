@@ -70,7 +70,11 @@ def main():
     config_parser.set_defaults(func=config)
 
     add_parser = subs.add_parser("add", help="add notebook and design file for a pipeline",
-            description="adds notebook and design file templates to cirrus project in current directory")
+            description=("adds notebook and design file templates to cirrus project in current directory"
+                "the pipeline_names should not be file names: use 'rna', 'chip', 'mirna', or 'dna' instead."
+                "capitilization and adding 'seq' to the end of these does not make a difference."
+                "'wgs' and 'wes' can be used instead of 'dna'."
+                "alternatively, 'all' can be used if simplicity is desired. this will copy all notebooks over"))
     add_parser.add_argument("pipeline_names", nargs="+", type=str, 
             help="pipeline names to add files for, punctuation and caps don't matter (Example: chip rna WGS)")
     add_parser.set_defaults(func=add)
