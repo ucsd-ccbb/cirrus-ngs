@@ -1,0 +1,14 @@
+## design file format - choose format for one of the workflows
+##
+## gatk workflow
+## column 1: fastq file
+## column 2: group name
+Sample_cDNA93_R1.fq.gz,Sample_cDNA93_R2.fq.gz	groupA
+Sample_cDNA94_R1.fq.gz,Sample_cDNA94_R2.fq.gz	groupA
+## 
+## mutect workflow
+## column 1: fastq file
+## column 2: group name
+## column 3: Normal or Tumor
+SRR2473232_1.fastq.gz,SRR2473232_2.fastq.gz	groupA	Normal
+SRR616274_1.fastq.gz,SRR616274_2.fastq.gz	groupA	Tumor
