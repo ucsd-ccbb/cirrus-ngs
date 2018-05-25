@@ -1,0 +1,6 @@
+include README.md
+include LICENSE.txt
+
+recursive-include cirrusngs/notebooks *
+recursive-include cirrusngs/design_files *
+include cirrusngs/cirrus.yaml
