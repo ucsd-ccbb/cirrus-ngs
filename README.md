@@ -15,7 +15,7 @@ Cirrus-NGS provides primary analysis pipelines for RNA-Seq, miRNA-Seq, ChIP-Seq,
 Because Cirrus-NGS employs AWS for computation and storage, users must have an active AWS account.  If you do not have such an account, visit [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html) for guidance on how to create one, and execute the steps it describes. 
 
 ### Installing `pip`
-`pip` can be according to instructions from (https://pip.pypa.io/en/stable/installing/)[https://pip.pypa.io/en/stable/installing/]
+`pip` can be according to instructions from [https://pip.pypa.io/en/stable/installing/](https://pip.pypa.io/en/stable/installing/)
 
 ### Installing `conda`
 
