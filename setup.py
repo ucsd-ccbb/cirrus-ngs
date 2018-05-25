@@ -29,7 +29,7 @@ setup(
         "scp",
         "cfncluster"
     ],
-    python_requires = ">=3.6",
+    python_requires = ">=3.5",
     packages = find_packages(exclude = ("Pipelines*", "server*", "tests*")),
     maintainer = "Mustafa Guler",
     maintainer_email = "mguler@ucsd.edu",
