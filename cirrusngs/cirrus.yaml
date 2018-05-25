@@ -1,0 +1,9 @@
+s3_input_files_address: s3://path/to/fastq
+s3_output_files_address: s3://path/to/output
+design_file: /path/to/design/file
+your_cluster_name: clustername
+private_key: /path/to/your_aws_key.pem
+project_name: project_name
+workflow: workflow
+genome: genome
+style: style

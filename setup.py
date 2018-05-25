@@ -3,12 +3,11 @@ from setuptools import setup, find_packages
 setup(
     name = "cirrus-ngs",
     version = "1.0.0a1",
-    description = "Cloud-optimized primary analysis pipelines for RNA-seq, \
-            miRNA-seq, ChIP-seq, and variant calling in \
-            whole-genome/whole-exome DNA-seq",
+    description = "Cloud-optimized primary analysis pipelines for RNA-seq, miRNA-seq, ChIP-seq, and variant calling in whole-genome/whole-exome DNA-seq",
+    long_description = open("README.md").read(),
     url = "https://github.com/ucsd-ccbb/cirrus-ngs",
     license = "MIT",
-    author = "ucsd-ccbb",
+    author = "Mustafa Guler",
     author_email = "mguler@ucsd.edu",
     classifiers = 
     [
@@ -21,13 +20,22 @@ setup(
         "Topic :: Scientific/Engineering :: Bio-Informatics"
     ],
     keywords = "bioinformatics, NGS, jupyter",
-    project_urls = 
+    install_requires = 
+    [
+        "paramiko",
+        "pyyaml",
+        "jupyter",
+        "notebook",
+        "scp",
+        "cfncluster"
+    ],
+    python_requires = ">=3.6",
+    packages = find_packages(exclude = ("Pipelines*", "server*", "tests*")),
+    maintainer = "Mustafa Guler",
+    maintainer_email = "mguler@ucsd.edu",
+    entry_points = 
     {
-        "Source": "https://github.com/ucsd-ccbb/cirrus-ngs",
-        "Tracker": "https://github.com/ucsd-ccbb/cirrus-ngs/issues"
+        "console_scripts": ["cirrus-ngs = cirrusngs.cli:main"]
     },
-    install_requires = [""]
+    include_package_data=True
 )
-
-
-
