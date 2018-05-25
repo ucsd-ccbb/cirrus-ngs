@@ -14,6 +14,8 @@ Cirrus-NGS provides primary analysis pipelines for RNA-Seq, miRNA-Seq, ChIP-Seq,
 
 Because Cirrus-NGS employs AWS for computation and storage, users must have an active AWS account.  If you do not have such an account, visit [https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/get-set-up-for-amazon-ec2.html) for guidance on how to create one, and execute the steps it describes. 
 
+### Installing `pip`
+`pip` can be according to instructions from [https://pip.pypa.io/en/stable/installing/](https://pip.pypa.io/en/stable/installing/)
 
 ### Installing `conda`
 
@@ -39,6 +41,11 @@ In the directory in which you would like to install Cirrus-NGS, run the followin
 	git clone https://github.com/ucsd-ccbb/Cirrus-NGS.git
 
 These commands install the necessary supporting libraries and create a new directory called `Cirrus-NGS` that holds the Cirrus software.
+
+Alternatively, Cirrus-NGS can be installed with `pip` with the following commands:
+
+	pip install cirrus-ngs
+
 
 ### Starting the notebook server
 
