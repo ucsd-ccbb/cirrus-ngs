@@ -46,13 +46,13 @@ then
     fi
 
     #always download forward reads
-    check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/" $JOB_NAME $status_file
+    check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet" $JOB_NAME $status_file
     gunzip -q $workspace/$fastq_end1$download_suffix
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        check_exit_status "aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/" $JOB_NAME $status_file
+        check_exit_status "aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/ --quiet" $JOB_NAME $status_file
         gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
@@ -103,7 +103,9 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.sam \
 
 ##UPLOAD##
 # upload the sam files, txt files from samtool stats, and count text file
-aws s3 cp $workspace $output_address --exclude "*" --include "*.sam*" --include "$fastq_end1.*txt" --recursive
+aws s3 cp $workspace $output_address --quiet --exclude "*" --include "*.sam*" --include "$fastq_end1.*txt" --recursive
+aws s3 cp $workspace $output_address --quiet --exclude "*" --include "*.kept.*" --recursive
+aws s3 cp $workspace $output_address --quiet --exclude "*" --include "*.removed.*" --recursive
 ##END_UPLOAD##
 
 
