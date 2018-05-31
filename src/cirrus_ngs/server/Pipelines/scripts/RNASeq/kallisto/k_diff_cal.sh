@@ -37,8 +37,8 @@ check_step_already_done $JOB_NAME $status_file
 if [ ! -f $workspace/group.txt ] || [ ! -f $workspace/all_gene_counts.txt ] 
 then
 
-    aws s3 cp $input_address/group.txt $workspace/group.txt
-    aws s3 cp $input_address/all_gene_counts.txt $workspace/all_gene_counts.txt
+    aws s3 cp $input_address/group.txt $workspace/group.txt --quiet
+    aws s3 cp $input_address/all_gene_counts.txt $workspace/all_gene_counts.txt --quiet
 fi
 ##END_DOWNLOAD##
 

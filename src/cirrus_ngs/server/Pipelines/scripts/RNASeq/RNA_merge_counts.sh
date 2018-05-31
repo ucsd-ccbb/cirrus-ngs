@@ -33,7 +33,7 @@ check_step_already_done $JOB_NAME $status_file
 
 # Download files from s3
 for file in $all_samples; do
-    check_exit_status "aws s3 cp $input_address/$file/$file$file_suffix $workspace/" $JOB_NAME $status_file
+    check_exit_status "aws s3 cp $input_address/$file/$file$file_suffix $workspace/ --quiet" $JOB_NAME $status_file
 done
 
 # Call the merge count file
@@ -41,4 +41,4 @@ check_exit_status "python /shared/workspace/Pipelines/util/RNA_MergeCount.py $wo
 
 # Upload the output file
 aws s3 cp $workspace $output_address/ --exclude "*" --include "all_gene_counts.txt" \
-    --recursive
+    --recursive --quiet

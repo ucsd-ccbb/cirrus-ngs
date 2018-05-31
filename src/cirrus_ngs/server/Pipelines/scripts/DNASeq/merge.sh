@@ -62,10 +62,10 @@ then
     #download all separated vcf and bam files
     for chrom in $chromosome_list
     do
-        aws s3 cp $input_address/$fastq_end1.final.$chrom.bam $workspace/
+        aws s3 cp $input_address/$fastq_end1.final.$chrom.bam $workspace/ --quiet
         if [ "$do_vcf_merging" == "True" ]
         then
-            aws s3 cp $input_address/$fastq_end1.$chrom$file_suffix $workspace/
+            aws s3 cp $input_address/$fastq_end1.$chrom$file_suffix $workspace/ --quiet
         fi
     done
 fi
@@ -96,5 +96,5 @@ fi
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.final.bam" \
     --include "$fastq_end1.merged.g.vcf" \
-    --recursive
+    --recursive --quiet
 ##END_UPLOAD##

@@ -41,4 +41,4 @@ $python /shared/workspace/Pipelines/util/GroupFileMaker.py $workspace/group.txt 
 head $workspace/group.txt
 
 # Upload the group file
-aws s3 cp $workspace $output_address/ --exclude "*" --include "*group.txt*" --recursive
+aws s3 cp $workspace $output_address/ --exclude "*" --include "*group.txt*" --recursive --quiet

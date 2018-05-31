@@ -35,8 +35,8 @@ check_step_already_done $JOB_NAME $status_file
 # Download fastqc zip files and text files from alignment
 for file in $all_samples
 do
-    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*_fastqc.zip" --recursive
-    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "$file.txt" --recursive
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*_fastqc.zip" --recursive --quiet
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "$file.txt" --recursive --quiet
 done
 
 # Multiqc on all
@@ -47,4 +47,4 @@ check_exit_status "$multiqc -f $workspace -o $workspace" $JOB_NAME $status_file
 check_exit_status "check_outputs_exist $workspace/multiqc_report.html" $JOB_NAME $status_file
 
 # Upload the html file to s3
-aws s3 cp $workspace/multiqc_report.html $output_address/multiqc_report.html
+aws s3 cp $workspace/multiqc_report.html $output_address/multiqc_report.html --quiet

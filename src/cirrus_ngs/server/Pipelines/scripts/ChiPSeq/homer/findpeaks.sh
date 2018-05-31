@@ -44,11 +44,11 @@ then
     then
         mkdir -p $workspace/tags_$input_sample
         pair_base_name=$chip_sample'_vs_'$input_sample
-        aws s3 cp $input_address/$input_sample/tags_$input_sample $workspace/tags_$input_sample --recursive
+        aws s3 cp $input_address/$input_sample/tags_$input_sample $workspace/tags_$input_sample --recursive --quiet
         input_address=$input_address/$chip_sample
     fi
 
-    aws s3 cp $input_address/tags_$chip_sample $workspace/tags_$chip_sample --recursive
+    aws s3 cp $input_address/tags_$chip_sample $workspace/tags_$chip_sample --recursive --quiet
 fi
 ##END_DOWNLOAD##
 
@@ -68,5 +68,5 @@ check_exit_status "check_outputs_exist $workspace/$pair_base_name$style_ext" $JO
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name$style_ext" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name$style_ext" --recursive --quiet
 ##END_UPLOAD##

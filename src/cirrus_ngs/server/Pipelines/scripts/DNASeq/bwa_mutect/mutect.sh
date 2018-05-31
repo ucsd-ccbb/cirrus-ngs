@@ -49,12 +49,12 @@ then
         download_suffix=$file_suffix".gz"
     fi
 
-    aws s3 cp $input_address/$normal_sample/$normal_sample$download_suffix $workspace/
-    aws s3 cp $input_address/$normal_sample/$normal_sample$download_suffix.bai $workspace/
+    aws s3 cp $input_address/$normal_sample/$normal_sample$download_suffix $workspace/ --quiet
+    aws s3 cp $input_address/$normal_sample/$normal_sample$download_suffix.bai $workspace/ --quiet
     gunzip -q $workspace/$normal_sample$download_suffix
 
-    aws s3 cp $input_address/$tumor_sample/$tumor_sample$download_suffix $workspace/
-    aws s3 cp $input_address/$tumor_sample/$tumor_sample$download_suffix.bai $workspace/
+    aws s3 cp $input_address/$tumor_sample/$tumor_sample$download_suffix $workspace/ --quiet
+    aws s3 cp $input_address/$tumor_sample/$tumor_sample$download_suffix.bai $workspace/ --quiet
     gunzip -q $workspace/$tumor_sample$download_suffix
 
     #always download forward reads
@@ -86,5 +86,5 @@ check_exit_status "check_outputs_exist $workspace/$out_file" $JOB_NAME"_$chromos
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$out_file" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$out_file" --recursive --quiet
 ##END_UPLOAD##

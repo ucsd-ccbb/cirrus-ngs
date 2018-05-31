@@ -41,8 +41,8 @@ check_step_already_done $JOB_NAME $status_file
 ##DOWNLOAD##
 if [ ! -f $inDir/$fastq_end1$file_suffix ]
 then
-    aws s3 cp $input_address/$fastq_end1$file_suffix $inDir/
-    aws s3 cp $input_address/$fastq_end1$file_suffix.bai $inDir/
+    aws s3 cp $input_address/$fastq_end1$file_suffix $inDir/ --quiet
+    aws s3 cp $input_address/$fastq_end1$file_suffix.bai $inDir/ --quiet
 fi
 ##END_DOWNLOAD##
 
@@ -143,5 +143,5 @@ check_exit_status "$tabix -p vcf $outDir/${fastq_end1}.vcf.gz" $JOB_NAME $status
 
 
 ##UPLOAD## 
-aws s3 cp $outDir/ $output_address/ --exclude "*" --include "${fastq_end1}.vcf.gz*" --recursive 
+aws s3 cp $outDir/ $output_address/ --exclude "*" --include "${fastq_end1}.vcf.gz*" --recursive --quiet
 ##END_UPLOAD##

@@ -45,7 +45,7 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet
     gunzip -q $workspace/$fastq_end1$download_suffix
 fi
 ##END_DOWNLOAD##
@@ -66,5 +66,5 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.dedup.bam \
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.dedup.bam*" --include "$fastq_end1.matrics.txt" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.dedup.bam*" --include "$fastq_end1.matrics.txt" --recursive --quiet
 ##END_UPLOAD##

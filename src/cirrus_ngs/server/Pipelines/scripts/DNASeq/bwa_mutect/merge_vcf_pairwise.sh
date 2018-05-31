@@ -58,9 +58,9 @@ then
     #download all separated vcf and bam files
     for chrom in $chromosome_list
     do
-        aws s3 cp $input_address/$normal_sample/$pair_base_name.$chrom$file_suffix $workspace/
-        aws s3 cp $input_address/$normal_sample/$normal_sample.final.$chrom.bam $workspace/
-        aws s3 cp $input_address/$tumor_sample/$tumor_sample.final.$chrom.bam $workspace/
+        aws s3 cp $input_address/$normal_sample/$pair_base_name.$chrom$file_suffix $workspace/ --quiet
+        aws s3 cp $input_address/$normal_sample/$normal_sample.final.$chrom.bam $workspace/ --quiet
+        aws s3 cp $input_address/$tumor_sample/$tumor_sample.final.$chrom.bam $workspace/ --quiet
     done
 fi
 ##END_DOWNLOAD##
@@ -87,5 +87,5 @@ check_exit_status "check_outputs_exist $workspace/$pair_base_name.merged.vcf $wo
 ##END_MERGE##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name.merged.vcf" --include "$normal_sample.normal.final.bam" --include "$tumor_sample.tumor.final.bam" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name.merged.vcf" --include "$normal_sample.normal.final.bam" --include "$tumor_sample.tumor.final.bam" --recursive --quiet
 ##END_UPLOAD##

@@ -38,7 +38,7 @@ do
     if [ ! -f $workspace/$file.cnt ] || [ ! -f $workspace/$file.genes.result ] || [ ! -f $workspace/$file.isoform.results ] 
     then
         aws s3 cp $input_address/$file/ $workspace/ --exclude "*" \
-            --include "$file.stat/$file.cnt" --include "*.genes.results" --include "*.isoforms.results" --recursive
+            --include "$file.stat/$file.cnt" --include "*.genes.results" --include "*.isoforms.results" --recursive --quiet
     fi
 done
 
@@ -48,4 +48,4 @@ check_exit_status "$python $RSEM_gene_parser $workspace" $JOB_NAME $status_file
 check_exit_status "$python $RSEM_isoform_parser $workspace" $JOB_NAME $status_file
 check_exit_status "check_outputs_exist $workspace/all_counts_results.txt $workspace/all_genes_results.txt $workspace/all_isoforms_results.txt" $JOB_NAME $status_file
 
-aws s3 cp $workspace $output_address --exclude "*" --include "all_*_results.txt" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "all_*_results.txt" --recursive --quiet

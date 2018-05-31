@@ -44,13 +44,13 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet
     gunzip -q $workspace/$fastq_end1$download_suffix
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/ 
+        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/ --quiet
         gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
@@ -84,6 +84,6 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.txt $workspace/$fa
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.transcript.sorted.bam*" --include "$fastq_end1.txt" \
-    --include "$fastq_end1.*.results" --include "$fastq_end1.genome.sorted.bam*" --recursive
-aws s3 cp $workspace/$fastq_end1.stat $output_address/$fastq_end1.stat --recursive
+    --include "$fastq_end1.*.results" --include "$fastq_end1.genome.sorted.bam*" --recursive --quiet
+aws s3 cp $workspace/$fastq_end1.stat $output_address/$fastq_end1.stat --recursive --quiet
 ##END_UPLOAD##

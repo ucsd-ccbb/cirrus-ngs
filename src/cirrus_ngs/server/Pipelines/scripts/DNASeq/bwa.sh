@@ -46,13 +46,13 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet
     gunzip -q $workspace/$fastq_end1$download_suffix
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/
+        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/ --quiet
         gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
@@ -76,5 +76,5 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.txt $workspace/$fa
 ##END_ALIGN##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.bam" --include "${fastq_end1}.txt" --recursive
+aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.bam" --include "${fastq_end1}.txt" --recursive --quiet
 ##END_UPLOAD##

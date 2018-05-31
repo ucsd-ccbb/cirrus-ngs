@@ -35,15 +35,15 @@ check_step_already_done $JOB_NAME $status_file
 # Download files with extensions: .cnt, .genes.results, and .isoforms.results
 for file in $all_samples
 do
-    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*.cnt" --include "*.genes.results" --include "*.isoforms.results" --recursive
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*.cnt" --include "*.genes.results" --include "*.isoforms.results" --recursive --quiet
 done
 
 # Call the python parser files and upload the output file to s3
 $python /shared/workspace/Pipelines/util/star_rsem/RSEM_count_parser.py $workspace
-aws s3 cp $workspace $output_address --exclude "*" --include "*all_counts_results.txt*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*all_counts_results.txt*" --recursive --quiet
 
 $python /shared/workspace/Pipelines/util/star_rsem/RSEM_gene_parser.py $workspace
-aws s3 cp $workspace $output_address --exclude "*" --include "*all_genes_results.txt*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*all_genes_results.txt*" --recursive --quiet
 
 $python /shared/workspace/Pipelines/util/star_rsem/RSEM_isoform_parser.py $workspace
-aws s3 cp $workspace $output_address --exclude "*" --include "*all_isoforms_results.txt*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "*all_isoforms_results.txt*" --recursive --quiet

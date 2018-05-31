@@ -57,7 +57,7 @@ then
     #download all separated vcf and bam files
     for file in $files_in_group
     do
-        aws s3 cp $input_address/$file/$file$file_suffix $workspace/
+        aws s3 cp $input_address/$file/$file$file_suffix $workspace/ --quiet
     done
 fi
 ##END_DOWNLOAD##
@@ -93,5 +93,5 @@ check_exit_status "check_outputs_exist $workspace/$group_name.vcf" $JOB_NAME $st
 #END_COMBINEVCF##
 
 ##UPLOAD##
-aws s3 cp $workspace/ $output_address --exclude "*" --include "$group_name.vcf" --recursive
+aws s3 cp $workspace/ $output_address --exclude "*" --include "$group_name.vcf" --recursive --quiet
 ##END_UPLOAD

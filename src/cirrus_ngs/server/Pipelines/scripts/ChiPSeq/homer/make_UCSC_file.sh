@@ -46,7 +46,7 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/tags_$fastq_end1 $workspace/tags_$fastq_end1 --recursive
+    aws s3 cp $input_address/tags_$fastq_end1 $workspace/tags_$fastq_end1 --recursive --quiet
 fi
 ##END_DOWNLOAD##
 
@@ -58,5 +58,5 @@ check_exit_status "check_outputs_exist $workspace/tags_$fastq_end1/tags_$fastq_e
 
 
 ##UPLOAD##
-aws s3 sync $workspace/tags_$fastq_end1 $output_address/tags_$fastq_end1 
+aws s3 sync $workspace/tags_$fastq_end1 $output_address/tags_$fastq_end1 --quiet
 ##END_UPLOAD##

@@ -43,7 +43,7 @@ then
         input_address=$input_address/$chip_sample
     fi
 
-    aws s3 cp $input_address/$pair_base_name$style_ext $workspace/
+    aws s3 cp $input_address/$pair_base_name$style_ext $workspace/ --quiet
 fi
 ##END_DOWNLOAD##
 
@@ -73,5 +73,5 @@ check_exit_status "check_outputs_exist ${motifs_dir_output[@]}" $JOB_NAME $statu
 
 
 ##UPLOAD##
-aws s3 cp $workspace/motifs_$pair_base_name $output_address/motifs_$pair_base_name --recursive
+aws s3 cp $workspace/motifs_$pair_base_name $output_address/motifs_$pair_base_name --recursive --quiet
 ##END_UPLOAD##

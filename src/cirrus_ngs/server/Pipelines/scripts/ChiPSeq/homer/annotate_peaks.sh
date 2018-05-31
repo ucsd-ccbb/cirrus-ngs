@@ -44,7 +44,7 @@ then
         input_address=$input_address/$chip_sample
     fi
 
-    aws s3 cp $input_address/$pair_base_name$style_ext $workspace/
+    aws s3 cp $input_address/$pair_base_name$style_ext $workspace/ --quiet
 fi
 ##END_DOWNLOAD##
 
@@ -89,7 +89,7 @@ check_exit_status "check_outputs_exist ${go_dir_outputs[@]} ${ontology_dir_outpu
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name.annotated$style_ext" --recursive
-aws s3 cp $workspace/go_$pair_base_name $output_address/go_$pair_base_name --recursive
-aws s3 cp $workspace/ontology_$pair_base_name $output_address/ontology_$pair_base_name --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name.annotated$style_ext" --recursive --quiet
+aws s3 cp $workspace/go_$pair_base_name $output_address/go_$pair_base_name --recursive --quiet
+aws s3 cp $workspace/ontology_$pair_base_name $output_address/ontology_$pair_base_name --recursive --quiet
 ##END_UPLOAD##

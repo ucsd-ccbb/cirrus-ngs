@@ -46,8 +46,8 @@ then
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
-    aws s3 cp $input_address/$fastq_end1$download_suffix.bai $workspace/
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet
+    aws s3 cp $input_address/$fastq_end1$download_suffix.bai $workspace/ --quiet
     gunzip -q $workspace/$fastq_end1$download_suffix
 fi
 ##END_DOWNLOAD##
@@ -84,5 +84,5 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.$chromosome.g.vcf"
 ##END_HAPLOTYPE##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.g.vcf" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.g.vcf" --recursive --quiet
 ##END_UPLOAD##

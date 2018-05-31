@@ -45,7 +45,7 @@ check_step_already_done $JOB_NAME $status_file
     fi
 
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/
+    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet
     gunzip -q $workspace/$fastq_end1$download_suffix
 #fi
 ##END_DOWNLOAD##
@@ -63,5 +63,5 @@ check_exit_status "check_outputs_exist ${outputs[@]}" $JOB_NAME $status_file
 
 
 ##UPLOAD##
-aws s3 cp $workspace/tags_$fastq_end1 $output_address/tags_$fastq_end1 --recursive
+aws s3 cp $workspace/tags_$fastq_end1 $output_address/tags_$fastq_end1 --recursive --quiet
 ##END_UPLOAD##

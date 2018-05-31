@@ -46,7 +46,7 @@ then
     fi
 
     #download all separated vcf and bam files
-    aws s3 cp $input_address/$group_name/$group_name$file_suffix $workspace/
+    aws s3 cp $input_address/$group_name/$group_name$file_suffix $workspace/ --quiet
 fi
 ##END_DOWNLOAD##
 
@@ -91,5 +91,5 @@ echo "`ls $workspace`"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$group_name.snp.plots.R.*" --include "$group_name.indel.plots.R.*" --recursive
+aws s3 cp $workspace $output_address --exclude "*" --include "$group_name.snp.plots.R.*" --include "$group_name.indel.plots.R.*" --recursive --quiet
 ##END_UPLOAD##
