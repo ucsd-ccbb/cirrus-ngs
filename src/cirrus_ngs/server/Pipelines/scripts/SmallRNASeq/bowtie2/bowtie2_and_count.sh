@@ -98,9 +98,6 @@ check_exit_status "$samtools stats $workspace/$fastq_end1.sam > $workspace/$fast
 check_exit_status "$python /shared/workspace/Pipelines/util/SAMParser.py \
     $workspace $fastq_end1" $JOB_NAME $status_file
 
-check_exit_status "check_outputs_exist $workspace/$fastq_end1.sam \
-    $workspace/$fastq_end1.txt $workspace/$fastq_end1.counts.txt" $JOB_NAME $status_file
-
 ##UPLOAD##
 # upload the sam files, txt files from samtool stats, and count text file
 aws s3 cp $workspace $output_address --quiet --exclude "*" --include "*.sam*" --include "$fastq_end1.*txt" --recursive
