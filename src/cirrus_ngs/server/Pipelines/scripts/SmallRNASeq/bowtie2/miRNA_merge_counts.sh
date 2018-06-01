@@ -33,7 +33,7 @@ check_step_already_done $JOB_NAME $status_file
 
 ## Download counts files from s3
 for file in $all_samples; do
-    check_exit_status "aws s3 cp $input_address/$file/$file$file_suffix $workspace/ --quiet" $JOB_NAME $status_file
+    check_exit_status "aws s3 cp $input_address/$file/$file$file_suffix $workspace/$file/ --quiet" $JOB_NAME $status_file
 done
 
 ## Call the merge count file
