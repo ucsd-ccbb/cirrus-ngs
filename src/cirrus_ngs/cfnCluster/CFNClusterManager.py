@@ -309,7 +309,7 @@ def config_spot_price(spot_price="0.5"):
             f.write(line)
 
 ## configuring S3 read/write resource: bucket name
-def config_s3_resource(s3_read_resource="s3://bucket_name/", s3_read_write_resource="s3://bucket_name/"):
+def config_s3_resource(s3_read_resource="bucket_name", s3_read_write_resource="bucket_name"):
     """Adds input and output s3 resources to cfncluster configuration file.
 
     If the configuration file doesn't exist the template version is created 
@@ -329,10 +329,6 @@ def config_s3_resource(s3_read_resource="s3://bucket_name/", s3_read_write_resou
     if not os.path.isfile(config_template_file):
         make_config_file()
     ## s3://ucsd-ccbb-wgs-test-us-east-1/RNASeq_Pipeline_Code/test_data
-    read_bucket_name = s3_read_resource[5:]
-    read_bucket_name = read_bucket_name
-    write_bucket_name = s3_read_write_resource[5:]
-    write_bucket_name = write_bucket_name
 
     with open(config_template_file, 'r+') as f:
         lines = f.readlines()
@@ -340,10 +336,10 @@ def config_s3_resource(s3_read_resource="s3://bucket_name/", s3_read_write_resou
         f.truncate()
         for line in lines:
             if 's3_read_resource' in line:
-                line = line.replace(line[line.find("=") + 2:], "arn:aws:s3:::" + read_bucket_name + "\n")
+                line = line.replace(line[line.find("=") + 2:], "arn:aws:s3:::" + s3_read_resource + "\n")
 
             if 's3_read_write_resource' in line:
-                line = line.replace(line[line.find("=") + 2:], "arn:aws:s3:::" + write_bucket_name + "/*\n")
+                line = line.replace(line[line.find("=") + 2:], "arn:aws:s3:::" + s3_read_write_resource + "/*\n")
 
             f.write(line)
 
