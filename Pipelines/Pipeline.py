@@ -133,6 +133,9 @@ def run_tool(tool_config_dict, project_name, workflow, sample_list, input_addres
     else:
         num_threads = 1
 
+    if num_threads == "MAX":
+        num_threads = os.environ["max_cores"]
+
     #chromosome lists are determined by the genome name from the software.conf configuration file
     chromosome_list = os.environ["chromosome_list"].split()
 
