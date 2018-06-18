@@ -77,3 +77,5 @@ mv $workspace/run_info.json $workspace/$fastq_end1.run_info.json
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*"  --include "$fastq_end1.abundance.*" --include "$fastq_end1.run_info.json" --include "$fastq_end1.txt" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

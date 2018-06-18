@@ -89,3 +89,5 @@ check_exit_status "check_outputs_exist $workspace/$pair_base_name.merged.vcf $wo
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name.merged.vcf" --include "$normal_sample.normal.final.bam" --include "$tumor_sample.tumor.final.bam" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

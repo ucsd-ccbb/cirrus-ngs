@@ -93,3 +93,5 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$group_name.snp.plots.R.*" --include "$group_name.indel.plots.R.*" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

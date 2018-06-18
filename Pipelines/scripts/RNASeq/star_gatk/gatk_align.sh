@@ -78,3 +78,5 @@ check_exit_status "$samtools stats $workspace/$fastq_end1.Aligned.out.sorted.bam
 # Upload
 aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.Aligned.out.sorted.bam*" --include "$fastq_end1.txt" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

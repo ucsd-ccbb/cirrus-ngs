@@ -45,3 +45,5 @@ check_exit_status "$samtools view $workspace/$fastq_end1$file_suffix | sort -T $
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt*" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

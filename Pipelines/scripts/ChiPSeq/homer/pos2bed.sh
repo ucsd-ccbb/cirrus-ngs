@@ -57,3 +57,5 @@ check_exit_status "check_outputs_exist $workspace/$pair_base_name.bed" $JOB_NAME
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name.bed" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

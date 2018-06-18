@@ -79,3 +79,5 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.txt $workspace/$fa
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.Aligned.out.sorted*" --exclude "*.sam" --include "$fastq_end1.txt" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

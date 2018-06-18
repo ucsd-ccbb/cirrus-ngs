@@ -95,3 +95,5 @@ check_exit_status "check_outputs_exist $workspace/$group_name.vcf" $JOB_NAME $st
 ##UPLOAD##
 aws s3 cp $workspace/ $output_address --exclude "*" --include "$group_name.vcf" --recursive
 ##END_UPLOAD
+
+rm -r $workspace

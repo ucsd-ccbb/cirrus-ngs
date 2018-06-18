@@ -85,3 +85,5 @@ fi
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.trim*" --include "$fastq_end2.trim*" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

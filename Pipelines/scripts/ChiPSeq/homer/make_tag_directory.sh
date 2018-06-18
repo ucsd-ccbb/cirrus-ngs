@@ -65,3 +65,5 @@ check_exit_status "check_outputs_exist ${outputs[@]}" $JOB_NAME $status_file
 ##UPLOAD##
 aws s3 cp $workspace/tags_$fastq_end1 $output_address/tags_$fastq_end1 --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

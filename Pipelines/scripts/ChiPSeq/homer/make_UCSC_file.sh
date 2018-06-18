@@ -60,3 +60,5 @@ check_exit_status "check_outputs_exist $workspace/tags_$fastq_end1/tags_$fastq_e
 ##UPLOAD##
 aws s3 sync $workspace/tags_$fastq_end1 $output_address/tags_$fastq_end1 
 ##END_UPLOAD##
+
+rm -r $workspace

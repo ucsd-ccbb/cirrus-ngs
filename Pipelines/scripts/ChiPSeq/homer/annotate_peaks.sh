@@ -93,3 +93,5 @@ aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name.an
 aws s3 cp $workspace/go_$pair_base_name $output_address/go_$pair_base_name --recursive
 aws s3 cp $workspace/ontology_$pair_base_name $output_address/ontology_$pair_base_name --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

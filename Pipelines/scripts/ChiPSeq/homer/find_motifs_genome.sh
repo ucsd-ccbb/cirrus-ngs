@@ -75,3 +75,5 @@ check_exit_status "check_outputs_exist ${motifs_dir_output[@]}" $JOB_NAME $statu
 ##UPLOAD##
 aws s3 cp $workspace/motifs_$pair_base_name $output_address/motifs_$pair_base_name --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

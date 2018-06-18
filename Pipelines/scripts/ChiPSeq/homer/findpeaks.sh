@@ -70,3 +70,5 @@ check_exit_status "check_outputs_exist $workspace/$pair_base_name$style_ext" $JO
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$pair_base_name$style_ext" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

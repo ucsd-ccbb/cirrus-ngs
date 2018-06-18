@@ -48,3 +48,5 @@ check_exit_status "check_outputs_exist $workspace/multiqc_report.html" $JOB_NAME
 
 # Upload the html file to s3
 aws s3 cp $workspace/multiqc_report.html $output_address/multiqc_report.html
+
+rm -r $workspace

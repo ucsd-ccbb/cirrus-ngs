@@ -98,3 +98,5 @@ aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.final.
     --include "$fastq_end1.merged.g.vcf" \
     --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

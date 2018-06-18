@@ -88,3 +88,5 @@ check_exit_status "check_outputs_exist $workspace/$out_file" $JOB_NAME"_$chromos
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$out_file" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

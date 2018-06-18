@@ -60,6 +60,7 @@ fi
 
 
 ##ALIGN##
+# use max possible number of threads on node
 if [ "fastq_end2" == "NULL" ]
 then
     check_exit_status "$bwa mem -M -t $num_threads -R '@RG\tID:1\tPL:ILLUMINA\tPU:tempID\tSM:$fastq_end1' -v 1 \
@@ -78,3 +79,5 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.txt $workspace/$fa
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.bam" --include "${fastq_end1}.txt" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

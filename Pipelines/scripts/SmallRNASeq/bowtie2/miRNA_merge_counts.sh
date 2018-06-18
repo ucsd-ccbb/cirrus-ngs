@@ -41,3 +41,5 @@ check_exit_status "$python $miRNA_count $workspace" $JOB_NAME $status_file
 
 ## Upload
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*miRNA.all.counts.txt*" --recursive
+
+rm -r $workspace

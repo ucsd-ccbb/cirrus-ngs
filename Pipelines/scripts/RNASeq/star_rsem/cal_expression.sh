@@ -87,3 +87,5 @@ aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.transc
     --include "$fastq_end1.*.results" --include "$fastq_end1.genome.sorted.bam*" --recursive
 aws s3 cp $workspace/$fastq_end1.stat $output_address/$fastq_end1.stat --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

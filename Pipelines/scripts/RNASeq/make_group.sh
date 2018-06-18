@@ -42,3 +42,5 @@ head $workspace/group.txt
 
 # Upload the group file
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*group.txt*" --recursive
+
+rm -r $workspace

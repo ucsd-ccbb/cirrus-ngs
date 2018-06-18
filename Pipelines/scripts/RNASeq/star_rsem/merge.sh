@@ -49,3 +49,5 @@ check_exit_status "$python $RSEM_isoform_parser $workspace" $JOB_NAME $status_fi
 check_exit_status "check_outputs_exist $workspace/all_counts_results.txt $workspace/all_genes_results.txt $workspace/all_isoforms_results.txt" $JOB_NAME $status_file
 
 aws s3 cp $workspace $output_address --exclude "*" --include "all_*_results.txt" --recursive
+
+rm -r $workspace

@@ -42,3 +42,5 @@ check_exit_status "python /shared/workspace/Pipelines/util/RNA_MergeCount.py $wo
 # Upload the output file
 aws s3 cp $workspace $output_address/ --exclude "*" --include "all_gene_counts.txt" \
     --recursive
+
+rm -r $workspace

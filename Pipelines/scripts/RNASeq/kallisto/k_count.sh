@@ -55,3 +55,5 @@ check_exit_status "$python $kallisto_count $workspace/$fastq_end1$file_suffix" $
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "*_counts.txt*" --recursive
 ##END_UPLOAD##
+
+rm -r $workspace

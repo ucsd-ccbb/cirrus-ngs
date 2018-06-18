@@ -145,3 +145,5 @@ check_exit_status "$tabix -p vcf $outDir/${fastq_end1}.vcf.gz" $JOB_NAME $status
 ##UPLOAD## 
 aws s3 cp $outDir/ $output_address/ --exclude "*" --include "${fastq_end1}.vcf.gz*" --recursive 
 ##END_UPLOAD##
+
+rm -r $workspace
