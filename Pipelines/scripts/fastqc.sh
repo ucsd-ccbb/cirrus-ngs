@@ -34,24 +34,19 @@ check_step_already_done $JOB_NAME $status_file
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
-    #this is the suffix of the input from s3
-    download_suffix=$file_suffix
-
     #changes extension if S3 input is zipped
     if [ "$is_zipped" == "True" ]
     then
-        download_suffix=$file_suffix".gz"
+        file_suffix=$file_suffix".gz"
     fi
 
     #always download forward reads
-    check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/" $JOB_NAME $status_file
-    gunzip -q $workspace/$fastq_end1$download_suffix
+    check_exit_status "aws s3 cp $input_address/$fastq_end1$file_suffix $workspace/" $JOB_NAME $status_file
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        check_exit_status "aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/" $JOB_NAME $status_file
-        gunzip -q $workspace/$fastq_end2$download_suffix
+        check_exit_status "aws s3 cp $input_address/$fastq_end2$file_suffix $workspace/" $JOB_NAME $status_file
     fi
 fi
 ##END_DOWNLOAD##
@@ -59,15 +54,16 @@ fi
 
 ##FASTQC##
 check_exit_status "$fastqc $workspace/$fastq_end1$file_suffix -o $workspace/" $JOB_NAME $status_file
-mv $workspace/$fastq_end1$file_suffix"_fastqc.html" $workspace/$fastq_end1"_fastqc.html" 2>/dev/null
-mv $workspace/$fastq_end1$file_suffix"_fastqc.zip" $workspace/$fastq_end1"_fastqc.zip" 2>/dev/null
+ls $workspace
+mv $workspace/$fastq_end1*"_fastqc.html" $workspace/$fastq_end1"_fastqc.html" 2>/dev/null
+mv $workspace/$fastq_end1*"_fastqc.zip" $workspace/$fastq_end1"_fastqc.zip" 2>/dev/null
 check_exit_status "check_outputs_exist $workspace/${fastq_end1}_fastqc.html $workspace/${fastq_end1}_fastqc.zip" $JOB_NAME $status_file
 
 if [ "$fastq_end2" != "NULL" ];
 then
     check_exit_status "$fastqc $workspace/$fastq_end2$file_suffix -o $workspace/" $JOB_NAME $status_file
-    mv $workspace/$fastq_end2$file_suffix"_fastqc.html" $workspace/$fastq_end2"_fastqc.html" 2>/dev/null
-    mv $workspace/$fastq_end2$file_suffix"_fastqc.zip" $workspace/$fastq_end2"_fastqc.zip" 2>/dev/null
+    mv $workspace/$fastq_end2*"_fastqc.html" $workspace/$fastq_end2"_fastqc.html" 2>/dev/null
+    mv $workspace/$fastq_end2*"_fastqc.zip" $workspace/$fastq_end2"_fastqc.zip" 2>/dev/null
     check_exit_status "check_outputs_exist $workspace/${fastq_end2}_fastqc.html $workspace/${fastq_end2}_fastqc.zip" $JOB_NAME $status_file
 fi
 ##END_FASTQC##

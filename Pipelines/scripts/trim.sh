@@ -36,9 +36,7 @@ check_step_already_done $JOB_NAME $status_file
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
 then
-    #this is the suffix of the input from s3
     download_suffix=$file_suffix
-
     #changes extension if S3 input is zipped
     if [ "$is_zipped" == "True" ]
     then
@@ -47,13 +45,11 @@ then
 
     #always download forward reads
     check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/" $JOB_NAME $status_file
-    gunzip -q $workspace/$fastq_end1$download_suffix
 
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
         check_exit_status "aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/" $JOB_NAME $status_file
-        gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
 ##END_DOWNLOAD##
@@ -63,15 +59,15 @@ fi
 if [ "$fastq_end2" == "NULL" ]
 then
     check_exit_status "java -jar $trimmomatic SE -threads $num_threads -phred33 -trimlog /dev/null \
-        $workspace/$fastq_end1$file_suffix \
+        $workspace/$fastq_end1$download_suffix \
         $workspace/$fastq_end1.trim$file_suffix \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:$min_len" $JOB_NAME $status_file
     check_exit_status "check_outputs_exist $workspace/$fastq_end1.trim$file_suffix" $JOB_NAME $status_file
 # paired-end
 else
     check_exit_status "java -jar $trimmomatic PE -threads $num_threads -phred33 -trimlog /dev/null \
-        $workspace/$fastq_end1$file_suffix \
-        $workspace/$fastq_end2$file_suffix \
+        $workspace/$fastq_end1$download_suffix\
+        $workspace/$fastq_end2$download_suffix \
         $workspace/$fastq_end1.trim$file_suffix \
         $workspace/$fastq_end1.unpaired$file_suffix \
         $workspace/$fastq_end2.trim$file_suffix \
