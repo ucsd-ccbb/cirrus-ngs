@@ -54,7 +54,7 @@ fi
 
 ##SORT##
 check_exit_status "$sambamba sort -t $num_threads -m 5G --tmpdir $workspace/temp \
-    -o $workspace/$fastq_end1.sort.bam $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file
+    --out $workspace/$fastq_end1.sort.bam $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file
 
 check_exit_status "$sambamba index -t $num_threads $workspace/$fastq_end1.sort.bam \
     $workspace/$fastq_end1.sort.bam.bai" $JOB_NAME $status_file
