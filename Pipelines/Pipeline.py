@@ -146,6 +146,8 @@ def run_tool(tool_config_dict, project_name, workflow, sample_list, input_addres
     #extra arguments to the current shell script outside of the 10 necessary ones (see shell script format documentation)
     #if not empty, first extra argument must be a number representing number of threads used by script
     extra_bash_args = list(map(str, extra_bash_args))
+    if len(extra_bash_args) > 0:
+        extra_bash_args[0] = str(num_threads)
 
     #runs tool on every sample in project in one step 
     if tool_config_dict.get("all_samples", False):
