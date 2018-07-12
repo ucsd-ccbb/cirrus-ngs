@@ -503,6 +503,8 @@ def create_cfn_cluster(cluster_name="mycluster"):
         for line in lines:
             if line.find("MasterPublicIP") > -1:
                 master_ip_address = line[line.find("=") + 2:-1]
+                if line.find("=") < 0 and line.find(":") > 0:
+                    master_ip_address = line[line.find(":") + 2:]
             print(line)
 
         return master_ip_address
@@ -513,6 +515,8 @@ def create_cfn_cluster(cluster_name="mycluster"):
     for line in lines:
         if line.find("MasterPublicIP") > -1:
             master_ip_address = line[line.find("=") + 2:-1]
+            if line.find("=") < 0 and line.find(":") > 0:
+                master_ip_address = line[line.find(":") + 2:]
         print(line)
 
     return master_ip_address
