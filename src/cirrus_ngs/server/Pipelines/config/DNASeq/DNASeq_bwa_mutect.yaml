@@ -1,7 +1,7 @@
 steps:
 - "fastqc"
 - "trim"
-- "bwa"
+- "align"
 - "multiqc"
 - "sort"
 - "dedup"
