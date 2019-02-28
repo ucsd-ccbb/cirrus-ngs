@@ -234,7 +234,7 @@ def cat_script(ssh_client, scripts_dict, pipeline, workflow, script_name):
     """
     Returns tuple:
         (specificity of script, string representation of given script contents )
-    Specificty in ["Workflow Specific", "Pipeline Specific", "All Pipelines"]
+    Specificity in ["Workflow Specific", "Pipeline Specific", "All Pipelines"]
     Must specify which workflow and pipeline the script is in.
 
     input:
@@ -330,3 +330,49 @@ def check_tool_is_installed(software_dict, tool):
     else:
         return "{} not installed".format(tool)
 
+def display_pipeline_workflow_settings_and_scripts(ssh_client, pipeline, workflow, analysis_steps):
+    """ Print out settings and script for each input analysis step in workflow
+
+    Returns: none
+
+    input:
+        ssh_client: a paramiko SSHClient obj
+        pipeline: name of pipeline of interest
+        workflow: name of workflow of interest within pipeline
+        analysis_steps: list of names of analysis steps of interest within workflow
+    """
+
+    scripts = get_scripts_dict(ssh_client)
+
+    for curr_step_name in analysis_steps:
+        print(curr_step_name)
+        step_tool_config, step_specific_config = get_step_config_dicts(
+            ssh_client, scripts, curr_step_name)
+        pipeline_workflow_key = (pipeline, workflow)
+        pipeline_workflow_step_specific_config = {}
+        pipeline_workflow_step_specific_config[pipeline_workflow_key] = \
+        step_specific_config[pipeline_workflow_key]
+        print(get_step_config(ssh_client, scripts, curr_step_name,
+                                          step_tool_config,
+                                          pipeline_workflow_step_specific_config))
+        print("----------------------------------------------")
+
+        pipeline_workflow_script_path = \
+        pipeline_workflow_step_specific_config[pipeline_workflow_key][
+            "script_path"]
+        script_name = os.path.basename(pipeline_workflow_script_path) + ".sh"
+        _, file_cat = cat_script(ssh_client, scripts, pipeline,
+                                                 workflow, script_name)
+        print(script_name)
+        show_script(file_cat)
+        print("----------------------------------------------")
+        print("----------------------------------------------")
+        print("")
+
+def display_software_config(ssh_client):
+    """Display the software config file as html"""
+
+    show_script(
+        ConnectionManager.execute_command(
+            ssh_client, "cat /shared/workspace/Pipelines/config/software.conf")
+    )
