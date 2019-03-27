@@ -330,8 +330,17 @@ def check_tool_is_installed(software_dict, tool):
     else:
         return "{} not installed".format(tool)
 
+
+def get_pipeline_workflow_config(ssh_client, pipeline, workflow):
+    specific_confs_dict = literal_eval(
+        ConnectionManager.execute_command(ssh_client,
+                                          "python /shared/workspace/Pipelines/util/GetAllSpecificConfs.py"))
+
+    return yaml.load(specific_confs_dict[pipeline][workflow])
+
+
 def display_pipeline_workflow_settings_and_scripts(ssh_client, pipeline, workflow, analysis_steps):
-    """ Print out settings and script for each input analysis step in workflow
+    """ Print settings, script for each input analysis step in workflow, in the order run
 
     Returns: none
 
@@ -340,31 +349,54 @@ def display_pipeline_workflow_settings_and_scripts(ssh_client, pipeline, workflo
         pipeline: name of pipeline of interest
         workflow: name of workflow of interest within pipeline
         analysis_steps: list of names of analysis steps of interest within workflow
+
+    NOTE: This method does NOT print out any contents for any step from tools.yaml, since as of
+    03/2019 it appears this file is no longer used.
     """
 
-    scripts = get_scripts_dict(ssh_client)
+    scripts_dict = get_scripts_dict(ssh_client)
+    pipeline_workflow_spec_config = get_pipeline_workflow_config(ssh_client,
+                                                                 pipeline,
+                                                                 workflow)
+    # get the contents of the "steps" key in the step_specific_config
+    steps_in_order = pipeline_workflow_spec_config["steps"]
 
-    for curr_step_name in analysis_steps:
-        print(curr_step_name)
-        step_tool_config, step_specific_config = get_step_config_dicts(
-            ssh_client, scripts, curr_step_name)
-        pipeline_workflow_key = (pipeline, workflow)
-        pipeline_workflow_step_specific_config = {}
-        pipeline_workflow_step_specific_config[pipeline_workflow_key] = \
-        step_specific_config[pipeline_workflow_key]
-        print(get_step_config(ssh_client, scripts, curr_step_name,
-                                          step_tool_config,
-                                          pipeline_workflow_step_specific_config))
+    # return info on the steps in the order they are performed in the workflow
+    for curr_step in steps_in_order:
+        # steps in the workflow but NOT in the input analysis steps
+        # should not have been run, so skip them
+        if curr_step not in analysis_steps:
+            continue
+
+        curr_config_output = ""
+        curr_step_config = pipeline_workflow_spec_config[curr_step]
+        curr_script_name = curr_step_config["script_path"].split("/")[-1]
+        curr_entry = yaml.dump({curr_script_name: curr_step_config},
+                               default_flow_style=False)
+        _, curr_script = cat_script(ssh_client, scripts_dict,
+                                                  pipeline, workflow,
+                                                  curr_script_name + ".sh")
+        # note hardcoded 10 is the number of input variables shared by every script; any after that
+        # 10 are specific to this particular script.  This is very brittle and should probably be
+        # parameterized somewhere.
+        curr_script_extra_args_lines = curr_script.split("\n\n")[
+                                           1].splitlines()[10:]
+        curr_extra_arg_names = list(
+            map(lambda x: x.split("=")[0], curr_script_extra_args_lines))
+
+        curr_config_output += "{}_{}.yaml configuration entry for {} step:\n{}".format(
+            pipeline, workflow, curr_step, curr_entry)
+
+        for i, arg_name in enumerate(curr_extra_arg_names):
+            curr_config_output += "Argument {} is {}, ".format(i + 1, arg_name)
+
+        curr_config_output = curr_config_output.rstrip(", ")
+        curr_config_output += "\n\n"
+        print(curr_config_output)
         print("----------------------------------------------")
 
-        pipeline_workflow_script_path = \
-        pipeline_workflow_step_specific_config[pipeline_workflow_key][
-            "script_path"]
-        script_name = os.path.basename(pipeline_workflow_script_path) + ".sh"
-        _, file_cat = cat_script(ssh_client, scripts, pipeline,
-                                                 workflow, script_name)
-        print(script_name)
-        show_script(file_cat)
+        print(curr_script_name)
+        show_script(curr_script)
         print("----------------------------------------------")
         print("----------------------------------------------")
         print("")
