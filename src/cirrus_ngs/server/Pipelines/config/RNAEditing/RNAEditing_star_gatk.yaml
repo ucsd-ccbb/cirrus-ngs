@@ -1,0 +1,66 @@
+steps:
+   - "fastqc"
+   - "trim"
+   - "align"
+   - "multiqc"
+   - "variant_calling"
+   - "variant_filtering"
+   - "variant_annotation"
+
+fastqc:
+    script_path: "fastqc"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args: []
+trim:
+    script_path: "trim"
+    download_suffix: ~
+    input_is_output: False
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4     # number of threads
+        - 27    # minlen for trimmomatic
+align:
+    script_path: "RNAEditing/star_gatk/star_align"
+    download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4     # number of threads
+variant_calling:
+    script_path: "RNAEditing/star_gatk/gatk_vc"
+    download_suffix: ".Aligned.sortedByCoord.out.bam"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4     # number of threads
+variant_filtering:
+    script_path: "RNAEditing/star_gatk/gatk_filt"
+    download_suffix: "_filt.vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    extra_bash_args:
+        - 4     # number of threads
+variant_annotation:
+    script_path: "RNAEditing/var_anno"
+    download_suffix: "_rnaedit_sites.vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+    extra_bash_args:
+        - 4     # number of threads
+multiqc:
+    script_path: "multiqc"
+    download_suffix: ""
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+    extra_bash_args: []

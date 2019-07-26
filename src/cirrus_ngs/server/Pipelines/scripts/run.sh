@@ -9,6 +9,6 @@ log_file=$log_dir/'run.log'
 exec 1>>$log_file
 exec 2>>$log_file
 
-source /shared/workspace/Pipelines/config/software.conf
+source /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/software.conf
 
-$python /shared/workspace/Pipelines/Pipeline.py $yaml_file $log_dir $pipeline.yaml
+$python3 /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/Pipeline.py $yaml_file $log_dir $pipeline.yaml

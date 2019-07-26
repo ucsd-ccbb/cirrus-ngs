@@ -39,19 +39,11 @@ then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
 
-    #changes extension if S3 input is zipped
-    if [ "$is_zipped" == "True" ]
-    then
-        download_suffix=$file_suffix".gz"
-    fi
-
     #always download forward reads
     aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet
     aws s3 cp $input_address/$fastq_end1$download_suffix.bai $workspace/ --quiet
-    gunzip -q $workspace/$fastq_end1$download_suffix
 fi
 ##END_DOWNLOAD##
-
 
 ##SPLIT##
 check_exit_status "$samtools view -b $workspace/$fastq_end1$file_suffix $chromosome > \
@@ -67,3 +59,8 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.$chromosome.bam \
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.bam*" --recursive --quiet
 ##END_UPLOAD##
+
+##CLEAN##
+rm $workspace/$fastq_end1.$chromosome.bam
+rm $workspace/$fastq_end1.$chromosome.bam.bai
+##END_CLEAN##

@@ -35,40 +35,50 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
+#this is the suffix of the input from s3
+download_suffix=$file_suffix
+
+#changes extension if S3 input is zipped
+if [ "$is_zipped" == "True" ]
+then
+    download_suffix=$file_suffix".gz"
+fi
+
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1.trim$file_suffix ]
 then
-    #this is the suffix of the input from s3
-    download_suffix=.trim$file_suffix
-
     #always download forward reads
-    check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet" $JOB_NAME $status_file
-    gunzip -q $workspace/$fastq_end1$download_suffix
-
+    check_exit_status "aws s3 cp $input_address/$fastq_end1.trim$download_suffix $workspace/ --quiet" $JOB_NAME $status_file
+    #gunzip -q $workspace/$fastq_end1$download_suffix
+    
     #download reverse reads if they exist
     if [ "$fastq_end2" != "NULL" ]
     then
-        check_exit_status "aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/ --quiet" $JOB_NAME $status_file
-        gunzip -q $workspace/$fastq_end2$download_suffix
+        check_exit_status "aws s3 cp $input_address/$fastq_end2.trim$download_suffix $workspace/ --quiet" $JOB_NAME $status_file
+        #gunzip -q $workspace/$fastq_end2$download_suffix
     fi
 fi
 ##END_DOWNLOAD##
 
+
 ##CUT_ADAPT##
 # cut 3' end
-check_exit_status "$cutadapt -a $adapter -o $workspace/$fastq_end1.cut$file_suffix \
-$workspace/$fastq_end1.trim$file_suffix -m $min_len" $JOB_NAME $status_file
+
+check_exit_status "$cutadapt -a $adapter -o $workspace/$fastq_end1.cut.trim$download_suffix \
+$workspace/$fastq_end1.trim$download_suffix -m $min_len" $JOB_NAME $status_file
 
 if [ "$fastq_end2" != "NULL" ];
 then
     # cut 3' end
-    check_exit_status "$cutadapt -a $adapter -o $workspace/$fastq_end2.cut$file_suffix \
-    $workspace/$fastq_end2.trim$file_suffix -m $min_len" $JOB_NAME $status_file
+    check_exit_status "$cutadapt -a $adapter -o $workspace/$fastq_end2.cut.trim$download_suffix \
+    $workspace/$fastq_end2.trim$download_suffix -m $min_len" $JOB_NAME $status_file
 fi
 ##END_CUT_ADAPT##
 
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.fastq*" --recursive --quiet
+aws s3 cp $workspace $output_address --exclude "*" --include "*.cut.trim.fastq*" --recursive --quiet
 ##END_UPLOAD##
+
+rm -r $workspace

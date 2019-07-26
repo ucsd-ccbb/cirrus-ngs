@@ -58,7 +58,6 @@ then
 fi
 ##END_DOWNLOAD##
 
-
 ##ALIGN##
 if [ "fastq_end2" == "NULL" ]
 then
@@ -78,3 +77,7 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.txt $workspace/$fa
 ##UPLOAD##
 aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.bam" --include "${fastq_end1}.txt" --recursive --quiet
 ##END_UPLOAD##
+
+##CLEAN##
+rm -r $workspace
+##END_CLEAN##

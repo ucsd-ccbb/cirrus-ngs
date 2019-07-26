@@ -32,12 +32,17 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
-##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ]
-then
-    #this is the suffix of the input from s3
-    download_suffix=$file_suffix
+#this is the suffix of the input from s3
+download_suffix=$file_suffix
 
+if [ "$is_zipped" == "True" ]
+then
+    download_suffix=$file_suffix".gz"
+fi
+
+##DOWNLOAD##
+if [ ! -f $workspace/$fastq_end1$download_suffix ]
+then
     #always download forward reads
     check_exit_status "aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet" $JOB_NAME $status_file
 
@@ -52,11 +57,14 @@ fi
 # Star align
 if [ "$fastq_end2" == "NULL" ]
 then
+    gunzip $workspace/$fastq_end1$download_suffix
     check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_index \
         --readFilesIn $workspace/$fastq_end1$file_suffix \
         --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
 else
     # paired-end
+    gunzip $workspace/$fastq_end1$download_suffix
+    gunzip $workspace/$fastq_end2$download_suffix
     check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_index \
         --readFilesIn $workspace/$fastq_end1$file_suffix $workspace/$fastq_end2$file_suffix \
         --outFileNamePrefix $workspace/$fastq_end1." $JOB_NAME $status_file
@@ -79,3 +87,6 @@ check_exit_status "check_outputs_exist $workspace/$fastq_end1.txt $workspace/$fa
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.Aligned.out.sorted*" --exclude "*.sam" --include "$fastq_end1.txt" --recursive --quiet
 ##END_UPLOAD##
+
+rm -r $workspace
+

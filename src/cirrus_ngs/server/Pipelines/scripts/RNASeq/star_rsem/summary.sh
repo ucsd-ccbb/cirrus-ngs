@@ -39,11 +39,11 @@ do
 done
 
 # Call the python parser files and upload the output file to s3
-$python /shared/workspace/Pipelines/util/star_rsem/RSEM_count_parser.py $workspace
+$python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/star_rsem/RSEM_count_parser.py $workspace
 aws s3 cp $workspace $output_address --exclude "*" --include "*all_counts_results.txt*" --recursive --quiet
 
-$python /shared/workspace/Pipelines/util/star_rsem/RSEM_gene_parser.py $workspace
+$python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/star_rsem/RSEM_gene_parser.py $workspace
 aws s3 cp $workspace $output_address --exclude "*" --include "*all_genes_results.txt*" --recursive --quiet
 
-$python /shared/workspace/Pipelines/util/star_rsem/RSEM_isoform_parser.py $workspace
+$python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/star_rsem/RSEM_isoform_parser.py $workspace
 aws s3 cp $workspace $output_address --exclude "*" --include "*all_isoforms_results.txt*" --recursive --quiet

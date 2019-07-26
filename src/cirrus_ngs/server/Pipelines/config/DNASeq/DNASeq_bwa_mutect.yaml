@@ -24,7 +24,7 @@ trim:
     can_be_zipped: True
     uses_chromosomes: False
     extra_bash_args:
-        - 4     # number of threads
+        - 32     # number of threads
         - 36    # minlen for trimmomatic
 multiqc:
     script_path: "multiqc"
@@ -34,14 +34,14 @@ multiqc:
     uses_chromosomes: False
     all_samples: True
     extra_bash_args: []
-bwa:
+align:
     script_path: "DNASeq/bwa"
     download_suffix: ".trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
     extra_bash_args:
-        - 4             # number of threads
+        - 32             # number of threads
         - "ILLUMINA"    # platform tech
 sort:
     script_path: "DNASeq/sort"
@@ -50,18 +50,10 @@ sort:
     can_be_zipped: False
     uses_chromosomes: False
     extra_bash_args:
-        - 4             # number of threads
-dedup:
-    script_path: "DNASeq/dedup"
-    download_suffix: ".sort.bam"
-    input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
-    extra_bash_args:
-        - 4             # number of threads
+        - 32             # number of threads
 split:
     script_path: "DNASeq/split"
-    download_suffix: ".dedup.bam"
+    download_suffix: ".sort.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
@@ -94,10 +86,10 @@ merge:
     extra_bash_args:
         - 4             # number of threads
 filter:
-    script_path: "DNASeq/bwa_gatk/filter"
+    script_path: "DNASeq/filter"
     download_suffix: ".vcf"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
     by_group: True
     extra_bash_args:

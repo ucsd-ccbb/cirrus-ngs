@@ -34,8 +34,8 @@ check_step_already_done $JOB_NAME $status_file
 touch $workspace/group.txt
 
 # Call the group file maker
-$python /shared/workspace/Pipelines/util/GroupFileMaker.py $workspace/group.txt \
-    /shared/workspace/Pipelines/yaml_files/RNASeq/$workflow/$project_name.yaml $output_address
+$python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/GroupFileMaker.py $workspace/group.txt \
+    /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/yaml_files/RNASeq/$workflow/$project_name.yaml $output_address
 
 # View the group file
 head $workspace/group.txt

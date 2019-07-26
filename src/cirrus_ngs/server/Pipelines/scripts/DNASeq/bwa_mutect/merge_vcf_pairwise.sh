@@ -81,7 +81,7 @@ done
 check_exit_status "$sambamba merge -t $num_threads $workspace/$normal_sample.normal.final.bam $bam_file_list_norm" $JOB_NAME $status_file
 check_exit_status "$sambamba merge -t $num_threads $workspace/$tumor_sample.tumor.final.bam $bam_file_list_tumor" $JOB_NAME $status_file
 
-check_exit_status "$vcf_concat $vcf_file_list > $workspace/$pair_base_name.raw.vcf" $JOB_NAME $status_file
+check_exit_status "$concat_vcf $vcf_file_list > $workspace/$pair_base_name.raw.vcf" $JOB_NAME $status_file
 check_exit_status "$python $vcf_sort $workspace/$pair_base_name.raw.vcf '$chromosome_list' -o $workspace/$pair_base_name.merged.vcf" $JOB_NAME $status_file
 check_exit_status "check_outputs_exist $workspace/$pair_base_name.merged.vcf $workspace/$normal_sample.normal.final.bam $workspace/$tumor_sample.tumor.final.bam" $JOB_NAME $status_file
 ##END_MERGE##

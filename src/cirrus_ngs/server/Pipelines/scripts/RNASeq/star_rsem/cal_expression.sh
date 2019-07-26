@@ -32,58 +32,60 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
-##DOWNLOAD##
-if [ ! -f $workspace/$fastq_end1$file_suffix ] || [ ! -f $workspace/$fastq_end2$file_suffix ] 
+#this is the suffix of the input from s3
+download_suffix=$file_suffix
+
+if [ "$is_zipped" == "True" ]
 then
-    #this is the suffix of the input from s3
-    download_suffix=$file_suffix
+    download_suffix=$file_suffix".gz"
+fi
 
-    if [ "$is_zipped" == "True" ]
-    then
-        download_suffix=$file_suffix".gz"
-    fi
-
+##DOWNLOAD##
+if [ ! -f $workspace/"Aligned"$file_suffix ] || [ ! -f $workspace/"Aligned"$file_suffix ] 
+then
     #always download forward reads
-    aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet
-    gunzip -q $workspace/$fastq_end1$download_suffix
-
-    #download reverse reads if they exist
-    if [ "$fastq_end2" != "NULL" ]
-    then
-        aws s3 cp $input_address/$fastq_end2$download_suffix $workspace/ --quiet
-        gunzip -q $workspace/$fastq_end2$download_suffix
-    fi
+    aws s3 cp $input_address/"Aligned"$download_suffix $workspace/ --quiet
 fi
 ##END_DOWNLOAD##
+
 
 # RSEM calculate expression
 if [ "$fastq_end2" == "NULL" ]
 then
-    check_exit_status "$rsem --star --output-genome-bam --sort-bam-by-coordinate \
-        --star-path $star_path -p $num_threads \
-        $workspace/$fastq_end1$file_suffix \
-        $rsem_index $workspace/$fastq_end1" $JOB_NAME $status_file
-
+    check_exit_status "$rsem --bam -p $num_threads $workspace/'Aligned'$download_suffix \
+	$rsem_index $workspace/$fastq_end1" $JOB_NAME $status_file
 else
     # paired end
-    check_exit_status "$rsem --star --output-genome-bam --sort-bam-by-coordinate \
-        --star-path $star_path -p $num_threads \
-        --paired-end $workspace/$fastq_end1$file_suffix \
-        $workspace/$fastq_end2$file_suffix \
-        $rsem_index $workspace/$fastq_end1" $JOB_NAME $status_file
+    check_exit_status "$rsem --paired-end --bam -p $num_threads $workspace/'Aligned'$download_suffix \
+	$rsem_index $workspace/$fastq_end1" $JOB_NAME $status_file
 fi
 
-# perform samtools stats, for multiqc purposes
-check_exit_status "$samtools stats $workspace/$fastq_end1.genome.bam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
-check_exit_status "check_outputs_exist $workspace/$fastq_end1.txt $workspace/$fastq_end1.genes.results \
-    $workspace/$fastq_end1.isoforms.results $workspace/$fastq_end1.stat \
-    $workspace/$fastq_end1.transcript.sorted.bam $workspace/$fastq_end1.transcript.sorted.bam.bai \
-    $workspace/$fastq_end1.genome.sorted.bam $workspace/$fastq_end1.genome.sorted.bam.bai" \
-    $JOB_NAME $status_file
+# RSEM converts to genome bam and sort.
+check_exit_status "$rsem_tbam2gbam $rsem_index $workspace/$fastq_end1'.transcript.bam' $workspace/$fastq_end1'.genome.bam'" $JOB_NAME $status_file   
+check_exit_status "$sambamba sort -m 2G -t $num_threads $workspace/$fastq_end1'.genome.bam' -o $workspace/$fastq_end1'.genome.sorted.bam'" $JOB_NAME $status_file
+check_exit_status "$samtools index $workspace/$fastq_end1'.genome.sorted.bam'" $JOB_NAME $status_file
 
+# perform RSeQC
+if [ ! -z "$rRNA_bed" ]
+then
+    check_exit_status "$rseqc_split_bam -i $workspace/$fastq_end1'.genome.sorted.bam' -r $rRNA_bed -o $workspace/$fastq_end1 > $workspace/$fastq_end1.ribosomal.txt" $JOB_NAME $status_file
+    check_exit_status "$rseqc_geneBody_coverage -r $HouseKeepingGenes_bed -i $workspace/$fastq_end1'.genome.sorted.bam' -o $workspace/$fastq_end1" $JOB_NAME $status_file
+    check_exit_status "$rseqc_read_distribution -i $workspace/$fastq_end1'.genome.sorted.bam' -r $RefSeq_bed > $workspace/$fastq_end1.read.distribution.txt" $JOB_NAME $status_file
+
+# perform samtools stats, for multiqc purposes
+    check_exit_status "check_outputs_exist $workspace/$fastq_end1.genes.results \
+    $workspace/$fastq_end1.isoforms.results $workspace/$fastq_end1.stat \
+    $workspace/$fastq_end1.ribosomal.txt $workspace/$fastq_end1.read.distribution.txt \
+    $workspace/$fastq_end1.geneBodyCoverage.txt" $JOB_NAME $status_file
+fi
+
+rm $workspace/'Aligned'$download_suffix
+rm $workspace/$fastq_end1'.transcript.bam'
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.transcript.sorted.bam*" --include "$fastq_end1.txt" \
-    --include "$fastq_end1.*.results" --include "$fastq_end1.genome.sorted.bam*" --recursive --quiet
-aws s3 cp $workspace/$fastq_end1.stat $output_address/$fastq_end1.stat --recursive --quiet
+aws s3 cp $workspace $output_address --recursive
 ##END_UPLOAD##
+
+##CLEAN##
+#rm -r $workspace
+##END_CLEAN##

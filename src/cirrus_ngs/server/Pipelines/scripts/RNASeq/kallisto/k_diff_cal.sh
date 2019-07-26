@@ -43,7 +43,7 @@ fi
 ##END_DOWNLOAD##
 
 # Call R script
-check_exit_status "Rscript /shared/workspace/Pipelines/scripts/RNASeq/kallisto/RNA-seq_limma.R \
+check_exit_status "Rscript /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/scripts/RNASeq/kallisto/RNA-seq_limma.R \
     $workspace/group.txt \
     $workspace/all_gene_counts.txt $workspace/" $JOB_NAME $status_file
 

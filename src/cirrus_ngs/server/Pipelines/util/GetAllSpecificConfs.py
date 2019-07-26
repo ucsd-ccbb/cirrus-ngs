@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 
-config_dir = "/shared/workspace/Pipelines/config/"
+config_dir = "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/"
 
 config_spec_dirs = filter(lambda x : os.path.isdir(config_dir + x), os.listdir(config_dir))
 

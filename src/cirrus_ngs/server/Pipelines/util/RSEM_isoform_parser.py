@@ -43,3 +43,12 @@ if __name__ == "__main__":
                 filewriter.write("\t" + fields[2] + "\t" + fields[3] + "\t" + fields[4] + "\t" + fields[5] + "\t" + fields[6] + "\t" + fields[7].rstrip())
 
         filewriter.write("\n")
+
+    filewriter.close()
+
+    all_genes_expression_list = read_data_file(workspace + "/all_isoforms_results.txt")
+
+    if len(expression_list) == len(all_genes_expression_list):
+        exit(0)
+    else:
+        exit(1)

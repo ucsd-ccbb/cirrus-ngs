@@ -25,7 +25,7 @@ trim:
     can_be_zipped: True
     uses_chromosomes: False
     extra_bash_args:
-        - 4     # number of threads
+        - 8     # number of threads
         - 36    # minlen for trimmomatic
 multiqc:
     script_path: "multiqc"
@@ -39,10 +39,10 @@ align:
     script_path: "DNASeq/bwa"
     download_suffix: ".trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
     extra_bash_args:
-        - 4             # number of threads
+        - 8             # number of threads
         - "ILLUMINA"    # platform tech
 sort:
     script_path: "DNASeq/sort"
@@ -51,23 +51,15 @@ sort:
     can_be_zipped: False
     uses_chromosomes: False
     extra_bash_args:
-        - 4             # number of threads
-dedup:
-    script_path: "DNASeq/dedup"
-    download_suffix: ".sort.bam"
-    input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
-    extra_bash_args:
-        - 4             # number of threads
+        - 8             # number of threads
 split:
     script_path: "DNASeq/split"
-    download_suffix: ".dedup.bam"
+    download_suffix: ".sort.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
     extra_bash_args:
-        - 1             # number of threads
+        - 8             # number of threads
 postalignment:
     script_path: "DNASeq/post"
     download_suffix: ".{}.bam"
@@ -88,26 +80,26 @@ merge:
     script_path: "DNASeq/merge"
     download_suffix: ".g.vcf"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
     extra_bash_args:
         - 4             # number of threads
         - "True"        # if vcf files should be merged
 group_vcf:
-    script_path: "DNASeq/bwa_gatk/group_vcf"
-    download_suffix: ".merged.g.vcf"
+    script_path: "DNASeq/group_vcf"
+    download_suffix: ".g.vcf"
     input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
+    can_be_zipped: True
+    uses_chromosomes: True
     by_group: True
     extra_bash_args:
         - 4             # number of threads
 filter:
-    script_path: "DNASeq/bwa_gatk/filter"
+    script_path: "DNASeq/filter"
     download_suffix: ".vcf"
     input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
+    can_be_zipped: True
+    uses_chromosomes: True
     by_group: True
     extra_bash_args:
         - 4             # number of threads

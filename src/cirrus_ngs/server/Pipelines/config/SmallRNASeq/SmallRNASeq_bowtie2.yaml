@@ -25,16 +25,17 @@ cut_adapt:
     script_path: "SmallRNASeq/bowtie2/cutadapt"
     download_suffix: ~
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
     extra_bash_args:
         - 1     # number of threads
         - 2    # minlengt for read
+        - "TGGAATTCTCGGGTGCCAAGG" # adapter sequence
 align_and_count:
     script_path: "SmallRNASeq/bowtie2/bowtie2_and_count"
-    download_suffix: ".cut{}"
+    download_suffix: ".cut.trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
     extra_bash_args:
         - 4     # number of threads

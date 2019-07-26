@@ -1,4 +1,0 @@
-## testing chip 
-ERR022267.fastq.gz	groupA
-ERR022268.fastq.gz	groupA
-ERR022269.fastq.gz	groupA

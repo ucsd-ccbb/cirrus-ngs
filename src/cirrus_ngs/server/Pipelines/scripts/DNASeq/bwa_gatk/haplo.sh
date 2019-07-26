@@ -25,7 +25,7 @@ touch $status_file
 
 #prepare output directories
 workspace=$root_dir/$project_name/$workflow/$fastq_end1
-mkdir -p $workspace
+mkdir -p $workspace/temp
 
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 date
@@ -39,16 +39,9 @@ then
     #this is the suffix of the input from s3
     download_suffix=$file_suffix
 
-    #changes extension if S3 input is zipped
-    if [ "$is_zipped" == "True" ]
-    then
-        download_suffix=$file_suffix".gz"
-    fi
-
     #always download forward reads
     aws s3 cp $input_address/$fastq_end1$download_suffix $workspace/ --quiet
     aws s3 cp $input_address/$fastq_end1$download_suffix.bai $workspace/ --quiet
-    gunzip -q $workspace/$fastq_end1$download_suffix
 fi
 ##END_DOWNLOAD##
 
@@ -58,16 +51,13 @@ check_exit_status "$bedtools genomecov -split -ibam $workspace/$fastq_end1$file_
     -bga -g $genome_fai -max 70001 > $workspace/$fastq_end1.final.$chromosome.bed" $JOB_NAME"_$chromosome" $status_file
 
 check_exit_status "$java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$workspace/temp \
-    -jar $gatk -T HaplotypeCaller -R $genome_fasta \
+    -jar $gatk HaplotypeCaller -R $genome_fasta \
     -I $workspace/$fastq_end1$file_suffix \
     -L $workspace/$fastq_end1.final.$chromosome.bed \
-    --out $workspace/$fastq_end1.$chromosome.g.vcf \
-    -nct $num_threads \
-    -G none \
+    -O $workspace/$fastq_end1.$chromosome.g.vcf.gz \
+    --native-pair-hmm-threads $num_threads \
     --annotation BaseQualityRankSumTest \
     --annotation FisherStrand \
-    --annotation GCContent \
-    --annotation HomopolymerRun \
     --annotation MappingQualityRankSumTest \
     --annotation MappingQualityZero \
     --annotation QualByDepth \
@@ -76,13 +66,12 @@ check_exit_status "$java -Xms454m -Xmx8g -XX:+UseSerialGC -Djava.io.tmpdir=$work
     --annotation DepthPerAlleleBySample \
     --annotation Coverage \
     --annotation ClippingRankSumTest \
-    --standard_min_confidence_threshold_for_calling 30.0 \
     -ERC GVCF \
     --dbsnp $dbsnp" $JOB_NAME"_$chromosome" $status_file
 
-check_exit_status "check_outputs_exist $workspace/$fastq_end1.$chromosome.g.vcf" $JOB_NAME"_$chromosome" $status_file
+check_exit_status "check_outputs_exist $workspace/$fastq_end1.$chromosome.g.vcf.gz" $JOB_NAME"_$chromosome" $status_file
 ##END_HAPLOTYPE##
 
 ##UPLOAD##
-aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.g.vcf" --recursive --quiet
+aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.$chromosome.g.vcf.gz" --recursive --quiet
 ##END_UPLOAD##

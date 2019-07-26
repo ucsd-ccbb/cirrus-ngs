@@ -6,7 +6,7 @@ that can be used to check content on the cluster from jupyter.
 __author__ = "Mustafa Guler"
 
 import os
-from cfnCluster import ConnectionManager
+from awsCluster import ConnectionManager
 from ast import literal_eval
 from difflib import get_close_matches
 import yaml
@@ -94,7 +94,7 @@ def get_scripts_dict(ssh_client):
     input:
         ssh_client: a paramiko SSHClient obj
     """
-    return literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/GetScripts.py"))
+    return literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/GetScripts.py"))
 
 def get_all_pipeline_names(scripts_dict):
     """
@@ -156,7 +156,7 @@ def get_steps_calling_script(ssh_client, scripts_dict, script_name):
         scripts_dict: scripts dictionary described in get_scripts_dict function
         script_name: name of target script including .sh extension
     """
-    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
+    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/tools.yaml"))
 
     #keys=pipline names, values=list of workflows in that pipeline
     #excludes "All Pipelines" key from original scripts_dict
@@ -165,7 +165,7 @@ def get_steps_calling_script(ssh_client, scripts_dict, script_name):
     configs = []
     for pipeline in pipe_work_dict:
         for workflow in pipe_work_dict[pipeline]:
-            configs.append(yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/{0}/{0}_{1}.yaml".format(pipeline, workflow))))
+            configs.append(yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/{0}/{0}_{1}.yaml".format(pipeline, workflow))))
 
     result = "{} called from:\n".format(script_name)
     script_name = script_name.replace(".sh", "")
@@ -195,10 +195,10 @@ def get_steps_calling_script(ssh_client, scripts_dict, script_name):
 
 
 def get_step_config_dicts(ssh_client, scripts_dict, step_name):
-    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
+    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/tools.yaml"))
     step_tools_conf = tools_conf[step_name]
 
-    specific_confs_dict = literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/GetAllSpecificConfs.py"))
+    specific_confs_dict = literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/GetAllSpecificConfs.py"))
 
     step_spec_conf = {}
 
@@ -245,11 +245,11 @@ def cat_script(ssh_client, scripts_dict, pipeline, workflow, script_name):
         script_name: name of target script including .sh extension
     """
     if script_name in scripts_dict[pipeline][workflow]:
-        return "Workflow Specific", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/scripts/{}/{}/{}".format(pipeline, workflow, script_name))
+        return "Workflow Specific", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/scripts/{}/{}/{}".format(pipeline, workflow, script_name))
     elif script_name in scripts_dict[pipeline]["All Workflows"]:
-        return "Pipeline Specific", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/scripts/{}/{}".format(pipeline, script_name))
+        return "Pipeline Specific", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/scripts/{}/{}".format(pipeline, script_name))
     elif script_name in scripts_dict["All Pipelines"]:
-        return "All Pipelines", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/scripts/{}".format(script_name))
+        return "All Pipelines", ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/scripts/{}".format(script_name))
     else:
         return "This script isn't called in the specified Pipeline/Workflow", ""
 
@@ -259,29 +259,29 @@ def show_script(str_script):
 
 
 def edit_step_tools_config(ssh_client, new_step_tools_conf, step_name):
-    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/tools.yaml"))
+    tools_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/tools.yaml"))
     tools_conf[step_name] = new_step_tools_conf
     with open("tools.yaml", "w+") as f:
         f.write(yaml.dump(tools_conf, default_flow_style=False))
-    ConnectionManager.execute_command(ssh_client, "mv -n /shared/workspace/Pipelines/config/tools.yaml /shared/workspace/Pipelines/config/tools.yaml.BACKUP")
-    ConnectionManager.copy_file(ssh_client, "{}/tools.yaml".format(os.getcwd()), "/shared/workspace/Pipelines/config/tools.yaml")
+    ConnectionManager.execute_command(ssh_client, "mv -n /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/tools.yaml /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/tools.yaml.BACKUP")
+    ConnectionManager.copy_file(ssh_client, "{}/tools.yaml".format(os.getcwd()), "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/tools.yaml")
 
 def edit_step_specific_config(ssh_client, pipeline, workflow, new_extra_bash_args, step_name):
     conf_file_name = "{}_{}.yaml".format(pipeline, workflow)
-    spec_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/Pipelines/config/{}/{}".format(pipeline, conf_file_name)))
+    spec_conf = yaml.load(ConnectionManager.execute_command(ssh_client, "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/{}/{}".format(pipeline, conf_file_name)))
     spec_conf[step_name] = new_extra_bash_args
 
     with open(conf_file_name, "w+") as f:
         f.write(yaml.dump(spec_conf, default_flow_style=False))
-    ConnectionManager.execute_command(ssh_client, "mv -n /shared/workspace/Pipelines/config/{0}/{1} /shared/workspace/Pipelines/config/{0}/{1}.BACKUP".format(pipeline, conf_file_name))
-    ConnectionManager.copy_file(ssh_client, "{}/{}".format(os.getcwd(), conf_file_name), "/shared/workspace/Pipelines/config/{}/{}".format(pipeline, conf_file_name))
+    ConnectionManager.execute_command(ssh_client, "mv -n /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/{0}/{1} /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/{0}/{1}.BACKUP".format(pipeline, conf_file_name))
+    ConnectionManager.copy_file(ssh_client, "{}/{}".format(os.getcwd(), conf_file_name), "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/{}/{}".format(pipeline, conf_file_name))
 
 def edit_script(ssh_client, scripts_dict, pipeline, workflow, script_name):
     _,script_text = cat_script(ssh_client, scripts_dict, pipeline, workflow, script_name)
     return "%%writefile {}\n{}".format(script_name, script_text)
 
 def upload_script(ssh_client, pipeline, workflow, script_name):
-    script_path_cluster = "/shared/workspace/Pipelines/scripts/"
+    script_path_cluster = "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/scripts/"
 
     if pipeline == "all":
         script_path_cluster += script_name
@@ -294,7 +294,7 @@ def upload_script(ssh_client, pipeline, workflow, script_name):
     ConnectionManager.copy_file(ssh_client, "{}/{}".format(os.getcwd(), script_name), script_path_cluster)
 
 def restore_backups(ssh_client):
-    ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/RestoreBackups.py")
+    ConnectionManager.execute_command(ssh_client, "python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/RestoreBackups.py")
 
 
 def get_software_dict(ssh_client):
@@ -307,7 +307,7 @@ def get_software_dict(ssh_client):
     input:
         ssh_client: a paramiko SSHClient obj
     """
-    return literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/Pipelines/util/GetSoftware.py"))
+    return literal_eval(ConnectionManager.execute_command(ssh_client, "python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/GetSoftware.py"))
 
 def check_tool_is_installed(software_dict, tool):
     """

@@ -37,7 +37,7 @@ for file in $all_samples; do
 done
 
 # Call the merge count file
-check_exit_status "python /shared/workspace/Pipelines/util/RNA_MergeCount.py $workflow $workspace $all_samples" $JOB_NAME $status_file
+check_exit_status "python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/RNA_MergeCount.py $workflow $workspace $all_samples" $JOB_NAME $status_file
 
 # Upload the output file
 aws s3 cp $workspace $output_address/ --exclude "*" --include "all_gene_counts.txt" \

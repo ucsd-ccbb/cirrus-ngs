@@ -1,7 +1,7 @@
 import os
 import sys
 
-scripts_path = "/shared/workspace/Pipelines/scripts"
+scripts_path = "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/scripts"
 banned_dirs = ("deprecated", "docs", "old_scripts")
 
 

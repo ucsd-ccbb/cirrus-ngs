@@ -36,15 +36,28 @@ check_step_already_done $JOB_NAME $status_file
 for file in $all_samples
 do
     aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*_fastqc.zip" --recursive --quiet
-    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "$file.txt" --recursive --quiet
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*Log.final.out" --recursive --quiet
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "$file.geneBodyCoverage.txt" --recursive --quiet
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "$file.trimmomatic.out.log" --recursive --quiet
+    aws s3 cp $input_address/$file/ $workspace/ --exclude "*" --include "*.cnt" --recursive --quiet
+    if [ -f $workspace/Log.final.out ]
+    then
+       mv $workspace/Log.final.out $workspace/$file.Log.final.out
+    fi
 done
 
 # Multiqc on all
 #       .fastqc.zip files
-#       .txt files from alignment
+#       STAR log files from alignment
+#	RSeQC log file
+#	RSEM cnt file
 
 check_exit_status "$multiqc -f $workspace -o $workspace" $JOB_NAME $status_file
 check_exit_status "check_outputs_exist $workspace/multiqc_report.html" $JOB_NAME $status_file
 
 # Upload the html file to s3
 aws s3 cp $workspace/multiqc_report.html $output_address/multiqc_report.html --quiet
+
+##CLEAN##
+rm -r $workspace
+##END_CLEAN##

@@ -1,13 +1,13 @@
 import yaml
 from collections import defaultdict
-from cfnCluster import ConnectionManager
+from awsCluster import ConnectionManager
 import datetime
 import re
 
 def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysis_steps,verbose=False):
     print("checking status of jobs...\n")
     spec_yaml = ConnectionManager.execute_command(ssh_client, 
-            "cat /shared/workspace/Pipelines/config/{}/{}_{}.yaml".format(pipeline, pipeline, workflow))
+            "cat /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/{}/{}_{}.yaml".format(pipeline, pipeline, workflow))
     spec_yaml = yaml.load(spec_yaml)
     
     possible_steps = get_possible_steps(analysis_steps, spec_yaml)

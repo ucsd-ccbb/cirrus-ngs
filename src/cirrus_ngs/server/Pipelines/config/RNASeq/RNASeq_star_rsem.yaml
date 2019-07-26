@@ -1,9 +1,10 @@
 steps:
-   - "star_rsem_fastqc"
-   - "star_rsem_trim"
-   - "star_rsem_calculate_expression"
-   - "star_rsem_multiqc"
-   - "star_rsem_merge_counts"
+   - "fastqc"
+   - "trim"
+   - "align"
+   - "count"
+   - "multiqc"
+   - "merge_counts"
 fastqc:
     script_path: "fastqc"
     download_suffix: ~
@@ -20,14 +21,22 @@ trim:
     extra_bash_args:
         - 4     # number of threads
         - 27    # min length to keep
-calculate_expression:
-    script_path: "RNASeq/star_rsem/cal_expression"
+align:
+    script_path: "RNASeq/star_rsem/align"
     download_suffix: ".trim{}"
+    input_is_output: True
+    can_be_zipped: True
+    uses_chromosomes: False
+    extra_bash_args:
+        - 8     # num threads
+count:
+    script_path: "RNASeq/star_rsem/cal_expression"
+    download_suffix: ".toTranscriptome.out.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
     extra_bash_args:
-        - 4     # num threads
+        - 8     # num threads
 merge_counts:
     script_path: "RNASeq/star_rsem/merge"
     download_suffix: ~

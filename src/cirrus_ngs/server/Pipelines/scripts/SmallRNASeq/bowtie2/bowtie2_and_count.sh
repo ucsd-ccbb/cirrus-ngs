@@ -32,6 +32,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 check_step_already_done $JOB_NAME $status_file
 
+echo "$workspace/$fastq_end1$file_suffix"
 
 ##DOWNLOAD##
 if [ ! -f $workspace/$fastq_end1$file_suffix ]
@@ -58,6 +59,8 @@ then
 fi
 ##END_DOWNLOAD##
 
+echo $input_address/$fastq_end1$download_suffix
+
 ##BOWTIE 2 ALIGNMENT##
 
 if [ "$fastq_end2" == "NULL" ]
@@ -76,7 +79,7 @@ then
     # a: report all alignment
     # xeq: Use '='/'X', instead of 'M', to specify matches/mismatches in SAM record
 
-    check_exit_status "$python /shared/workspace/Pipelines/util/RemoveReads.py $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file
+    check_exit_status "$python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/RemoveReads.py $workspace/$fastq_end1$file_suffix" $JOB_NAME $status_file
     filtered_fastq=`ls $workspace/ | grep "kept"`
 
     check_exit_status "$bowtie2 -p $num_threads -q --phred33 -D 20 -R 3 -N 0 -L 8 -i S,1,0.50 \
@@ -95,7 +98,7 @@ fi
 check_exit_status "$samtools stats $workspace/$fastq_end1.sam > $workspace/$fastq_end1.txt" $JOB_NAME $status_file
 
 # Count reads for individual samfile
-check_exit_status "$python /shared/workspace/Pipelines/util/SAMParser.py \
+check_exit_status "$python /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/SAMParser.py \
     $workspace $fastq_end1" $JOB_NAME $status_file
 
 ##UPLOAD##

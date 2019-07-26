@@ -1,0 +1,1 @@
+/shared/workspace/software/bowtie2/2.3.3-linux/bowtie2-build /shared/workspace/software/references/Hsapiens/hairpin/sequence/hairpin_human_v22.1.fa /shared/workspace/software/references/Hsapiens/hairpin/indices/bowtie2/hairpin_human_v22.1

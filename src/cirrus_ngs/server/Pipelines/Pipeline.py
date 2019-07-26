@@ -6,7 +6,7 @@ import re
 import yaml
 
 ROOT_DIR = "/scratch"
-SCRIPTS = "/shared/workspace/Pipelines/scripts/"
+SCRIPTS = "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/scripts/"
 
 ##run the actual pipeline
 def run_analysis(yaml_file, log_dir, pipeline_config_file):
@@ -59,8 +59,8 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     os.environ["mills"] = os.environ.get(genome + "_mills", "")
     os.environ["hapmap"] = os.environ.get(genome + "_hapmap", "")
     os.environ["omni"] = os.environ.get(genome + "_omni", "")
-    os.environ["snps_1000G"] = os.environ.get(genome + "_snps_1000G", "")
-    os.environ["indels_1000G"] = os.environ.get(genome + "_indels_1000G" , "")
+    os.environ["G1000_snps"] = os.environ.get(genome + "_G1000_snps", "")
+    os.environ["G1000_indels"] = os.environ.get(genome + "_G1000_indels" , "")
     os.environ["indels"] = os.environ.get(genome + "_indels", "")
     os.environ["cosmic"] = os.environ.get(genome + "_cosmic", "")
     os.environ["chromosome_list"] = os.environ.get(genome + "_chromosome_list", "")
@@ -70,7 +70,9 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     os.environ["kallisto_index"] = os.environ.get(genome + "_kallisto_index","")
     os.environ["BOWTIE2_INDEXES"] = os.environ.get(genome + "_bowtie2_indexes", "")
     os.environ["bowtie2_index"] = os.environ.get(genome + "_bowtie2_index", "")
-
+    os.environ["rRNA_bed"] = os.environ.get(genome + "_rRNA_bed", "")
+    os.environ["HouseKeepingGenes_bed"] = os.environ.get(genome + "_HouseKeepingGenes_bed", "")
+    os.environ["RefSeq_bed"] = os.environ.get(genome + "_RefSeq_bed", "")
 
     #used for pair-based analysis
     #dictionary with key=normal_sample, value=tumor_sample
@@ -83,13 +85,12 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
 
     group_list = _make_group_list(sample_list)
 
-
     #tools.yaml contains general configuration for all shell scripts
     #see comments in tools.yaml for more information
 
     #configuration file for current pipeline
     #contains order of steps and extra arguments to each shell script
-    specific_config_file = open("/shared/workspace/Pipelines/config/{}/{}".format(pipeline, pipeline_config_file), "r")
+    specific_config_file = open("/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config/{}/{}".format(pipeline, pipeline_config_file), "r")
     specific_config_dict = yaml.load(specific_config_file)
     specific_config_file.close()
 
@@ -521,7 +522,7 @@ def _by_all_samples_argument_generator(project_name, workflow, sample_list, inpu
     samples = []
 
     for sample in sample_list:
-        samples.append(sample.get("description"))
+        samples.append(str(sample.get("description")))
 
     samples = " ".join(samples)
 

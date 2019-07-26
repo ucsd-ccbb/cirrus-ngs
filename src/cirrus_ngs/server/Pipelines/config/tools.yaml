@@ -28,7 +28,7 @@ bwa:
     script_path: "DNASeq/bwa"
     download_suffix: ".trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
 sort:
     script_path: "DNASeq/sort"
@@ -36,15 +36,9 @@ sort:
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-dedup:
-    script_path: "DNASeq/dedup"
-    download_suffix: ".sort.bam"
-    input_is_output: True
-    can_be_zipped: False
-    uses_chromosomes: False
 split:
     script_path: "DNASeq/split"
-    download_suffix: ".dedup.bam"
+    download_suffix: ".sort.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: True 
@@ -86,33 +80,39 @@ merge_vcf_pairwise:
     can_be_zipped: False
     uses_chromosomes: False
     by_pair: True
-combine_vcf:
-    script_path: "DNASeq/bwa_gatk/group_vcf"
-    download_suffix: ".merged.g.vcf"
+group_vcf:
+    script_path: "DNASeq/group_vcf"
+    download_suffix: ".{}.g.vcf"
     input_is_output: True
     can_be_zipped: False
-    uses_chromosomes: False
+    uses_chromosomes: True
     by_group: True
 filter:
-    script_path: "DNASeq/bwa_gatk/filter"
-    download_suffix: ".vcf"
+    script_path: "DNASeq/filter"
+    download_suffix: ".{}.vcf"
+    input_is_output: True
+    can_be_zipped: True
+    uses_chromosomes: True
+    by_group: True
+sv_calling:
+    script_path: "DNASeq/bwa_sv/sv"
+    download_suffix: ".final.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
-    by_group: True
 
 # SmallRNA steps #
 cut_adapt:
     script_path: "SmallRNASeq/bowtie2/cutadapt"
     download_suffix: ~
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
 align_and_count:
     script_path: "SmallRNASeq/bowtie2/bowtie2_and_count"
-    download_suffix: ".cut{}"
+    download_suffix: ".cut.trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
 merge_counts:  # merge the count files
     script_path: "SmallRNASeq/bowtie2/miRNA_merge_counts"
@@ -227,17 +227,30 @@ star_gatk_trim:
     can_be_zipped: True
     uses_chromosomes: False
 star_gatk_align:
-    script_path: "RNASeq/star_gatk/gatk_align"
+    script_path: "RNAEditing/star_gatk/star_align"
     download_suffix: ".trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
 star_gatk_variant_calling:
-    script_path: "RNASeq/star_gatk/gatk_vc"
-    download_suffix: ".Aligned.out.bam"
+    script_path: "RNAEditing/star_gatk/gatk_vc"
+    download_suffix: ".Aligned.sortedByCoord.out.bam"
     input_is_output: True
     can_be_zipped: False
     uses_chromosomes: False
+star_gatk_variant_filtering:
+    script_path: "RNAEditing/star_gatk/gatk_filt"
+    download_suffix: "_filt.vcf"
+    input_is_output: True
+    can_be_zipped: False
+    uses_chromosomes: False
+star_gatk_variant_annotation:
+    script_path: "RNAEditing/var_anno"
+    download_suffix: "_rnaedit_sites.vcf"
+    input_is_output: False
+    can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
 star_gatk_multiqc:
     script_path: "multiqc"
     download_suffix: ""
@@ -263,7 +276,7 @@ star_htseq_align:
     script_path: "RNASeq/star_htseq/ht_align"
     download_suffix: ".trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
 star_htseq_count:
     script_path: "RNASeq/star_htseq/ht_count"

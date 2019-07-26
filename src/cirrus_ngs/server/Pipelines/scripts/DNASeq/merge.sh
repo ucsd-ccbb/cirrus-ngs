@@ -65,7 +65,7 @@ then
         aws s3 cp $input_address/$fastq_end1.final.$chrom.bam $workspace/ --quiet
         if [ "$do_vcf_merging" == "True" ]
         then
-            aws s3 cp $input_address/$fastq_end1.$chrom$file_suffix $workspace/ --quiet
+            aws s3 cp $input_address/$fastq_end1.$chrom$download_suffix $workspace/ --quiet
         fi
     done
 fi
@@ -77,7 +77,7 @@ vcf_file_list=""
 for chrom in $chromosome_list
 do
     bam_file_list=$bam_file_list"$workspace/$fastq_end1.final.$chrom.bam "
-    vcf_file_list=$vcf_file_list"$workspace/$fastq_end1.$chrom$file_suffix "
+    vcf_file_list=$vcf_file_list"$workspace/$fastq_end1.$chrom$download_suffix "
 done
 
 
@@ -85,16 +85,21 @@ done
 check_exit_status "$sambamba merge -t $num_threads $workspace/$fastq_end1.final.bam $bam_file_list" $JOB_NAME $status_file
 check_exit_status "check_outputs_exist $workspace/$fastq_end1.final.bam" $JOB_NAME $status_file
 
+echo $concat_vcf
+echo $vcf_file_list
+
 if [ "$do_vcf_merging" == "True" ]
 then
-    check_exit_status "$vcf_concat $vcf_file_list > $workspace/$fastq_end1.raw.vcf" $JOB_NAME $status_file
+    check_exit_status "$concat_vcf $vcf_file_list > $workspace/$fastq_end1.raw.vcf" $JOB_NAME $status_file
     check_exit_status "$python $vcf_sort $workspace/$fastq_end1.raw.vcf '$chromosome_list' -o $workspace/$fastq_end1.merged.g.vcf" $JOB_NAME $status_file
-    check_exit_status "check_outputs_exist $workspace/$fastq_end1.merged.g.vcf" $JOB_NAME $status_file
+    check_exit_status "$bgzip -c $workspace/$fastq_end1.merged.g.vcf > $workspace/$fastq_end1.merged.g.vcf.gz" $JOB_NAME $status_file
+    check_exit_status "$tabix -p vcf $workspace/$fastq_end1.merged.g.vcf.gz" $JOB_NAME $status_file
+    check_exit_status "check_outputs_exist $workspace/$fastq_end1.merged.g.vcf.gz" $JOB_NAME $status_file
 fi
 ##END_MERGE##
 
 ##UPLOAD##
 aws s3 cp $workspace $output_address --exclude "*" --include "$fastq_end1.final.bam" \
-    --include "$fastq_end1.merged.g.vcf" \
+    --include "$fastq_end1.merged.g.vcf.gz*" \
     --recursive --quiet
 ##END_UPLOAD##

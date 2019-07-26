@@ -67,3 +67,5 @@ if __name__ == "__main__":
             expression_values = expression_list.get(header)
             filewriter.write("\t" + expression_values)
         filewriter.write("\n")
+    
+    filewriter.close()

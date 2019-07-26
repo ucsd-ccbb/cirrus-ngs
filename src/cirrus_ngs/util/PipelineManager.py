@@ -7,11 +7,11 @@
 
 import os
 from util import YamlFileMaker
-from cfnCluster import ConnectionManager
+from awsCluster import ConnectionManager
 from util import QstatParser
 import subprocess
 
-workspace = "/shared/workspace/Pipelines/"
+workspace = "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/"
 
 
 # executing a specified pipeline with the specific yaml file
@@ -75,4 +75,4 @@ def check_status(ssh_client, step_name, pipeline, workflow, project_name,analysi
     QstatParser.check_status(ssh_client, step_name, pipeline, workflow, project_name,analysis_steps,verbose)
 
 def stop_pipeline(ssh_client):
-    ConnectionManager.execute_command(ssh_client, "bash /shared/workspace/Pipelines/util/stop_pipeline.sh")
+    ConnectionManager.execute_command(ssh_client, "bash /shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/util/stop_pipeline.sh")

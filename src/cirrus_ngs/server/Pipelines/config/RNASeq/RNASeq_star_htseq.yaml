@@ -26,7 +26,7 @@ align:
     script_path: "RNASeq/star_htseq/ht_align"
     download_suffix: ".trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
     extra_bash_args:
         - 4     # number of threads

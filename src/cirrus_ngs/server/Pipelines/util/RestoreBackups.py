@@ -1,7 +1,7 @@
 import os
 
-config_dir = "/shared/workspace/Pipelines/config"
-scripts_dir = "/shared/workspace/Pipelines/scripts"
+config_dir = "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/config"
+scripts_dir = "/shared/workspace/cirrus-ngs/src/cirrus_ngs/server/Pipelines/scripts"
 
 for path,dirs,files in os.walk(config_dir):
     for curr_file in files:
