@@ -1,12 +1,12 @@
 # Cirrus-NGS
 
-Cloud-optimized primary analysis pipelines for RNA-seq, miRNA-seq, ChIP-seq, and variant calling in whole-genome/whole-exome DNA-Seq.
+Cloud-optimized primary analysis pipelines for RNA-seq, miRNA-seq, ChIP-seq, RNAEditing and variant calling in whole-genome/whole-exome DNA-Seq.
 
 ## Introduction
 
 Bionformatic analysis of large-scale next-generation sequencing (NGS) data requires significant compute resources. While cloud computing makes such processing power available on-demand, the administration of dynamic compute clusters is a daunting task for most working biologists.  To address this pain point, the Center for Computational Biology and Bioinformatics at the University of California, San Diego, has developed Cirrus-NGS, a turn-key solution for common NGS analyses using Amazon Web Services (AWS).
 	
-Cirrus-NGS provides primary analysis pipelines for RNA-Seq, miRNA-Seq, ChIP-Seq, and whole-genome/whole-exome sequencing data.  Cirrus users need not have any bioinformatics tools for these pipelines installed on their local machine, as all computation is performed using AWS clusters and all results are uploaded to AWS's S3 remote storage.  The clusters are created dynamically through Cirrus-NGS, based on a custom machine image with all the necessary software pre-installed.  Users manage clusters and run pipelines from within a web browser, using flexible but light-weight Jupyter notebooks.
+Cirrus-NGS provides primary analysis pipelines for RNA-Seq, miRNA-Seq, ChIP-Seq, RNAEditing and whole-genome/whole-exome sequencing data.  Cirrus users need not have any bioinformatics tools for these pipelines installed on their local machine, as all computation is performed using AWS clusters and all results are uploaded to AWS's S3 remote storage.  The clusters are created dynamically through Cirrus-NGS, based on a custom machine image with all the necessary software pre-installed.  Users manage clusters and run pipelines from within a web browser, using flexible but light-weight Jupyter notebooks.
 
 ## Installation
 
@@ -35,7 +35,7 @@ Cirrus-NGS is available for linux-64 or osx-64 platforms, and requires python 3.
 In the directory in which you would like to install Cirrus-NGS, run the following commands:
 
 	conda install paramiko pyyaml git jupyter notebook
-	pip install scp cfncluster
+	pip install aws-parallelcluster
 	git clone https://github.com/ucsd-ccbb/Cirrus-NGS.git
 
 These commands install the necessary supporting libraries and create a new directory called `Cirrus-NGS` that holds the Cirrus software.
@@ -115,7 +115,7 @@ Run the following steps to define a compute cluster.  You may then use that clus
 	* You will see a list of all the Cirrus-NGS notebooks:
 
 	![Cirrus-NGS notebooks list](docs/notebooks_list.png) 
-2. Click on the `BasicCFNClusterSetup.ipynb` notebook to start it.
+2. Click on the `BasicAWSClusterSetup.ipynb` notebook to start it.
 3. Fill in the parameters in the first two cells in the notebook, using the values identified above in the [Gathering Required Inputs](#Gathering-Required-Inputs) section where relevant. <!--TODO:expand-->
 4. Run the notebook.<!--TODO:expand-->
 
@@ -123,7 +123,7 @@ Run the following steps to define a compute cluster.  You may then use that clus
 ### Running a Pipeline
 
 1. Choose the pipeline you wish to run.
-	* Cirrus-NGS currently offers pipelines for RNA-Seq, miRNA-seq, ChIP-seq, and variant calling in whole-genome/whole-exome DNA-Seq.
+	* Cirrus-NGS currently offers pipelines for RNA-Seq, miRNA-seq, ChIP-seq, RNAEditing and variant calling in whole-genome/whole-exome DNA-Seq.
 2. Create a design file for your data.
 	* The design file is a tab-separated text file with either two or three columns (depending on the workflow chosen) that specifies the names of the sequence files to process and the necessary metadata describing them.
 	* See the [Building a Design File](#Building-a-Design-File) section below for full specifications of the design file format.
