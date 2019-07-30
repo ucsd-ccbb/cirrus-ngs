@@ -14,7 +14,7 @@ def remove_reads(fastq_file, removed_reads_file, kept_reads_file):
     line = f.readline()
 
     while line:
-        if len(line.rstrip()) < 18 or len(line.rstrip()) > 25:
+        if len(line.rstrip()) < 16 or len(line.rstrip()) > 25:
             g.write(prev_header)
             g.write(line)
             g.write(f.readline())

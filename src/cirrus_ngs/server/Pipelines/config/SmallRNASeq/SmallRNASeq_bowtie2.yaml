@@ -29,8 +29,8 @@ cut_adapt:
     uses_chromosomes: False
     extra_bash_args:
         - 1     # number of threads
-        - 2    # minlengt for read
-        - "TGGAATTCTCGGGTGCCAAGG" # adapter sequence
+        - 16    # minlengt for read
+        - "TCTGGAATTCTCGGGTGCCAAGGAACTCC" # adapter sequence
 align_and_count:
     script_path: "SmallRNASeq/bowtie2/bowtie2_and_count"
     download_suffix: ".cut.trim{}"
