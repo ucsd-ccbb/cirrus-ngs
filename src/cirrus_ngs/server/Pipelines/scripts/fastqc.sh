@@ -71,3 +71,4 @@ aws s3 cp $workspace $output_address --exclude "*" --include "*_fastqc.html" --i
 ##CLEAN##
 rm -r $workspace
 ##END_CLEAN##
+
