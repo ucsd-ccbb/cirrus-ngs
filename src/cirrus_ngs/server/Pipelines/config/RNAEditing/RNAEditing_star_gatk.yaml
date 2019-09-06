@@ -6,7 +6,7 @@ steps:
    - "variant_calling"
    - "variant_filtering"
    - "variant_annotation"
-
+   - "annotation_filtering"
 fastqc:
     script_path: "fastqc"
     download_suffix: ~
@@ -52,6 +52,15 @@ variant_annotation:
     download_suffix: "_rnaedit_sites.vcf"
     input_is_output: True
     can_be_zipped: False
+    uses_chromosomes: False
+    all_samples: True
+    extra_bash_args:
+        - 4     # number of threads
+annotation_filtering:
+    script_path: "RNAEditing/anno_filt"
+    download_suffix: "_rnaedit_sites.vcf"
+    input_is_output: True
+    can_be_zipped: True
     uses_chromosomes: False
     all_samples: True
     extra_bash_args:
