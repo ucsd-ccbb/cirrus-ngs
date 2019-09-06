@@ -59,7 +59,7 @@ fi
 ##END_DOWNLOAD##
 
 ##ALIGN##
-if [ "fastq_end2" == "NULL" ]
+if [ "$fastq_end2" == "NULL" ]
 then
     check_exit_status "$bwa mem -M -t $num_threads -R '@RG\tID:1\tPL:ILLUMINA\tPU:tempID\tSM:$fastq_end1' -v 1 \
         $bwa_index $workspace/$fastq_end1$file_suffix | $samblaster | \
@@ -80,4 +80,4 @@ aws s3 cp $workspace $output_address/ --exclude "*" --include "$fastq_end1.bam" 
 
 ##CLEAN##
 rm -r $workspace
-##END_CLEAN##
+#END_CLEAN##
