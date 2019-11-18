@@ -58,7 +58,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -jar $picard_sort_sam \
         SORT_ORDER=coordinate \
 	CREATE_INDEX=true" $JOB_NAME $status_file
 
-check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk_v38 \
 	-T SplitNCigarReads \
 	-R $genome_fasta \
 	-I $workspace/$fastq_end1.Aligned.sorted.out.dedupped.bam \
@@ -71,34 +71,34 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 
 
 # INDEL REALIGNMENT
-check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk_v38 \
 	-T RealignerTargetCreator \
 	-R $genome_fasta \
 	-I $workspace/$fastq_end1.Aligned.sorted.out.dedupped.split.bam \
 	-o $workspace/$fastq_end1.output.intervals \
 	-known $mills \
-	-known $snps_1000G" $JOB_NAME $status_file
+	-known $G1000_snps" $JOB_NAME $status_file
 
-check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk_v38 \
 	-I $workspace/$fastq_end1.Aligned.sorted.out.dedupped.split.bam \
 	-R $genome_fasta \
 	-T IndelRealigner \
 	-targetIntervals $workspace/$fastq_end1.output.intervals \
 	-known $mills \
-	-known $snps_1000G \
+	-known $G1000_snps \
 	-o $workspace/$fastq_end1.Aligned.sorted.out.dedupped.split.realigned.bam" $JOB_NAME $status_file
 
 # BQSR
-check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk_v38 \
     	-T BaseRecalibrator \
     	-R $genome_fasta \
     	-I $workspace/$fastq_end1.Aligned.sorted.out.dedupped.split.realigned.bam \
     	-knownSites $dbsnp \
     	-knownSites $mills \
-    	-knownSites $snps_1000G \
+    	-knownSites $G1000_snps \
     	-o $workspace/$fastq_end1.recal_data.table" $JOB_NAME $status_file
 
-check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk_v38 \
     	-T PrintReads \
     	-R $genome_fasta \
     	-I $workspace/$fastq_end1.Aligned.sorted.out.dedupped.split.realigned.bam \
@@ -106,7 +106,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
     	-o $workspace/$fastq_end1.Aligned.sorted.out.dedupped.split.realigned.bqsr.bam" $JOB_NAME $status_file
 
 # VARIANT CALLING
-check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk_v38 \
 	-T HaplotypeCaller \
 	-R $genome_fasta \
 	-I $workspace/$fastq_end1.Aligned.sorted.out.dedupped.split.realigned.bqsr.bam \
@@ -120,7 +120,7 @@ check_exit_status "$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-nct $num_threads" $JOB_NAME $status_file
 
 # VARIANT FILTRATION
-$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk_v38 \
 	-T VariantFiltration \
 	-R $genome_fasta \
 	-V $workspace/${fastq_end1}_raw.vcf \
@@ -134,7 +134,7 @@ $java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
 	-o $workspace/${fastq_end1}_tmp.vcf
 
 # SELECT VARIANTS
-$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk \
+$java -Djava.io.tmpdir=$tempDir -Xmx15g -jar $gatk_v38 \
         -T SelectVariants \
         -R $genome_fasta \
         -V $workspace/${fastq_end1}_tmp.vcf \

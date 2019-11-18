@@ -67,6 +67,7 @@ def run_analysis(yaml_file, log_dir, pipeline_config_file):
     os.environ["genome_gtf"] = os.environ.get(genome + "_gtf", "")
     os.environ["STAR_index"] = os.environ.get(genome + "_STAR_index", "")
     os.environ["rsem_index"] = os.environ.get(genome + "_rsem_index", "")
+    os.environ["rnaediting_index"] = os.environ.get(genome + "_rnaediting_index", "")
     os.environ["kallisto_index"] = os.environ.get(genome + "_kallisto_index","")
     os.environ["BOWTIE2_INDEXES"] = os.environ.get(genome + "_bowtie2_indexes", "")
     os.environ["bowtie2_index"] = os.environ.get(genome + "_bowtie2_index", "")

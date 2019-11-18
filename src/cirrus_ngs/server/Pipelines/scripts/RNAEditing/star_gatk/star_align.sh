@@ -57,7 +57,7 @@ fi
 # Star align
 if [ "$fastq_end2" == "NULL" ]
 then
-    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_index \
+    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $rnaediting_index \
         --twopassMode Basic --readFilesIn $workspace/$fastq_end1$download_suffix \
 	--readFilesCommand zcat --quantMode GeneCounts --sjdbGTFfile $hg19_gtf \
 	--alignIntronMax 200000 --alignMatesGapMax 200000 \
@@ -69,7 +69,7 @@ then
         $JOB_NAME $status_file
 
 else
-    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $STAR_index \
+    check_exit_status "$STAR --runThreadN $num_threads --genomeDir $rnaediting_index \
         --twopassMode Basic --readFilesIn $workspace/$fastq_end1$download_suffix $workspace/$fastq_end2$download_suffix \
         --readFilesCommand zcat --quantMode GeneCounts --sjdbGTFfile $hg19_gtf \
         --alignIntronMax 200000 --alignMatesGapMax 200000 \

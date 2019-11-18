@@ -62,7 +62,7 @@ fi
 
 # RSEM converts to genome bam and sort.
 check_exit_status "$rsem_tbam2gbam $rsem_index $workspace/$fastq_end1'.transcript.bam' $workspace/$fastq_end1'.genome.bam'" $JOB_NAME $status_file   
-check_exit_status "$sambamba sort -m 2G -t $num_threads $workspace/$fastq_end1'.genome.bam' -o $workspace/$fastq_end1'.genome.sorted.bam'" $JOB_NAME $status_file
+check_exit_status "$sambamba sort --tmpdir=$workspace/tmp -m 2G -t $num_threads $workspace/$fastq_end1'.genome.bam' -o $workspace/$fastq_end1'.genome.sorted.bam'" $JOB_NAME $status_file
 check_exit_status "$samtools index $workspace/$fastq_end1'.genome.sorted.bam'" $JOB_NAME $status_file
 
 # perform RSeQC

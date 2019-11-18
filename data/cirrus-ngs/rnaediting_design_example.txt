@@ -1,0 +1,5 @@
+## design file format
+## column 1: fastq file
+## column 2: group name
+608-BM-Stem_S0_R1_001.fastq.gz,608-BM-Stem_S0_R2_001.fastq.gz	groupA
+616-BM-Prog_S0_R1_001.fastq.gz,616-BM-Prog_S0_R2_001.fastq.gz	groupA
