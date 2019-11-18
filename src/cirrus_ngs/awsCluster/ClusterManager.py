@@ -497,7 +497,7 @@ def create_aws_cluster(cluster_name="mycluster"):
     master_ip_address = ""
 
     response = os.popen("pcluster status " + cluster_name).read()
-    if response.find("CREATE_COMPLETE") > -1:
+    if response.find("CREATE_COMPLETE") > -1 or response.find("UPDATE_COMPLETE") > -1:
         print("cluster " + cluster_name + " does exist.")
         lines = re.split(r'\n+', response)
         for line in lines:
