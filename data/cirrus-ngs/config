@@ -26,5 +26,5 @@ sanity_check = true
 cluster_template = cluster
 
 [ebs custom]
-ebs_snapshot_id = snap-06d5c4bdf683365fe
+ebs_snapshot_id = snap-04519935ea0f535f3
 #volume_size = 300
