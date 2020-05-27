@@ -127,7 +127,7 @@ bowtie:
     script_path: "ChiPSeq/homer/bowtie"
     download_suffix: ".trim{}"
     input_is_output: True
-    can_be_zipped: False
+    can_be_zipped: True
     uses_chromosomes: False
 make_tag_directory:
     script_path: "ChiPSeq/homer/make_tag_directory"
