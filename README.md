@@ -17,17 +17,21 @@ Because Cirrus-NGS employs AWS for computation and storage, users must have an a
 
 ### Installing `docker`
 Since release v1.2, Cirrus-NGS is provided docker installation, users just run the below commands to pull the latest image from docker and then launch the jupiter notebook to run Cirrus-NGS.
+
 	docker pull g1xu/cirrusngs:latest
 
 Then run the below command to create a container from the image, and start the new container or you can stop it after you finish analysis.
+
 	docker run -d -p 8888:8888 -it cirrusngs bash
 	docker start <container_id>
 	docker stop <container_id>
 
 The below command allows to login the container.
+
 	docker exec -it <container_id> bash 
 
 After users login to the container, you need to go to the directory /mnt/workspace to run the below command to launch a Jupiter notebook server.
+
 	/mnt/workspace/software/anaconda3/bin/jupyter notebook --allow-root --ip 0.0.0.0 --no-browser --port=8888
 
 Finally, the Jupiter notebook server is running and you can use Cirrus-NGS.
