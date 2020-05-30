@@ -22,7 +22,7 @@ Since release v1.2, Cirrus-NGS is provided docker installation, users just run t
 
 Then run the below command to create a container from the image, and start the new container or you can stop it after you finish analysis.
 
-	docker run -d -p 8888:8888 -it cirrusngs bash
+	docker run -d -p 8888:8888 -it g1xu/cirrusngs bash
 	docker start <container_id>
 	docker stop <container_id>
 
